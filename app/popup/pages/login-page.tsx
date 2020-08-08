@@ -1,0 +1,77 @@
+import React, { useState } from "react"
+import { loadMnemonicAndSeed } from "../utils/wallet-seed"
+import Container from "@material-ui/core/Container"
+import Card from "@material-ui/core/Card"
+import CardContent from "@material-ui/core/CardContent"
+import { Typography } from "@material-ui/core"
+import TextField from "@material-ui/core/TextField"
+import Checkbox from "@material-ui/core/Checkbox"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import CardActions from "@material-ui/core/CardActions"
+import Button from "@material-ui/core/Button"
+import { useCallAsync } from "../utils/notifications"
+import Link from "@material-ui/core/Link"
+import { useBackground } from "../context/background"
+
+interface LoginPageProps {
+  goToRestore: () => void
+}
+
+export const LoginPage: React.FC<LoginPageProps> = ({ goToRestore }) => {
+  return (
+    <Container maxWidth="sm">
+      <>
+        <LoginForm />
+        <br />
+        <Link style={{ cursor: "pointer" }} onClick={goToRestore}>
+          Restore existing wallet
+        </Link>
+      </>
+    </Container>
+  )
+}
+
+const LoginForm: React.FC = () => {
+  const [password, setPassword] = useState("")
+  const [stayLoggedIn, setStayLoggedIn] = useState(false)
+  const callAsync = useCallAsync()
+  const { request } = useBackground()
+
+  function submit() {
+    callAsync(request("popup_unlockWallet", { password }), {
+      progressMessage: "Unlocking wallet...",
+      successMessage: "Wallet unlocked",
+    })
+  }
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h5" gutterBottom>
+          Unlock Wallet
+        </Typography>
+        <TextField
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)} />
+          }
+          label="Keep wallet unlocked"
+        />
+      </CardContent>
+      <CardActions style={{ justifyContent: "flex-end" }}>
+        <Button color="primary" onClick={submit}>
+          Unlock
+        </Button>
+      </CardActions>
+    </Card>
+  )
+}

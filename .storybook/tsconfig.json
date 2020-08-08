@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // We need to emit stuff for ts-loader used by Storybook work correctly
+    "noEmit": false,
+
+    // We need React parsing of JSX so loader can treat them correctly
+    "jsx": "react"
+  },
+  "types": [
+    //(various types, e.g. jquery, core-js),
+    "chrome"
+  ]
+}
