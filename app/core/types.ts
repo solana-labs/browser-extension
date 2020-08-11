@@ -51,6 +51,7 @@ export type WallActions =
   | "wallet_signTransaction"
   | "wallet_requestAccounts"
   | "wallet_getCluster"
+  | "wallet_getState"
 
 export type PopupActions =
   | "popup_getState"
@@ -84,10 +85,15 @@ export type SecretBox = {
   digest: string //sha256
 }
 
+export type State = {
+  locked: boolean
+}
+
 export type Notification =
   | NotificationNetworkChanged
   | NotificationAccountsChanged
   | NotificationPopupStateChanged
+  | NotificationStateChanged
 
 export type NotificationNetworkChanged = {
   type: "clusterChanged"
@@ -102,4 +108,9 @@ export type NotificationAccountsChanged = {
 export type NotificationPopupStateChanged = {
   type: "popupStateChanged"
   data: PopupState
+}
+
+export type NotificationStateChanged = {
+  type: "stateChanged"
+  data: State
 }

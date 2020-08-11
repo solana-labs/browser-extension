@@ -38,3 +38,7 @@ Follow the links IDE to fromat on save using Prettier:
 - Open chrome dev tools (background, popup or content-script)
 - Go to Application
 - Add a Local Storage entry: Key:debug, Value:*
+
+## Disable JS minification
+
+`config.optimization.minimize = false` in `rewire-webex.js`

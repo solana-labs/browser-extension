@@ -22,7 +22,11 @@ export default function createOriginMiddleware(opts: { origin: string; store: St
       return
     }
 
-    if (req.method == "wallet_requestAccounts" || req.method == "wallet_getCluster") {
+    if (
+      req.method === "wallet_requestAccounts" ||
+      req.method === "wallet_getCluster" ||
+      req.method === "wallet_getState"
+    ) {
       log("letting through: ", req.method)
       next()
       return

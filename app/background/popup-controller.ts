@@ -45,6 +45,10 @@ export class PopupController {
           log("Handling popup_unlockWallet")
           try {
             await this.store.unlockSecretBox(req.params.password)
+            this._notifyAll({
+              type: "stateChanged",
+              data: { locked: false },
+            })
           } catch (err) {
             log("error: popup_unlockWallet failed  with error: %s", err)
             res.error = err

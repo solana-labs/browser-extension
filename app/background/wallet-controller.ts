@@ -58,6 +58,10 @@ export class WalletController {
         case "wallet_getCluster":
           res.result = this.store.selectedNetwork.endpoint
           break
+        case "wallet_getState":
+          res.result = { locked: !this.store.isUnlocked() }
+          log("wallet_getState returned:", { locked: !this.store.isUnlocked() })
+          break
         default:
           log("wallet controller unknown method name [%s] with params: %o", req.method, req.params)
           // when this promise resolves, the response is on its way back

@@ -56,7 +56,8 @@
         </tr>
     </table>
     <hr/>
-    <p id="demo-status">Waiting for accounts ...</p>
+    <p id="demo-status">Waiting for wallet ...</p>
+    <p id="demo-active-account">Waiting for accounts ...</p>
 </div>
 
 <div class="block" id="transfer-section" style="display: none">
@@ -129,16 +130,29 @@
       updateNetworkAddress(cluster.endpoint)
     })
 
+    window.solana.on("stateChanged", function(state) {
+      console.log("dapp got stateChanged:", state)
+      updateState(state)
+    })
+
     window.solana.on("accountsChanged", function(accounts) {
       console.log("dapp got accountsChanged:", accounts)
       updateFromAccount(accounts)
     })
 
-    window.solana.request({method:"wallet_getCluster"})
+    window.solana.request({method:"wallet_getState"})
     .then(resp => {
-      updateNetworkAddress(resp.result)
-      requestAccounts()
+      updateState(resp.result)
     })
+  }
+
+  function requestCluster() {
+    window.solana.request({method:"wallet_getCluster"})
+        .then(resp => {
+          updateNetworkAddress(resp.result)
+          requestAccounts()
+        })
+
   }
 
   function requestAccounts() {
@@ -152,7 +166,7 @@
 
       console.log("got accounts:", resp.result.accounts)
       updateFromAccount(resp.result.accounts)
-      document.getElementById("demo-status").innerText = "Logged in!"
+      document.getElementById("demo-active-account").innerText = resp.result.accounts[0]
       document.getElementById("transfer-section").style.display = "block"
 
       setInterval(function() {
@@ -172,6 +186,16 @@
     connection = new solanaWeb3.Connection(address) //todo: Get network url
     document.getElementById("network-address").innerText = address
   }
+
+  function updateState(state){
+    console.log("updating state:", state)
+    let status = "Wallet locked"
+    if (!state.locked) {
+      requestCluster()
+      status = "Wallet unlocked"
+    }
+    document.getElementById("demo-status").innerText = status
+  }  
 
   function updateFromAccount(accounts) {
     var select = document.getElementById("from-select")
