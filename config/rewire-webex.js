@@ -3,6 +3,7 @@ const paths = require("react-scripts/config/paths")
 const ManifestPlugin = require("webpack-manifest-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const WebpackExtensionManifestPlugin = require("webpack-extension-manifest-plugin")
+const CopyPlugin = require("copy-webpack-plugin")
 
 const appPackageJson = require(paths.appPackageJson)
 
@@ -157,7 +158,18 @@ function createWebexRewire(params) {
       )
 
       // add web extention manifest plugin
-      config.plugins = [...config.plugins, getWebpackExtensionManifestPlugin()]
+      config.plugins = [
+        ...config.plugins,
+        getWebpackExtensionManifestPlugin(),
+        new CopyPlugin({
+          patterns: [
+            {
+              from: "icons",
+              to: "icons",
+            },
+          ],
+        }),
+      ]
 
       return config
     },

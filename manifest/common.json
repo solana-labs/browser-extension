@@ -2,10 +2,12 @@
   "name": "solana extension",
   "version": "1.0",
   "manifest_version": 2,
-  "permissions": ["storage", "activeTab"],
-  "externally_connectable": {
-    "matches": ["*://Charless-MacBook-Pro.local/*"]
+  "icons": {
+    "16": "icons/solana-16.png",
+    "48": "icons/solana-48.png",
+    "128": "icons/solana-128.png"
   },
+  "permissions": ["storage", "activeTab"],
   "browser_action": {
     "default_popup": "index.html"
   },

@@ -62,7 +62,7 @@ export const NavigationFrame: React.FC = ({ children }) => {
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title} component="h1">
-            Solana SPL Token Wallet
+            Solana Wallet
           </Typography>
           <WalletSelector
             accounts={popupState?.accounts || []}
@@ -77,32 +77,6 @@ export const NavigationFrame: React.FC = ({ children }) => {
               changeNetwork={changeNetwork}
             />
           )}
-
-          <Hidden xsDown>
-            <Button
-              component="a"
-              color="inherit"
-              target="_blank"
-              rel="noopener"
-              href="https://github.com/serum-foundation/spl-token-wallet"
-              className={classes.button}
-            >
-              Source
-            </Button>
-          </Hidden>
-          <Hidden smUp>
-            <Tooltip title="View Source" arrow>
-              <IconButton
-                component="a"
-                color="inherit"
-                target="_blank"
-                rel="noopener"
-                href="https://github.com/serum-foundation/spl-token-wallet"
-              >
-                <CodeIcon />
-              </IconButton>
-            </Tooltip>
-          </Hidden>
         </Toolbar>
       </AppBar>
       <main className={classes.content}>{children}</main>
