@@ -1,7 +1,6 @@
 import { AccountInfo, PublicKey } from "@solana/web3.js"
 
 export type BalanceInfo = {
-  publicKey: PublicKey
   amount: bigint
   decimals: number
   mint?: PublicKey
@@ -12,9 +11,9 @@ export type BalanceInfo = {
   lamports: bigint
 }
 
-export type OwnedAccount = {
+export type OwnedAccount<T> = {
   publicKey: PublicKey
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo<T>
 }
 
 export type MnemonicAndSeed = {

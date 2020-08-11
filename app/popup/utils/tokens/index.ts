@@ -26,7 +26,7 @@ type getProgramAccountsResp = {
 export const getOwnedTokenAccounts = async (
   connection: any,
   publicKey: PublicKey
-): Promise<OwnedAccount[]> => {
+): Promise<OwnedAccount<Buffer>[]> => {
   let filters = getOwnedAccountsFilters(publicKey)
   let resp = await connection._rpcRequest("getProgramAccounts", [
     TOKEN_PROGRAM_ID.toBase58(),
@@ -52,7 +52,7 @@ export const getOwnedTokenAccounts = async (
             owner: new PublicKey(owner),
             lamports,
           },
-        } as OwnedAccount)
+        } as OwnedAccount<Buffer>)
     )
     .filter(({ accountInfo }) => {
       // TODO: remove this check once mainnet is updated

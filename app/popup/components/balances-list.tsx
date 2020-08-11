@@ -3,7 +3,11 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import { useAllBalanceInfosForAccount, useSolanaExplorerUrlSuffix } from "../hooks"
+import {
+  useAllAccountsForPublicKey,
+  useBalanceInfo,
+  useSolanaExplorerUrlSuffix
+} from "../hooks"
 import { LoadingIndicator } from "./loading-indicator"
 import Collapse from "@material-ui/core/Collapse"
 import { Typography } from "@material-ui/core"
@@ -21,7 +25,7 @@ import Toolbar from "@material-ui/core/Toolbar"
 import RefreshIcon from "@material-ui/icons/Refresh"
 import IconButton from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
-import { PublicKey } from "@solana/web3.js"
+import { AccountInfo, PublicKey } from "@solana/web3.js"
 import { AuthorizeTransactionDialog } from "./dialogs/authorize-transaction-dialog"
 import { useBackground } from "../context/background"
 import { BalanceInfo } from "../types"
@@ -47,9 +51,9 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
   const { popupState } = useBackground()
 
   const publicKey = new PublicKey(account)
-  const balanceInfos = useAllBalanceInfosForAccount(publicKey)
+  const ownedAccounts = useAllAccountsForPublicKey(publicKey)
 
-  log("rendering balance list: %o", balanceInfos)
+  log("rendering balance list: %o", ownedAccounts)
 
   const [pendingSignTransaction, setPendingSignTransaction] = useState<PendingSignTransaction>()
   const [pendingRequestAccounts, setPendingRequestAccount] = useState<PendingRequestAccounts>()
@@ -97,8 +101,8 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
         </Toolbar>
       </AppBar>
       <List disablePadding>
-        {balanceInfos.map((balanceInfo) => (
-          <BalanceListItem key={balanceInfo.publicKey.toBase58()} balanceInfo={balanceInfo} />
+        {ownedAccounts.map((ownedAccount) => (
+          <BalanceListItem key={ownedAccount.publicKey.toBase58()} publicKey={ownedAccount.publicKey} accountInfo={ownedAccount.accountInfo} />
         ))}
       </List>
       {pendingSignTransaction && (
@@ -138,10 +142,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface BalanceListItemProps {
-  balanceInfo: BalanceInfo
+  publicKey: PublicKey
+  accountInfo: AccountInfo<Buffer>
 }
 
-const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
+const BalanceListItem: React.FC<BalanceListItemProps> = ({ publicKey, accountInfo }) => {
+  const balanceInfo = useBalanceInfo(publicKey, accountInfo)
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const classes = useStyles()
   const [open, setOpen] = useState(false)
@@ -168,7 +174,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
               {tokenSymbol ?? (mint && abbreviateAddress(mint))}
             </>
           }
-          secondary={balanceInfo.publicKey.toBase58()}
+          secondary={publicKey.toBase58()}
           secondaryTypographyProps={{ className: classes.address }}
         />
         {open ? <ExpandLess /> : <ExpandMore />}
@@ -176,7 +182,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
       <Collapse in={open} timeout="auto" unmountOnExit>
         <div className={classes.itemDetails}>
           <div className={classes.buttonContainer}>
-            <CopyToClipboard text={balanceInfo.publicKey.toBase58()}>
+            <CopyToClipboard text={publicKey.toBase58()}>
               <Button variant="outlined" color="primary" startIcon={<AttachmentIcon />}>
                 Copy Addr
               </Button>
@@ -191,7 +197,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
             </Button>
           </div>
           <Typography variant="body2" className={classes.address}>
-            Deposit Address: {balanceInfo.publicKey.toBase58()}
+            Deposit Address: {publicKey.toBase58()}
           </Typography>
           <Typography variant="body2">Token Name: {tokenName ?? "Unknown"}</Typography>
           <Typography variant="body2">Token Symbol: {tokenSymbol ?? "Unknown"}</Typography>
@@ -203,7 +209,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
           <Typography variant="body2">
             <Link
               href={
-                `https://explorer.solana.com/account/${balanceInfo.publicKey.toBase58()}` +
+                `https://explorer.solana.com/account/${publicKey.toBase58()}` +
                 urlSuffix
               }
               target="_blank"
@@ -219,7 +225,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ balanceInfo }) => {
           open={sendDialogOpen}
           onClose={() => setSendDialogOpen(false)}
           balanceInfo={balanceInfo}
-          publicKey={balanceInfo.publicKey}
+          publicKey={publicKey}
         />
       )}
     </>

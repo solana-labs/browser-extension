@@ -18,6 +18,8 @@ module.exports = {
       ],
     })
     config = rewireWebEx.webpack(config, env)
+    // do not mimify, remove for PRODUCTION temp fix
+    config.optimization.minimize = false
     return config
   },
   // The paths config to use when compiling your react app for development or production.

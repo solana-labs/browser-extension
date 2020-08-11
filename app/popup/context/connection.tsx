@@ -17,7 +17,6 @@ export function ConnectionProvider(props: React.PropsWithChildren<{}>) {
     () => new Connection(popupState?.selectedNetwork.endpoint || "", "single"),
     [popupState?.selectedNetwork.endpoint]
   )
-  log("Connection context rendered: %o", connection)
 
   return (
     <ConnectionContext.Provider value={{ connection }}>{props.children}</ConnectionContext.Provider>

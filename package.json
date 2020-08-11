@@ -5,7 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
-    "@solana/web3.js": "^0.64.0",
+    "@solana/web3.js": "0.68.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@types/pump": "^1.1.0",
@@ -37,7 +37,7 @@
     "clean": "rm -rf build/ dist/",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "package": "npm-run-all clean build zip-extension", 
+    "package": "npm-run-all clean build zip-extension",
     "zip-extension": "mkdir dist; pushd build; zip -r ../dist/chrome-extension-latest.zip .; popd",
     "test": "react-app-rewired test"
   },

@@ -1,14 +1,15 @@
 import { useEffect } from "react"
-import { AccountInfo, clusterApiUrl, Connection, PublicKey, TokenAccount } from "@solana/web3.js"
+import { AccountInfo, clusterApiUrl, Connection, PublicKey } from "@solana/web3.js"
 import { refreshCache, setCache, useAsyncData } from "../utils/fetch-loop"
 import { useConnection } from "../context/connection"
 import { Wallet } from "../models/wallet"
 import { TOKEN_PROGRAM_ID } from "../utils/tokens/instructions"
 import { parseMintData, parseTokenAccountData } from "../utils/tokens/data"
-import { BalanceInfo } from "../types"
+import { BalanceInfo, OwnedAccount } from "../types"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import { tuple } from "immutable-tuple"
 import { useBackground } from "../context/background"
+import { Buffer } from "buffer"
 
 const log = require("debug")("sol:hooks")
 const bip32 = require("bip32")
@@ -23,12 +24,76 @@ export const useSolanaExplorerUrlSuffix = (): string => {
   return ""
 }
 
-export const useAccountInfo = (publicKey: PublicKey | null): [AccountInfo | null, boolean] => {
+export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
+  const [externalAccountInfo, externalAccountInfoLoaded] = useAccountInfo(publicKey)
+  const storagedAcountInfo = useTokenAccountsByOwner(publicKey)
+
+  let out: OwnedAccount<Buffer>[] = []
+  if (externalAccountInfoLoaded && externalAccountInfo) {
+    out = [{
+      publicKey: publicKey,
+      accountInfo: externalAccountInfo
+    } as OwnedAccount<Buffer>]
+  }
+
+  if (storagedAcountInfo.length > 0) {
+    out = [...out, ...storagedAcountInfo]
+  }
+
+  return out
+}
+
+export const useBalanceInfo = (publicKey: PublicKey, accountInfo: AccountInfo<Buffer>): BalanceInfo | null => {
+  const { mint, owner, amount } = accountInfo?.owner.equals(TOKEN_PROGRAM_ID)
+    ? parseTokenAccountData(accountInfo.data)
+    : { mint: null, owner: null, amount: BigInt(0) }
+  const [mintInfo, mintInfoLoaded] = useAccountInfo(mint)
+
+  if (accountInfo && mint && mintInfo && mintInfoLoaded && owner) {
+    let { decimals } = parseMintData(mintInfo.data)
+    return {
+      amount,
+      decimals,
+      mint,
+      owner,
+      initialized: true,
+      lamports: BigInt(accountInfo?.lamports ?? 0),
+    }
+  } else if (accountInfo && !mint) {
+    return {
+      amount: BigInt(accountInfo?.lamports ?? 0),
+      decimals: 9,
+      mint: undefined,
+      owner: publicKey,
+      tokenName: "",
+      tokenSymbol: "SOL",
+      initialized: false,
+      lamports: BigInt(accountInfo?.lamports ?? 0),
+    }
+  } else {
+    return null
+  }
+}
+
+export const useAccountInfo = (publicKey: PublicKey | null): [AccountInfo<Buffer> | null, boolean] => {
   const { connection } = useConnection()
   const cacheKey = tuple(connection, publicKey?.toBase58())
-  log("useAccountInfo cache key: %s for account: %s", cacheKey, publicKey?.toBase58())
-  const [accountInfo, loaded] = useAsyncData<AccountInfo | null>(
-    async () => (publicKey ? connection.getAccountInfo(publicKey) : null),
+
+  const [accountInfo, loaded] = useAsyncData<AccountInfo<Buffer> | null>(
+    async () => {
+      log("getting account info: %s", publicKey?.toBase58())
+      if (!publicKey) {
+        return null
+      }
+      try {
+        const resp =connection.getAccountInfo(publicKey)
+        log("received account information by owner %s: %O",publicKey.toBase58(), resp)
+        return resp
+      }catch (e) {
+        log("error retrieving accounts information %s: %s", publicKey.toBase58(), e)
+        return null
+      }
+    },
     cacheKey
   )
 
@@ -44,95 +109,35 @@ export const useAccountInfo = (publicKey: PublicKey | null): [AccountInfo | null
   return [accountInfo, loaded]
 }
 
-export const useAllBalanceInfosForAccount = (publicKey: PublicKey): BalanceInfo[] => {
-  const mainBalanceInfo = useBalanceInfo(publicKey)
-  const otherBalanceInfo = useTokenAccountsByOwner(publicKey)
-
-  let out: BalanceInfo[] = []
-  if (mainBalanceInfo) {
-    out = [mainBalanceInfo]
-  }
-
-  if (otherBalanceInfo.length > 0) {
-    out = [...out, ...otherBalanceInfo]
-  }
-
-  return out
-}
-
-export const useTokenAccountsByOwner = (publicKey: PublicKey): BalanceInfo[] => {
+export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
   const { connection } = useConnection()
   const cacheKey = tuple(connection, publicKey.toBase58(), "tokenAccountsByOwner")
-  log("useTokenAccountsByOwner cache key: %s for account: %s", cacheKey, publicKey?.toBase58())
-
   const [fetchedAccounts, loaded] = useAsyncData<
-    Array<{ pubkey: PublicKey; account: TokenAccount }>
+    Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>
   >(async () => {
-    const resp = await connection.getTokenAccountsByOwner(publicKey, {
-      programId: TOKEN_PROGRAM_ID,
-    })
-    return resp.value
-  }, cacheKey)
+    log("getting get token account by owner %s",publicKey.toBase58() )
+    try {
+      const resp = await connection.getTokenAccountsByOwner(publicKey, {
+        programId: TOKEN_PROGRAM_ID,
+      })
+      log("received tokens by owner %s %O",publicKey.toBase58(), resp.value)
+      return resp.value
+    }catch (e) {
+      log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), e)
+      return []
+    }
+  },cacheKey)
 
   if (!loaded) {
+    log("could not load token by owner %s", publicKey.toBase58())
     return []
   }
-  return fetchedAccounts.map((el) => {
+  return fetchedAccounts.map( a =>{
     return {
-      publicKey: el.pubkey,
-      amount: BigInt(el.account.data.amount),
-      decimals: 0,
-      mint: el.account.data.mint,
-      owner: el.account.data.owner,
-      initialized: true,
-      lamports: BigInt(el.account.lamports ?? 0),
-    } as BalanceInfo
+      publicKey: a.pubkey,
+      accountInfo: a.account
+    } as OwnedAccount<Buffer>
   })
-}
-
-export const useWalletPublicKeys = (wallet: Wallet): [PublicKey[], boolean] => {
-  const [tokenPublicKeys, loaded] = useAsyncData<PublicKey[]>(
-    wallet.getTokenPublicKeys,
-    wallet.getTokenPublicKeys
-  )
-
-  let publicKeys = [wallet.account.publicKey, ...(tokenPublicKeys ?? [])]
-  return [publicKeys, loaded]
-}
-
-export const useBalanceInfo = (publicKey: PublicKey): BalanceInfo | null => {
-  const [accountInfo, accountInfoLoaded] = useAccountInfo(publicKey)
-  const { mint, owner, amount } = accountInfo?.owner.equals(TOKEN_PROGRAM_ID)
-    ? parseTokenAccountData(accountInfo.data)
-    : { mint: null, owner: null, amount: BigInt(0) }
-  const [mintInfo, mintInfoLoaded] = useAccountInfo(mint)
-
-  if (accountInfoLoaded && mint && mintInfo && mintInfoLoaded && owner) {
-    let { decimals } = parseMintData(mintInfo.data)
-    return {
-      publicKey: publicKey,
-      amount,
-      decimals,
-      mint,
-      owner,
-      initialized: true,
-      lamports: BigInt(accountInfo?.lamports ?? 0),
-    }
-  } else if (accountInfoLoaded && !mint) {
-    return {
-      publicKey: publicKey,
-      amount: BigInt(accountInfo?.lamports ?? 0),
-      decimals: 9,
-      mint: undefined,
-      owner: publicKey,
-      tokenName: "",
-      tokenSymbol: "SOL",
-      initialized: false,
-      lamports: BigInt(accountInfo?.lamports ?? 0),
-    }
-  } else {
-    return null
-  }
 }
 
 export function refreshAccountInfo(
@@ -147,7 +152,7 @@ export function refreshAccountInfo(
 export function setInitialAccountInfo(
   connection: Connection,
   publicKey: PublicKey,
-  accountInfo: AccountInfo
+  accountInfo: AccountInfo<Buffer>
 ) {
   const cacheKey = tuple(connection, publicKey.toBase58())
   setCache(cacheKey, accountInfo, { initializeOnly: true })

@@ -1570,10 +1570,10 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
-"@solana/web3.js@^0.64.0":
-  version "0.64.0"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.64.0.tgz#c3bf74c7e3f33696003cf6dd852074880ac520b1"
-  integrity sha512-DlNzAXgNdk7k4Pt6CfcaAutaiXJiog9hxswtzItf0q/0/Um8JvDI1YjnMONE3IKI/jyjmTaxhsQHWAQE42KofQ==
+"@solana/web3.js@0.68.0":
+  version "0.68.0"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.68.0.tgz#8493418415cd3cb31c1b850079e38714d9a9f8f5"
+  integrity sha512-UkzLgBVHztUHzYnXlYdSp6Lc/NJi4B3qBPc/MV6lBbr9d6WISwrfUb1YmkLBEcnvmkXITZwePSgfoRkdIC3CoA==
   dependencies:
     "@babel/runtime" "^7.3.1"
     bn.js "^5.0.0"
@@ -1996,9 +1996,9 @@
   integrity sha512-7+2BITlgjgDhH0vvwZU/HZJVyk+2XUlvxXe8dFMedNX/aMkaOq++rMAFXc0tM7ij15QaWlbdQASBR9dihi+bDQ==
 
 "@types/lodash@^4.14.139":
-  version "4.14.158"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.158.tgz#b38ea8b6fe799acd076d7a8d7ab71c26ef77f785"
-  integrity sha512-InCEXJNTv/59yO4VSfuvNrZHt7eeNtWQEgnieIA+mIC+MOWM9arOWG2eQ8Vhk6NbOre6/BidiXhkZYeDY9U35w==
+  version "4.14.159"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.159.tgz#61089719dc6fdd9c5cb46efc827f2571d1517065"
+  integrity sha512-gF7A72f7WQN33DpqOWw9geApQPh4M3PxluMtaHxWHXEGSN12/WbcEk/eNSqWNQcQhF66VSZ06vCF94CrHwXJDg==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -2026,9 +2026,9 @@
   integrity sha512-Exw4yUWMBXM3X+8oqzJNRqZSwUAaS4+7NdvHqQuFi/d+synz++xmX3QIf+BFqneW8N31R8Ky+sikfZUXq07ggQ==
 
 "@types/node@^12.7.7":
-  version "12.12.53"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.53.tgz#be0d375933c3d15ef2380dafb3b0350ea7021129"
-  integrity sha512-51MYTDTyCziHb70wtGNFRwB4l+5JNvdqzFSkbDvpbftEgVUBEE+T5f7pROhWMp/fxp07oNIEQZd5bbfAH22ohQ==
+  version "12.12.54"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.54.tgz#a4b58d8df3a4677b6c08bfbc94b7ad7a7a5f82d1"
+  integrity sha512-ge4xZ3vSBornVYlDnk7yZ0gK6ChHf/CHB7Gl1I0Jhah8DDnEQqBzgohYG4FX4p81TNirSETOiSyn+y1r9/IR6w==
 
 "@types/parse-json@^4.0.0":
   version "4.0.0"

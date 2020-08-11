@@ -1,5 +1,7 @@
 import assert from "assert"
 import { useEffect, useReducer } from "react"
+import { createLogger } from "../../core/utils"
+const log = createLogger("sol:cache")
 
 const pageLoadTime: Date = new Date()
 
