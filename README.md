@@ -18,9 +18,9 @@ cd ./test/wapp
 python3 -m http.server
 ```
 
-### Configuring IDE
+## Configuring IDE
 
-#### Prettier
+### Prettier
 
 This project expects all contributors to have a suitable format on save that uses Prettier
 config to run.
@@ -32,3 +32,9 @@ Follow the links IDE to fromat on save using Prettier:
 - [Emacs](https://prettier.io/docs/en/editors.html#emacs)
 - [Vim](https://prettier.io/docs/en/editors.html#vim)
 - [Others](https://prettier.io/docs/en/editors.html)
+
+## Enable debug
+
+- Open chrome dev tools (background, popup or content-script)
+- Go to Application
+- Add a Local Storage entry: Key:debug, Value:*
