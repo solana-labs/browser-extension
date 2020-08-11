@@ -1,47 +1,21 @@
-# solana-chrome-extension
+# browser-extension
 
-## Start dev env
+## Build extension
 
-`yarn watch`
+`yarn build`
 
 ## Add extension to Chrome
 
 - Go to chrome://extensions
 - Enable developer mode
 - Click "Load Unpacked"
-- Browse to this project `./dist`, hit select
-- Keep this tab open!
-- Pin the extension
+- Browse to this project `./build`, hit select
 
-## Start Wapp
+## Run test web app
 
 ```bash
 cd ./test/wapp
 python3 -m http.server
-```
-
-```json
-{
- entities:
-
-}
-```
-
-user needs to submit
-
-- logged into his wallet
-- create sub accounts for each table
-
-```
-{
-  entities: {
-    accounts: {
-      byProgramId: {
-        "
-      }
-    },
-  },
-}
 ```
 
 ### Configuring IDE
@@ -58,7 +32,3 @@ Follow the links IDE to fromat on save using Prettier:
 - [Emacs](https://prettier.io/docs/en/editors.html#emacs)
 - [Vim](https://prettier.io/docs/en/editors.html#vim)
 - [Others](https://prettier.io/docs/en/editors.html)
-
-# to help debug
-
-yarn link obj-multiplex
