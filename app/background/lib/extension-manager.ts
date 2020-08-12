@@ -3,8 +3,8 @@ import { createLogger } from "../../core/utils"
 
 const log = createLogger("sol:ext")
 
-const NOTIFICATION_HEIGHT = 620
-const NOTIFICATION_WIDTH = 360
+const NOTIFICATION_HEIGHT = 600
+const NOTIFICATION_WIDTH = 470
 
 export class ExtensionManager {
   private platform: any
