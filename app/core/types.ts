@@ -58,6 +58,7 @@ export type WallActions =
   | "wallet_requestAccounts"
   | "wallet_getCluster"
   | "wallet_getState"
+  | "wallet_test"
 
 export type PopupActions =
   | "popup_getState"

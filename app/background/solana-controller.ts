@@ -11,6 +11,7 @@ import { createLogger, createObjectMultiplex } from "../core/utils"
 import { ENVIRONMENT_TYPE_POPUP, Notification, PopupState, StoredData } from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
 import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
+import { Decoder } from "../core/decoder"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -39,10 +40,12 @@ export default class SolanaController {
     log("Setting up Solana Controller")
     const { storedData, persistData } = opts
     const store = new Store(storedData)
+    const decoder = new Decoder()
     this.store = store
     this.extensionManager = new ExtensionManager()
     this.walletController = new WalletController({
       store,
+      decoder,
       openPopup: this.triggerUi.bind(this),
     })
     this.popupController = new PopupController({
@@ -51,6 +54,7 @@ export default class SolanaController {
     })
     this.connections = {}
     this.persistData = persistData
+
     this.saveStore()
   }
 

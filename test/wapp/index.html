@@ -64,13 +64,13 @@
     <h1 id="display-transfer">Transfer</h1>
     <h3 id="current-slot">Last Processed Slot: •••</h3>
     <hr/>
+    <a href="#" id="test-btn"onclick="testController();">test</a>
     <form id="transfer">
         <table>
             <tr>
                 <td>
                     <label>from:</label><br/>
                     <select name="from" id="from-select">
-
                     </select>
                 </td>
             </tr>
@@ -146,6 +146,29 @@
     })
   }
 
+  function testController() {
+    console.log("testing controller")
+    const transaction = solanaWeb3.SystemProgram.transfer({
+      fromPubkey: new solanaWeb3.PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC"),
+      toPubkey: new solanaWeb3.PublicKey("93SAZ1evjXQvAvLqi4rgyvfa7evoGRPbnebAa3k6QWkq"),
+      lamports: 2 * solanaWeb3.LAMPORTS_PER_SOL
+    })
+    connection.getRecentBlockhash("max").then(rep => {
+      transaction.recentBlockhash = rep.blockhash
+      const serializedMessage = transaction.serializeMessage()
+      window.solana.request({
+        method: "wallet_test",
+        params: {
+          message: bs58.encode(serializedMessage)
+        }
+      }).then(data => {
+        console.log("test data: ", data)
+      }).catch(err => {
+        console.log("test err: ", err)
+      })
+    })
+  }
+
   function requestCluster() {
     window.solana.request({method:"wallet_getCluster"})
         .then(resp => {
@@ -181,6 +204,26 @@
     })
   }
 
+  // function sendDexOrder() {
+  //   // returns a packed transaction
+  //   const trx = NewOrder({
+  //     owner,
+  //     payer,
+  //     side: 'buy', // 'buy' or 'sell'
+  //     price: 123.45,
+  //     size: 17.0,
+  //     orderType: 'limit', // 'limit', 'ioc', 'postOnly'
+  //   })
+  //   window.solana.request({
+  //     method: "wallet_signTransaction",
+  //     params: {
+  //       message: bs58.encode(trx.serializeMessage())
+  //     }
+  //   }).then(data => {
+  //
+  //   })
+  // }
+
   function updateNetworkAddress(address){
     console.log("updating network address to:", address)
     connection = new solanaWeb3.Connection(address) //todo: Get network url
@@ -195,7 +238,7 @@
       status = "Wallet unlocked"
     }
     document.getElementById("demo-status").innerText = status
-  }  
+  }
 
   function updateFromAccount(accounts) {
     var select = document.getElementById("from-select")
@@ -237,10 +280,10 @@
 
         console.log("promised returned signature: ", bs58.decode(data.result.signature))
         transaction.addSignature(fromPubKey, bs58.decode(data.result.signature))
-
+        //transaction.addSignature(owner, bs58.decode(data.result.signature))
         document.getElementById("tx-status").innerText = "Waiting for signature"
-
-        connection.sendRawTransaction(transaction.serialize())
+        const trxSerialize = transaction.serialize()
+        connection.sendRawTransaction(trxSerialize)
                   .then(signature => {
             let sigNode = `<a target="_blank" href="https://explorer.solana.com/tx/${signature}?cluster=testnet">${signature}</a>`
             document.getElementById("tx-signature").innerHTML = sigNode

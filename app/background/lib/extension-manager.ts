@@ -41,7 +41,7 @@ export class ExtensionManager {
       }
       // create new notification popup
       const popupWindow = await this.platform.openWindow({
-        url: "index.html#authTransaction/2",
+        url: "index.html",
         type: "popup",
         width: NOTIFICATION_WIDTH,
         height: NOTIFICATION_HEIGHT,

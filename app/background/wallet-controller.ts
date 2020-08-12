@@ -1,12 +1,17 @@
 import { Store } from "./store"
-import { createLogger } from "../core/utils"
+import { createLogger, decodeSerializedMessage } from "../core/utils"
 import { RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
+import bs58 from "bs58"
+import { SystemProgram, PublicKey, LAMPORTS_PER_SOL, SystemInstruction, Transaction } from '@solana/web3.js';
+import { Buffer } from "buffer"
+import { Decoder } from "../core/decoder"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
 
 interface WalletControllerOpt {
   store: Store
+  decoder: Decoder
   openPopup: () => Promise<void>
 }
 
@@ -18,11 +23,14 @@ interface MiddlewareOpts {
 export class WalletController {
   private store: Store
   private openPopup: any
+  private decoder: Decoder
 
   constructor(opts: WalletControllerOpt) {
     log("wallet controller constructor")
-    this.store = opts.store
-    this.openPopup = opts.openPopup
+    const { store, openPopup, decoder } = opts
+    this.store = store
+    this.openPopup = openPopup
+    this.decoder = decoder
   }
 
   createMiddleware(opts: MiddlewareOpts) {
@@ -35,6 +43,8 @@ export class WalletController {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
       const method = req.method as WallActions
       switch (method) {
+        case "wallet_test":
+          this._handleTest(req)
         case "wallet_requestAccounts":
           try {
             let resp = await this._handleRequestAccounts(req)
@@ -71,6 +81,30 @@ export class WalletController {
     })
   }
 
+  _handleTest = (req: any) => {
+    const {
+      tabId,
+      params: { message },
+    } = req
+    log("Handling sign transaction tabId: %s message: %s", tabId, message)
+    try {
+      const decodedMessage = bs58.decode(message)
+      const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
+      const trx = Transaction.populate(trxMessage,[])
+      log("transaction: %O",trx)
+      const details = this.decoder.decode(trx)
+      if (details) {
+        log("Transaction details: %O", details)
+      } else {
+        log("Could not determine transaction details")
+      }
+    }catch (e) {
+      log("error populating transaction: %O",e)
+    }
+  }
+
+
+
   _handleRequestAccounts = (req: any): Promise<RequestAccountsResp> => {
     const { tabId, origin, metadata } = req
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
@@ -95,7 +129,20 @@ export class WalletController {
       params: { message },
     } = req
     log("Handling sign transaction tabId: %s message: %s", tabId, message)
+    const serializedTrx = bs58.decode(message)
+    log("Serialized transaction: %O", serializedTrx)
 
+
+
+    /// decode the message if it matches a known address
+    /*
+    1 - Find the to address,
+    2 - use connection.getAccountInfo to the the owner information of said account
+    3a - if owner matches TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o decode as SPL token transfer
+       - use the human readble token symbol if available
+    3b - if owner matches dex program id  9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw decode as Serum Dex transaction using instruction.js from serum.js
+    3c - Attempt to decode as SOL transfer
+    */
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
