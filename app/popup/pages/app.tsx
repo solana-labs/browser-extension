@@ -25,6 +25,10 @@ export const App: React.FC = () => {
             main: "#25c2a0",
             contrastText: "#fff",
           },
+          secondary: {
+            main: "#86b8b6",
+            contrastText: "#fff",
+          },
           success: {
             main: "#25c2a0",
             contrastText: "#fff",

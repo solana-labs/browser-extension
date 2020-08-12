@@ -29,6 +29,10 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
   },
+  bar: {
+    backgroundColor: "black",
+    color: theme.palette.primary.main,
+  },
   title: {
     flexGrow: 1,
   },
@@ -59,7 +63,7 @@ export const NavigationFrame: React.FC = ({ children }) => {
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar className={classes.bar} position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title} component="h1">
             Solana Wallet
