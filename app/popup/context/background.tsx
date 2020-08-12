@@ -3,6 +3,7 @@ import pump from "pump"
 import { createObjectMultiplex, getEnvironmentType } from "../../core/utils"
 import { Network, Notification, PopupActions, PopupState } from "../../core/types"
 import RpcEngine from "json-rpc-engine"
+import { MUX_CONTROLLER_SUBSTREAM } from "../../core/types"
 
 const PortStream = require("extension-port-stream")
 const createJsonRpcStream = require("json-rpc-middleware-stream")
@@ -43,7 +44,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     const jsonRpcConnection = createJsonRpcStream()
     pump(
       jsonRpcConnection.stream,
-      popupMux.createStream("controller"),
+      popupMux.createStream(MUX_CONTROLLER_SUBSTREAM),
       jsonRpcConnection.stream,
       (err) => {
         log("JsonRPC stream <> controller sub-stream disconnected: %s", err)

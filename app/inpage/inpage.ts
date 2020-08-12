@@ -2,12 +2,13 @@ import pump from "pump"
 import { createLogger, createObjectMultiplex } from "../core/utils"
 import { WallActions, Notification } from "../core/types"
 import { EventEmitter } from "events"
+import { CONTENT_MESSAGE_STREAM, INPAGE_MESSAGE_STREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 
 const LocalMessageDuplexStream = require("post-message-stream")
 const RpcEngine = require("json-rpc-engine")
 const createJsonRpcStream = require("json-rpc-middleware-stream")
 const { duplex: isDuplex } = require("is-stream")
-const log = createLogger("sol:wallet")
+const log = createLogger("sol:inPage")
 
 export interface RequestArgs {
   method: WallActions
@@ -34,7 +35,7 @@ class Provider extends EventEmitter {
     const jsonRpcConnection = createJsonRpcStream()
     pump(
       jsonRpcConnection.stream,
-      mux.createStream("provider"),
+      mux.createStream(MUX_PROVIDER_SUBSTREAM),
       jsonRpcConnection.stream,
       this._handleDisconnect.bind(this, "Solana RpcProvider")
     )
@@ -56,7 +57,7 @@ class Provider extends EventEmitter {
 
   request = (args: RequestArgs): Promise<any> => {
     const that = this
-    log("inpage: called solana provider with method: ", args.method)
+    log("provider with method: ", args.method)
     return new Promise<any>(function(resolve, reject) {
       let req = { id: 1, jsonrpc: "2.0", method: args.method }
       if (args.params) {
@@ -83,12 +84,12 @@ class Provider extends EventEmitter {
 
 // setup background connection./app/background/background.ts
 const csStream = new LocalMessageDuplexStream({
-  name: "inpage",
-  target: "contentscript",
+  name: INPAGE_MESSAGE_STREAM,
+  target: CONTENT_MESSAGE_STREAM,
 })
 
 function initProvider() {
-  log("inpage: initializing provider")
+  log("initializing provider")
   const provider = new Provider(csStream)
   // @ts-ignore
   window.solana = provider

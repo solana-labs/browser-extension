@@ -24,6 +24,10 @@ export const useSolanaExplorerUrlSuffix = (): string => {
   return ""
 }
 
+export const refreshAccountsPublicKeys = (publicKey: PublicKey) => {
+  // refreshCache(wallet.getTokenPublicKeys)
+}
+
 export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
   const [externalAccountInfo, externalAccountInfoLoaded] = useAccountInfo(publicKey)
   const storagedAcountInfo = useTokenAccountsByOwner(publicKey)
@@ -158,6 +162,3 @@ export function setInitialAccountInfo(
   setCache(cacheKey, accountInfo, { initializeOnly: true })
 }
 
-export const refreshWalletPublicKeys = (wallet: Wallet) => {
-  refreshCache(wallet.getTokenPublicKeys)
-}

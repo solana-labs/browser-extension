@@ -10,6 +10,7 @@ import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex } from "../core/utils"
 import { ENVIRONMENT_TYPE_POPUP, Notification, PopupState, StoredData } from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
+import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -66,21 +67,16 @@ export default class SolanaController {
     connectionStream: any,
     sender?: chrome.runtime.MessageSender
   ) {
-    // setup multiplexing
     const mux = setupMultiplex(connectionStream, `bg-${processName}-mux`)
-    // connect features
-    this.setupControllerConnection(processName, mux.createStream("controller"), sender)
-    // this.setupProviderConnection(mux.createStream('provider'), sender, true)
+    this.setupControllerConnection(processName, mux.createStream(MUX_CONTROLLER_SUBSTREAM), sender)
   }
 
   setupUntrustedCommunication(
     connectionStream: typeof PortStream,
     sender?: chrome.runtime.MessageSender
   ) {
-    // setup multiplexing
     const mux = setupMultiplex(connectionStream, "bg-cs-mux")
-    // connect features
-    this.setupProviderConnection(mux.createStream("provider"), sender, false)
+    this.setupProviderConnection(mux.createStream(MUX_PROVIDER_SUBSTREAM), sender, false)
   }
 
   setupControllerConnection(processName: string, outStream: any, sender: any) {

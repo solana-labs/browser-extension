@@ -3,6 +3,12 @@ import { clusterApiUrl } from "@solana/web3.js"
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
 export const ENVIRONMENT_TYPE_NOTIFICATION = "notification" // will be supported soon
+export const INPAGE_MESSAGE_STREAM = "sol.inpage"
+export const CONTENT_MESSAGE_STREAM = "sol.cs"
+export const MUX_PROVIDER_SUBSTREAM = "sol.provider"
+export const MUX_CONTROLLER_SUBSTREAM = "sol.controller"
+export const CHROME_CONN_CS = "sol.cs"
+
 
 export const DEFAULT_NETWORK: Network = { title: "Devnet", endpoint: clusterApiUrl("devnet") }
 export const AVAILABLE_NETWORKS: Network[] = [
