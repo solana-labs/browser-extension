@@ -1,23 +1,21 @@
-import { Route, Switch } from "react-router-dom";
-import { RouteComponentProps, RouteProps, withRouter } from "react-router";
-import React, { ReactNode } from "react";
-import { Paths } from "./paths";
-import { Test } from "../test"
-import { ContentPage } from "../../pages/content-page"
+import { Route, Switch } from "react-router-dom"
+import { RouteComponentProps, RouteProps, withRouter } from "react-router"
+import React, { ReactNode } from "react"
+import { Paths } from "./paths"
+import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
+import { AccountPage } from "../../pages/account-page"
 
 const RoutesBase: React.FC = () => {
-
   const routes: {
-    [path: string]: React.ComponentType<any>;
+    [path: string]: React.ComponentType<any>
   } = {
-    [Paths.test]: Test,
-    [Paths.accounts]: Test
-  };
-
+    [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
+    [Paths.account]: AccountPage,
+  }
 
   return (
     <Switch>
-      {Object.keys(routes).map(path => {
+      {Object.keys(routes).map((path) => {
         return (
           <UnauthenticatedRoute
             exact={true}
@@ -25,26 +23,26 @@ const RoutesBase: React.FC = () => {
             path={path}
             component={routes[path]}
           />
-        );
+        )
       })}
-      <Route component={ContentPage} />
+      <Route component={AccountPage} />
     </Switch>
   )
 }
 
 const UnauthenticatedRoute = (props: RouteProps) => {
-  const Component = props.component as React.ComponentType<any>;
-  const rest = Object.assign({}, props);
-  delete rest.component;
+  const Component = props.component as React.ComponentType<any>
+  const rest = Object.assign({}, props)
+  delete rest.component
 
   return (
     <Route
       {...rest}
       render={(props: RouteComponentProps) => {
-        return <Component {...props} />;
+        return <Component {...props} />
       }}
     />
-  );
+  )
 }
 
-export const Routes = withRouter(RoutesBase);
+export const Routes = withRouter(RoutesBase)

@@ -68,7 +68,7 @@ export const NavigationFrame: React.FC = ({ children }) => {
     <>
       <AppBar className={classes.bar} position="static">
         <Toolbar>
-          <Typography variant="h6" className={classes.title} component="h1">
+          <Typography variant="h5" className={classes.title} component="h1">
             Solana Wallet
           </Typography>
           {popupState && popupState.walletState === "unlocked" && (
@@ -114,19 +114,11 @@ const MenuSelector: React.FC = () => {
         }}
         getContentAnchorEl={null}
       >
-        <MenuItem key={"menu-1"}>
-          <Typography variant="body2">
-            <Link component={RouterLink} to={Paths.test}>
-              Test
-            </Link>
-          </Typography>
+        <MenuItem key={"menu-0"} component={RouterLink} to={Paths.account}>
+          <Typography>Account details</Typography>
         </MenuItem>
-        <MenuItem key={"menu-2"}>
-          <Typography variant="body2">
-            <Link component={RouterLink} to={Paths.test}>
-              Test2
-            </Link>
-          </Typography>
+        <MenuItem key={"menu-1"} component={RouterLink} to={Paths.authorizedWebsites}>
+          <Typography>Authorized websites</Typography>
         </MenuItem>
       </Menu>
     </>

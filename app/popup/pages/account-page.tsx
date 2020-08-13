@@ -8,14 +8,14 @@ import { LoadingIndicator } from "../components/loading-indicator"
 import { createLogger } from "../../core/utils"
 import { withLayout } from "../components/layout"
 
-const log = createLogger("sol:contentPage")
+const log = createLogger("sol:AccountPage")
 
-const ContentPageBase: React.FC = () => {
+const AccountPageBase: React.FC = () => {
   const [showRestore, setShowRestore] = useState(false)
   const { popupState } = useBackground()
 
   log(
-    "rendering content page with wallet state: %s with displaying account %s",
+    "rendering Account page with wallet state: %s with displaying account %s",
     popupState?.walletState,
     popupState?.selectedAccount
   )
@@ -42,5 +42,4 @@ const ContentPageBase: React.FC = () => {
   }
 }
 
-export const ContentPage = withLayout(ContentPageBase)
-
+export const AccountPage = withLayout(AccountPageBase)
