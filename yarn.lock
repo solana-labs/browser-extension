@@ -1593,6 +1593,15 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
+"@project-serum/serum@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/@project-serum/serum/-/serum-0.3.2.tgz#1960526bc7b8a5b14b909d77fc21d491f92c2227"
+  integrity sha512-hM/7gFJEFMietNRHNHmy6OPubwDsHWB+w+4eqH6JNUMM3jgEcZLuOGLwtEQdn0SbZsMjGZ4mMQ5SBq1jfiSbYQ==
+  dependencies:
+    "@solana/web3.js" "^0.70.3"
+    bn.js "^5.1.2"
+    buffer-layout "^1.2.0"
+
 "@sheerun/mutationobserver-shim@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
@@ -1602,6 +1611,27 @@
   version "0.70.0"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.70.0.tgz#7cefa1826f12df9b6fcb487aed4f9532660aaec0"
   integrity sha512-nhBt2xyHAUxinXXUVgMFORVixXUbVV0h/XY3GMi4TR7j0VI0D0V42TNuTMSxvHlfOFFISbxEdOJx0SR+VtlQOg==
+  dependencies:
+    "@babel/runtime" "^7.3.1"
+    bn.js "^5.0.0"
+    bs58 "^4.0.1"
+    buffer "^5.4.3"
+    buffer-layout "^1.2.0"
+    crypto-hash "^1.2.2"
+    esdoc-inject-style-plugin "^1.0.0"
+    jayson "^3.0.1"
+    mz "^2.7.0"
+    node-fetch "^2.2.0"
+    npm-run-all "^4.1.5"
+    rpc-websockets "^5.0.8"
+    superstruct "^0.8.3"
+    tweetnacl "^1.0.0"
+    ws "^7.0.0"
+
+"@solana/web3.js@^0.70.3":
+  version "0.70.3"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.70.3.tgz#b3bf8d7d65319acb2772ef047ceefeed93e747eb"
+  integrity sha512-Q9byc2doeycUHai47IVkdM2DAWhpnV+K7OPxNivTph1a7bDRcULp0n9X7QTycJCz5E9+qx3KUduD1J2Xk/zH0Q==
   dependencies:
     "@babel/runtime" "^7.3.1"
     bn.js "^5.0.0"
@@ -3132,7 +3162,7 @@ bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.8, bn.js@^4.4.0:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.9.tgz#26d556829458f9d1e81fc48952493d0ba3507828"
   integrity sha512-E6QoYqCKZfgatHTdHzs1RRKP7ip4vvm+EyRUeE2RF0NblwVvb0p6jSVeNTOFxPn26QXN2o6SMfNxKp6kU8zQaw==
 
-bn.js@^5.0.0, bn.js@^5.1.1:
+bn.js@^5.0.0, bn.js@^5.1.1, bn.js@^5.1.2:
   version "5.1.2"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-5.1.2.tgz#c9686902d3c9a27729f43ab10f9d79c2004da7b0"
   integrity sha512-40rZaf3bUNKTVYu9sIeeEGOg7g14Yvnj9kH7b50EiwX0Q7A6umbvfI5tvHaOERH0XigqKkfLkFQxzb4e6CIXnA==

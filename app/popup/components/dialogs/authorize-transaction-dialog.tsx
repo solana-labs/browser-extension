@@ -42,17 +42,23 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     if (!transaction.details) {
       return null
     }
-    const details = []
-    switch (transaction.details.type) {
-      case "sol_transfer":
-        return (
-          <p>SOL Transfer {transaction.details.params.amount} SOL from {transaction.details.params.from} to {transaction.details.params.to}</p>
-        )
-      case "spl_transfer":
-        return (
-          <p>SPL Transfer {transaction.details.params.amount} {transaction.details.params.mint.symbol} from {transaction.details.params.from} to {transaction.details.params.to}</p>
-        )
-    }
+    transaction.details.map((detail, idx) => {
+    	if (!detail) {
+    		return (
+    			<p>Unable to decode instruction at index {idx}</p>
+				)
+			}
+			switch (detail.type) {
+				case "sol_transfer":
+					return (
+						<p>SOL Transfer {detail.params.amount} SOL from {detail.params.from} to {detail.params.to}</p>
+					)
+				case "spl_transfer":
+					return (
+						<p>SPL Transfer {detail.params.amount} {detail.params.mint.symbol} from {detail.params.from} to {detail.params.to}</p>
+					)
+			}
+		})
   }
 
   return (

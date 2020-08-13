@@ -1,9 +1,9 @@
-import { PublicKey, Transaction } from "@solana/web3.js"
+import { PublicKey, TransactionInstruction } from "@solana/web3.js"
 import { Web3Connection } from "../connection"
-import { TransactionDetails } from "../types"
+import { InstructionDetails } from "../types"
 
 export interface ProgramDecoder {
   programId(): PublicKey
 
-  decodeTransaction(connection: Web3Connection, transaction: Transaction): Promise<(TransactionDetails | undefined)>
+	decodeInstruction(connection: Web3Connection, instruction: TransactionInstruction): Promise<(InstructionDetails | undefined)>
 }

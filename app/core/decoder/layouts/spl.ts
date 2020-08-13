@@ -1,9 +1,9 @@
 import {
-  PublicKey,
-  SystemProgram,
-  SystemInstructionType,
-  Transaction,
-  SYSTEM_INSTRUCTION_LAYOUTS, SystemInstruction, LAMPORTS_PER_SOL, AccountInfo
+	PublicKey,
+	SystemProgram,
+	SystemInstructionType,
+	Transaction,
+	SYSTEM_INSTRUCTION_LAYOUTS, SystemInstruction, LAMPORTS_PER_SOL, AccountInfo, TransactionInstruction
 } from "@solana/web3.js"
 import { createLogger } from "../../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
@@ -12,7 +12,7 @@ import * as Layout from './common';
 import { Web3Connection } from "../../connection"
 import { Buffer } from "buffer"
 import { TokenCache } from "./token"
-import { Mint, TransactionDetails } from "../../types"
+import { Mint, InstructionDetails } from "../../types"
 const log = createLogger("sol:decoder:sol")
 
 export const ACCOUNT_LAYOUT = BufferLayout.struct([
@@ -68,9 +68,8 @@ export class SplDecoder {
     return new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
   }
 
-   decodeTransaction = async (connection: Web3Connection, transaction: Transaction): Promise<(TransactionDetails | undefined)> => {
+   decodeInstruction = async (connection: Web3Connection, instruction: TransactionInstruction): Promise<(InstructionDetails | undefined)> => {
     log("Decoding spl transaction")
-    const instruction = transaction.instructions[0]
     try {
       const decodedData = SPL_LAYOUT.decode(instruction.data)
       log("Decoded SPL Transaction: %O", decodedData)

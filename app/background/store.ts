@@ -13,7 +13,7 @@ import {
   RequestAccountsResp,
   SecretBox,
   SignTransactionResp,
-  StoredData, TransactionDetails
+  StoredData, InstructionDetails
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -254,7 +254,7 @@ export class Store {
     }
   }
 
-  _addPendingTransaction(tabId: string, message: string, resolve: any, reject: any, details?: TransactionDetails) {
+  _addPendingTransaction(tabId: string, message: string, resolve: any, reject: any, details?: (InstructionDetails | undefined)[]) {
     if (this.pendingTransactions.has(tabId)) {
       throw new Error(`Pending transaction from tabID '${tabId}' already exists.`)
     }

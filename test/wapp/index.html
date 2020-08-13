@@ -163,6 +163,38 @@
     })
   }
 
+  function testDEXNewOrder() {
+	  connection.getRecentBlockhash("max").then(rep => {
+		  window.solana.request({
+			  method: "wallet_signTransaction",
+			  params: {
+				  message: "DEX_TEST_NEW_ORDER",
+				  blockHash: rep.blockhash
+			  }
+		  }).then(data => {
+			  console.log("test data: ", data)
+		  }).catch(err => {
+			  console.log("test err: ", err)
+		  })
+	  })
+  }
+
+  function testDEXCancelOrder() {
+	  connection.getRecentBlockhash("max").then(rep => {
+		  window.solana.request({
+			  method: "wallet_signTransaction",
+			  params: {
+				  message: "DEX_TEST_CANCEL_ORDER",
+				  blockHash: rep.blockhash
+			  }
+		  }).then(data => {
+			  console.log("test data: ", data)
+		  }).catch(err => {
+			  console.log("test err: ", err)
+		  })
+	  })
+  }
+
   function requestCluster() {
     window.solana.request({method:"wallet_getCluster"})
         .then(resp => {

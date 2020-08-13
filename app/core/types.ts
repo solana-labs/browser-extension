@@ -74,13 +74,13 @@ export type PopupActions =
 
 export type PendingSignTransaction = {
   message: string
-  details?: TransactionDetails
+  details?: (InstructionDetails | undefined)[]
   tabId: string
 }
 
-export type TransactionDetails = TransactionDetailsSOLTransfer | TransactionDetailsSPLTransfer
+export type InstructionDetails = InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer
 
-export type TransactionDetailsSOLTransfer = {
+export type InstructionDetailsSOLTransfer = {
   type: "sol_transfer"
   params: {
     from: string,
@@ -89,7 +89,7 @@ export type TransactionDetailsSOLTransfer = {
   }
 }
 
-export type TransactionDetailsSPLTransfer = {
+export type InstructionDetailsSPLTransfer = {
   type: "spl_transfer"
   params: {
     from: string,
