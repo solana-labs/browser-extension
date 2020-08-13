@@ -6,23 +6,27 @@ import nacl from "tweetnacl"
 import invariant from "assert"
 import { AVAILABLE_NETWORKS, Network, Notification, PopupActions } from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
+import { Web3Connection } from "../core/connection"
 
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
 
 export interface PopupControllerOpt {
   store: Store
+  connection: Web3Connection
   notifyAllDomains: ((payload: Notification) => Promise<void>) | null
 }
 
 export class PopupController {
   private store: Store
   private _notifyAllDomains: ((payload: Notification) => Promise<void>) | null
+  private connection: Web3Connection
 
   constructor(opts: PopupControllerOpt) {
     log("popup controller constructor")
-    const { store, notifyAllDomains } = opts
+    const { store, notifyAllDomains, connection } = opts
     this.store = store
+    this.connection = connection
     this._notifyAllDomains = notifyAllDomains
   }
 
@@ -229,6 +233,8 @@ export class PopupController {
       title: "Custom",
       endpoint: endpoint,
     }
+    // change the connection network optoin
+    this.connection.changeNetwork(endpoint)
 
     this._notifyAll({
       type: "clusterChanged",

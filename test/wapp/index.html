@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <script src="./index.iife.js"></script>
     <script src="./bs58.bundle.js"></script>
+    <script src="./buffer-layout.js"></script>
 
     <style type="text/css">
         body {
@@ -64,7 +65,7 @@
     <h1 id="display-transfer">Transfer</h1>
     <h3 id="current-slot">Last Processed Slot: •••</h3>
     <hr/>
-    <a href="#" id="test-btn"onclick="testController();">test</a>
+    <a href="#" onclick="testSPLTransfer();">Test SPL Transfer</a>
     <form id="transfer">
         <table>
             <tr>
@@ -146,20 +147,13 @@
     })
   }
 
-  function testController() {
-    console.log("testing controller")
-    const transaction = solanaWeb3.SystemProgram.transfer({
-      fromPubkey: new solanaWeb3.PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC"),
-      toPubkey: new solanaWeb3.PublicKey("93SAZ1evjXQvAvLqi4rgyvfa7evoGRPbnebAa3k6QWkq"),
-      lamports: 2 * solanaWeb3.LAMPORTS_PER_SOL
-    })
+  function testSPLTransfer() {
     connection.getRecentBlockhash("max").then(rep => {
-      transaction.recentBlockhash = rep.blockhash
-      const serializedMessage = transaction.serializeMessage()
       window.solana.request({
-        method: "wallet_test",
+        method: "wallet_signTransaction",
         params: {
-          message: bs58.encode(serializedMessage)
+          message: "SPL_TEST",
+          blockHash: rep.blockhash
         }
       }).then(data => {
         console.log("test data: ", data)
@@ -203,26 +197,6 @@
       document.getElementById("demo-status").innerText = "Failed to get account: " + err
     })
   }
-
-  // function sendDexOrder() {
-  //   // returns a packed transaction
-  //   const trx = NewOrder({
-  //     owner,
-  //     payer,
-  //     side: 'buy', // 'buy' or 'sell'
-  //     price: 123.45,
-  //     size: 17.0,
-  //     orderType: 'limit', // 'limit', 'ioc', 'postOnly'
-  //   })
-  //   window.solana.request({
-  //     method: "wallet_signTransaction",
-  //     params: {
-  //       message: bs58.encode(trx.serializeMessage())
-  //     }
-  //   }).then(data => {
-  //
-  //   })
-  // }
 
   function updateNetworkAddress(address){
     console.log("updating network address to:", address)

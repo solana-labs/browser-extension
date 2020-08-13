@@ -38,6 +38,23 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     })
   }
 
+  const renderTransactionDetails = () => {
+    if (!transaction.details) {
+      return null
+    }
+    const details = []
+    switch (transaction.details.type) {
+      case "sol_transfer":
+        return (
+          <p>SOL Transfer {transaction.details.params.amount} SOL from {transaction.details.params.from} to {transaction.details.params.to}</p>
+        )
+      case "spl_transfer":
+        return (
+          <p>SPL Transfer {transaction.details.params.amount} {transaction.details.params.mint.symbol} from {transaction.details.params.from} to {transaction.details.params.to}</p>
+        )
+    }
+  }
+
   return (
     <DialogForm open={open} onClose={onClose} onSubmit={handleAuthorize}>
       <DialogTitle>Authorize Transaction</DialogTitle>
@@ -50,6 +67,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
           value={transaction.message}
           disabled={true}
         />
+        {renderTransactionDetails()}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleDecline}>Cancel</Button>

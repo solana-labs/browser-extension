@@ -1,8 +1,10 @@
 import { PublicKey, Transaction } from "@solana/web3.js"
-import { ProgramDecoder, TransactionDetails } from "./types"
+import { ProgramDecoder } from "./types"
 import { SolanaDecoder } from "./layouts/solana"
 import { createLogger } from "../utils"
 import { SplDecoder } from "./layouts/spl"
+import { Web3Connection } from "../connection"
+import { TransactionDetails } from "../types"
 
 const log = createLogger("sol:decoder")
 const supportedProgramId = new Map<string, ProgramDecoder>()
@@ -11,13 +13,15 @@ const supportedProgramId = new Map<string, ProgramDecoder>()
 
 export class Decoder {
   private supportedProgramId: Map<string, ProgramDecoder>
+  private connection: Web3Connection
 
-  constructor() {
+  constructor(connection: Web3Connection) {
     this.supportedProgramId = new Map<string, ProgramDecoder>()
+    this.connection = connection
     this._setupDecoders()
   }
 
-  decode = (transaction: Transaction): (TransactionDetails | undefined) => {
+  decode = async (transaction: Transaction): Promise<(TransactionDetails | undefined)> => {
     if (transaction.instructions.length == 0) {
       log("Unable to decode transaction without any instructions")
       return undefined
@@ -38,7 +42,7 @@ export class Decoder {
     }
 
     log("Decoding transaction for programId : %s", programId.toBase58())
-    return decoder.decodeTransaction(transaction)
+    return decoder.decodeTransaction(this.connection, transaction)
   }
 
   _setupDecoders = (): void => {

@@ -14,7 +14,7 @@ export const DEFAULT_NETWORK: Network = { title: "Devnet", endpoint: clusterApiU
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", endpoint: clusterApiUrl("devnet") },
-  { title: "Testnet", endpoint: clusterApiUrl("testnet") },
+  { title: "Testnet", endpoint: clusterApiUrl("testnet") }
 ]
 export type RequestAccountsResp = {
   accounts: string[]
@@ -58,7 +58,6 @@ export type WallActions =
   | "wallet_requestAccounts"
   | "wallet_getCluster"
   | "wallet_getState"
-  | "wallet_test"
 
 export type PopupActions =
   | "popup_getState"
@@ -75,8 +74,39 @@ export type PopupActions =
 
 export type PendingSignTransaction = {
   message: string
+  details?: TransactionDetails
   tabId: string
 }
+
+export type TransactionDetails = TransactionDetailsSOLTransfer | TransactionDetailsSPLTransfer
+
+export type TransactionDetailsSOLTransfer = {
+  type: "sol_transfer"
+  params: {
+    from: string,
+    to: string,
+    amount: number
+  }
+}
+
+export type TransactionDetailsSPLTransfer = {
+  type: "spl_transfer"
+  params: {
+    from: string,
+    to: string,
+    owner: string,
+    amount: number
+    mint: Mint
+  }
+}
+
+export type Mint = {
+  publicKey?: string,
+  name?: string
+  symbol?: string
+  decimals?: number
+}
+
 
 export type PendingRequestAccounts = {
   tabId: string

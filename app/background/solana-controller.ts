@@ -12,6 +12,7 @@ import { ENVIRONMENT_TYPE_POPUP, Notification, PopupState, StoredData } from "..
 import { ExtensionManager } from "./lib/extension-manager"
 import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 import { Decoder } from "../core/decoder"
+import { Web3Connection } from "../core/connection"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -35,13 +36,17 @@ export default class SolanaController {
   private popupController: PopupController
   private extensionManager: ExtensionManager
   private persistData: (data: StoredData) => Promise<boolean>
+  private connection: Web3Connection
 
   constructor(opts: SolanaControllerOpts) {
     log("Setting up Solana Controller")
     const { storedData, persistData } = opts
     const store = new Store(storedData)
-    const decoder = new Decoder()
+    const connection = new Web3Connection(store.selectedNetwork.endpoint)
+    const decoder = new Decoder(connection)
+
     this.store = store
+    this.connection = connection
     this.extensionManager = new ExtensionManager()
     this.walletController = new WalletController({
       store,
@@ -50,6 +55,7 @@ export default class SolanaController {
     })
     this.popupController = new PopupController({
       store,
+      connection,
       notifyAllDomains: this.notifyAllConnections.bind(this),
     })
     this.connections = {}

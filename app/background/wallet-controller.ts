@@ -1,10 +1,21 @@
 import { Store } from "./store"
 import { createLogger, decodeSerializedMessage } from "../core/utils"
-import { RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
+import { RequestAccountsResp, SignTransactionResp, TransactionDetails, WallActions } from "../core/types"
 import bs58 from "bs58"
-import { SystemProgram, PublicKey, LAMPORTS_PER_SOL, SystemInstruction, Transaction } from '@solana/web3.js';
+import {
+  SystemProgram,
+  PublicKey,
+  LAMPORTS_PER_SOL,
+  SystemInstruction,
+  Transaction,
+  TransactionInstruction,
+  Connection
+} from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { Decoder } from "../core/decoder"
+// @ts-ignore FIXME We need to add a mock definition of this library to the overall project
+import BufferLayout from "buffer-layout"
+import { Web3Connection } from "../core/connection"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -43,8 +54,6 @@ export class WalletController {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
       const method = req.method as WallActions
       switch (method) {
-        case "wallet_test":
-          this._handleTest(req)
         case "wallet_requestAccounts":
           try {
             let resp = await this._handleRequestAccounts(req)
@@ -81,30 +90,6 @@ export class WalletController {
     })
   }
 
-  _handleTest = (req: any) => {
-    const {
-      tabId,
-      params: { message },
-    } = req
-    log("Handling sign transaction tabId: %s message: %s", tabId, message)
-    try {
-      const decodedMessage = bs58.decode(message)
-      const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
-      const trx = Transaction.populate(trxMessage,[])
-      log("transaction: %O",trx)
-      const details = this.decoder.decode(trx)
-      if (details) {
-        log("Transaction details: %O", details)
-      } else {
-        log("Could not determine transaction details")
-      }
-    }catch (e) {
-      log("error populating transaction: %O",e)
-    }
-  }
-
-
-
   _handleRequestAccounts = (req: any): Promise<RequestAccountsResp> => {
     const { tabId, origin, metadata } = req
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
@@ -123,30 +108,36 @@ export class WalletController {
     })
   }
 
-  _handleSignTransaction = (req: any): Promise<SignTransactionResp> => {
-    const {
+  _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
+    let {
       tabId,
-      params: { message },
+      params: { message, blockHash },
     } = req
+    // FIXME: remove this... we only have this for testing
+    if (blockHash && message === "SPL_TEST") {
+      message = createSplTransfer(blockHash)
+    }
     log("Handling sign transaction tabId: %s message: %s", tabId, message)
-    const serializedTrx = bs58.decode(message)
-    log("Serialized transaction: %O", serializedTrx)
+    let trxDetails: (TransactionDetails | undefined) = undefined
+    try {
+      const decodedMessage = bs58.decode(message)
+      const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
+      const trx = Transaction.populate(trxMessage,[])
+      log("transaction: %O",trx)
+      trxDetails = await this.decoder.decode(trx)
+      if (trxDetails) {
+        log("Transaction details: %O", trxDetails)
+      } else {
+        log("Could not determine transaction details")
+      }
+    }catch (e) {
+      log("error populating transaction: %O",e)
+    }
 
-
-
-    /// decode the message if it matches a known address
-    /*
-    1 - Find the to address,
-    2 - use connection.getAccountInfo to the the owner information of said account
-    3a - if owner matches TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o decode as SPL token transfer
-       - use the human readble token symbol if available
-    3b - if owner matches dex program id  9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw decode as Serum Dex transaction using instruction.js from serum.js
-    3c - Attempt to decode as SOL transfer
-    */
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store._addPendingTransaction(tabId, message, resolve, reject)
+      this.store._addPendingTransaction(tabId, message, resolve, reject, trxDetails)
     })
   }
 
@@ -155,4 +146,44 @@ export class WalletController {
       log("popup opened!")
     })
   }
+}
+
+const createSplTransfer = (blockHash: string):string => {
+  const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
+  const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
+  const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
+  const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
+  const bufferLayout = BufferLayout.union(BufferLayout.u8('instruction'));
+  bufferLayout.addVariant(
+    3,
+    BufferLayout.struct([
+      BufferLayout.nu64('amount')
+    ]),
+    'transfer',
+  );
+
+  const instructionMaxSpan = Math.max(
+    ...Object.values(bufferLayout.registry).map((r: any) => r.span),
+  );
+  let b = Buffer.alloc(instructionMaxSpan);
+  let span = bufferLayout.encode({
+    transfer: {amount: 0.25 * Math.pow(10, 9)}
+  }, b);
+  const encodedData = b.slice(0, span);
+  const transaction = new Transaction()
+  transaction.add(new TransactionInstruction({
+    keys: [
+      { pubkey: fromPubKey, isSigner: false, isWritable: true },
+      { pubkey: toPubKey, isSigner: false, isWritable: true },
+      { pubkey: ownerPubKey, isSigner: true, isWritable: false },
+    ],
+    data: encodedData,
+    programId: tokenProgramId,
+  }))
+  transaction.recentBlockhash = blockHash
+  log("created SPl transfer", transaction)
+  const serializedMessage = transaction.serializeMessage()
+  const message = bs58.encode(serializedMessage)
+  log("serialized SPl transfer", serializedMessage)
+  return message
 }

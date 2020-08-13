@@ -2,6 +2,7 @@ import { LAMPORTS_PER_SOL, PublicKey, SystemInstruction, SystemProgram, Transact
 import { createLogger } from "../../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import { TransactionDetails } from "../types"
+import { Web3Connection } from "../../connection"
 const log = createLogger("sol:decoder:sol")
 
 export class SolanaDecoder {
@@ -12,7 +13,7 @@ export class SolanaDecoder {
     return SystemProgram.programId
   }
 
-  decodeTransaction = (transaction: Transaction): (TransactionDetails | undefined) => {
+  decodeTransaction = async (_: Web3Connection, transaction: Transaction): Promise<(TransactionDetails | undefined)> => {
     log("Decoding solana system program transaction")
     const instruction = transaction.instructions[0]
     try {
@@ -22,9 +23,8 @@ export class SolanaDecoder {
           const params = SystemInstruction.decodeTransfer(instruction)
           log("Decoded transaction: %s", instructionType)
           return {
-            title: "SOL Transfer",
-            description: `Transfer ${params.lamports / LAMPORTS_PER_SOL} SOL from ${params.fromPubkey.toBase58()} to ${params.toPubkey.toBase58()}`,
-            details: {
+            type: "sol_transfer",
+            params: {
               from: params.fromPubkey.toBase58(),
               to: params.toPubkey.toBase58(),
               amount: params.lamports
@@ -38,7 +38,5 @@ export class SolanaDecoder {
     }
     return undefined
   }
-
-
 }
 
