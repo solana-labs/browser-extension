@@ -10,16 +10,17 @@ import ListItemIcon from "@material-ui/core/ListItemIcon"
 import CheckIcon from "@material-ui/icons/Check"
 import AddIcon from "@material-ui/icons/Add"
 import AccountIcon from "@material-ui/icons/AccountCircle"
+import MenuIcon from "@material-ui/icons/Menu"
 import Divider from "@material-ui/core/Divider"
 import Hidden from "@material-ui/core/Hidden"
 import IconButton from "@material-ui/core/IconButton"
 import { SolanaIcon } from "./solana-icon"
-import CodeIcon from "@material-ui/icons/Code"
 import Tooltip from "@material-ui/core/Tooltip"
 import { useCallAsync } from "../utils/notifications"
 import { useBackground } from "../context/background"
 import { Network } from "../../core/types"
-import { Link } from "react-router-dom"
+import Link from "@material-ui/core/Link"
+import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "./routes/paths"
 
 const log = require("debug")("sol:nav")
@@ -70,20 +71,20 @@ export const NavigationFrame: React.FC = ({ children }) => {
           <Typography variant="h6" className={classes.title} component="h1">
             Solana Wallet
           </Typography>
-          <MenuSelector />
-          <WalletSelector
-            accounts={popupState?.accounts || []}
-            addAccount={handleCreateAccount}
-            selectedAccount={account || ""}
-            selectAccount={handleSelectAccount}
-          />
-          {popupState && (
+          {popupState && popupState.walletState === "unlocked" && (
             <NetworkSelector
               availableNetworks={popupState.availableNetworks}
               selectedNetwork={popupState.selectedNetwork}
               changeNetwork={changeNetwork}
             />
           )}
+          <WalletSelector
+            accounts={popupState?.accounts || []}
+            addAccount={handleCreateAccount}
+            selectedAccount={account || ""}
+            selectAccount={handleSelectAccount}
+          />
+          {popupState && popupState.walletState === "unlocked" && <MenuSelector />}
         </Toolbar>
       </AppBar>
       <main className={classes.content}>{children}</main>
@@ -95,15 +96,10 @@ const MenuSelector: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<any>()
   return (
     <>
-      <Hidden xsDown>
-        <Button color="inherit" onClick={(e) => setAnchorEl(e.target)}>
-          Menu
-        </Button>
-      </Hidden>
       <Hidden smUp>
-        <Tooltip title="Select Network" arrow>
+        <Tooltip title="More options" arrow>
           <IconButton color="inherit" onClick={(e) => setAnchorEl(e.target)}>
-            <SolanaIcon />
+            <MenuIcon />
           </IconButton>
         </Tooltip>
       </Hidden>
@@ -119,7 +115,18 @@ const MenuSelector: React.FC = () => {
         getContentAnchorEl={null}
       >
         <MenuItem key={"menu-1"}>
-          <Link to={Paths.test}>Test</Link>
+          <Typography variant="body2">
+            <Link component={RouterLink} to={Paths.test}>
+              Test
+            </Link>
+          </Typography>
+        </MenuItem>
+        <MenuItem key={"menu-2"}>
+          <Typography variant="body2">
+            <Link component={RouterLink} to={Paths.test}>
+              Test2
+            </Link>
+          </Typography>
         </MenuItem>
       </Menu>
     </>
@@ -201,7 +208,7 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
   const [anchorEl, setAnchorEl] = useState<any>()
   const classes = useStyles()
 
-  if (accounts.length == 0) {
+  if (accounts.length === 0) {
     return null
   }
 
