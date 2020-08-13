@@ -13,7 +13,8 @@ import {
   RequestAccountsResp,
   SecretBox,
   SignTransactionResp,
-  StoredData, TransactionDetails
+  StoredData,
+  TransactionDetails,
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -84,6 +85,7 @@ export class Store {
       selectedAccount: this.selectedAccount,
       pendingTransactions: [],
       pendingRequestAccounts: [],
+      authorizedOrigins: [],
     }
 
     if (this.secretBox) {
@@ -92,6 +94,7 @@ export class Store {
     if (this.wallet) {
       state.walletState = "unlocked"
       state.accounts = this.wallet.getPublicKeysAsBs58()
+      state.authorizedOrigins = this.authorizedOrigins
     }
 
     this.pendingTransactions.forEach((value, key, map) => {
@@ -100,7 +103,7 @@ export class Store {
         {
           tabId: key,
           message: value.transaction.message,
-          details: value.transaction.details
+          details: value.transaction.details,
         } as PendingSignTransaction,
       ]
     })
@@ -254,13 +257,23 @@ export class Store {
     }
   }
 
-  _addPendingTransaction(tabId: string, message: string, resolve: any, reject: any, details?: TransactionDetails) {
+  _addPendingTransaction(
+    tabId: string,
+    message: string,
+    resolve: any,
+    reject: any,
+    details?: TransactionDetails
+  ) {
     if (this.pendingTransactions.has(tabId)) {
       throw new Error(`Pending transaction from tabID '${tabId}' already exists.`)
     }
 
     log("Adding pending transaction from tabId %s", tabId)
-    this.pendingTransactions.set(tabId, { transaction: { message, tabId, details }, resolve, reject })
+    this.pendingTransactions.set(tabId, {
+      transaction: { message, tabId, details },
+      resolve,
+      reject,
+    })
   }
 
   _removePendingTransaction(tabId: string) {

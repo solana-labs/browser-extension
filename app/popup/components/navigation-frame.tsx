@@ -94,6 +94,7 @@ export const NavigationFrame: React.FC = ({ children }) => {
 
 const MenuSelector: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<any>()
+  const { popupState } = useBackground()
   return (
     <>
       <Hidden smUp>
@@ -117,9 +118,11 @@ const MenuSelector: React.FC = () => {
         <MenuItem key={"menu-0"} component={RouterLink} to={Paths.account}>
           <Typography>Account details</Typography>
         </MenuItem>
-        <MenuItem key={"menu-1"} component={RouterLink} to={Paths.authorizedWebsites}>
-          <Typography>Authorized websites</Typography>
-        </MenuItem>
+        {popupState?.authorizedOrigins && popupState.authorizedOrigins.length > 0 && (
+          <MenuItem key={"menu-1"} component={RouterLink} to={Paths.authorizedWebsites}>
+            <Typography>Authorized websites</Typography>
+          </MenuItem>
+        )}
       </Menu>
     </>
   )
