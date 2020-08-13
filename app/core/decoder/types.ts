@@ -5,5 +5,5 @@ import { TransactionDetails } from "../types"
 export interface ProgramDecoder {
   programId(): PublicKey
 
-  decodeTransaction(connection: Web3Connection, transactions: Transaction): Promise<(TransactionDetails | undefined)>
+  decodeTransaction(connection: Web3Connection, transaction: Transaction): Promise<(TransactionDetails | undefined)>
 }
