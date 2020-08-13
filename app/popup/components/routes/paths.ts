@@ -1,11 +1,11 @@
-import { compile } from "path-to-regexp";
+import { compile } from "path-to-regexp"
 
 export const Paths = {
-  test: "/test",
-  accounts: "/accounts",
-};
+  authorizedWebsites: "/authorized-websites",
+  account: "/account",
+}
 
 export const Links = {
-  test: compile(Paths.test),
-  accounts: compile(Paths.accounts),
-};
+  authorizedWebsites: compile(Paths.authorizedWebsites),
+  account: compile(Paths.account),
+}

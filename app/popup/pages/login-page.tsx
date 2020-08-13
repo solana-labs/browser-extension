@@ -56,9 +56,17 @@ const LoginForm: React.FC = () => {
           margin="normal"
           label="Password"
           type="password"
+          autoFocus
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          InputProps={{
+            onKeyPress: (event: React.KeyboardEvent<HTMLInputElement>) => {
+              if (event.key === "Enter") {
+                submit()
+              }
+            },
+          }}
         />
         <FormControlLabel
           control={

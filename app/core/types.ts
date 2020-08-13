@@ -9,12 +9,11 @@ export const MUX_PROVIDER_SUBSTREAM = "sol.provider"
 export const MUX_CONTROLLER_SUBSTREAM = "sol.controller"
 export const CHROME_CONN_CS = "sol.cs"
 
-
 export const DEFAULT_NETWORK: Network = { title: "Devnet", endpoint: clusterApiUrl("devnet") }
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", endpoint: clusterApiUrl("devnet") },
-  { title: "Testnet", endpoint: clusterApiUrl("testnet") }
+  { title: "Testnet", endpoint: clusterApiUrl("testnet") },
 ]
 export type RequestAccountsResp = {
   accounts: string[]
@@ -50,6 +49,7 @@ export type PopupState = {
   availableNetworks: Network[]
   pendingTransactions: PendingSignTransaction[]
   pendingRequestAccounts: PendingRequestAccounts[]
+  authorizedOrigins: string[]
 }
 
 export type WallActions =
@@ -83,8 +83,8 @@ export type InstructionDetails = InstructionDetailsSOLTransfer | InstructionDeta
 export type InstructionDetailsSOLTransfer = {
   type: "sol_transfer"
   params: {
-    from: string,
-    to: string,
+    from: string
+    to: string
     amount: number
   }
 }
@@ -92,21 +92,20 @@ export type InstructionDetailsSOLTransfer = {
 export type InstructionDetailsSPLTransfer = {
   type: "spl_transfer"
   params: {
-    from: string,
-    to: string,
-    owner: string,
+    from: string
+    to: string
+    owner: string
     amount: number
     mint: Mint
   }
 }
 
 export type Mint = {
-  publicKey?: string,
+  publicKey?: string
   name?: string
   symbol?: string
   decimals?: number
 }
-
 
 export type PendingRequestAccounts = {
   tabId: string
