@@ -19,6 +19,8 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { useCallAsync } from "../utils/notifications"
 import { useBackground } from "../context/background"
 import { Network } from "../../core/types"
+import { Link } from "react-router-dom"
+import { Paths } from "./routes/paths"
 
 const log = require("debug")("sol:nav")
 
@@ -68,6 +70,7 @@ export const NavigationFrame: React.FC = ({ children }) => {
           <Typography variant="h6" className={classes.title} component="h1">
             Solana Wallet
           </Typography>
+          <MenuSelector />
           <WalletSelector
             accounts={popupState?.accounts || []}
             addAccount={handleCreateAccount}
@@ -84,6 +87,41 @@ export const NavigationFrame: React.FC = ({ children }) => {
         </Toolbar>
       </AppBar>
       <main className={classes.content}>{children}</main>
+    </>
+  )
+}
+
+const MenuSelector: React.FC = () => {
+  const [anchorEl, setAnchorEl] = useState<any>()
+  return (
+    <>
+      <Hidden xsDown>
+        <Button color="inherit" onClick={(e) => setAnchorEl(e.target)}>
+          Menu
+        </Button>
+      </Hidden>
+      <Hidden smUp>
+        <Tooltip title="Select Network" arrow>
+          <IconButton color="inherit" onClick={(e) => setAnchorEl(e.target)}>
+            <SolanaIcon />
+          </IconButton>
+        </Tooltip>
+      </Hidden>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={!!anchorEl}
+        onClose={() => setAnchorEl(null)}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "right",
+        }}
+        getContentAnchorEl={null}
+      >
+        <MenuItem key={"menu-1"}>
+          <Link to={Paths.test}>Test</Link>
+        </MenuItem>
+      </Menu>
     </>
   )
 }

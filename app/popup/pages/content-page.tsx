@@ -6,10 +6,11 @@ import { RestoreWalletPage } from "./restore-wallet-page"
 import { CreateWalletPage } from "./create-wallet-page"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { createLogger } from "../../core/utils"
+import { withLayout } from "../components/layout"
 
 const log = createLogger("sol:contentPage")
 
-export const ContentPage: React.FC = () => {
+const ContentPageBase: React.FC = () => {
   const [showRestore, setShowRestore] = useState(false)
   const { popupState } = useBackground()
 
@@ -40,3 +41,6 @@ export const ContentPage: React.FC = () => {
       return <WalletPage account={popupState?.selectedAccount} />
   }
 }
+
+export const ContentPage = withLayout(ContentPageBase)
+

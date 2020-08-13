@@ -2,16 +2,17 @@ import React, { Suspense } from "react"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import {
-  ThemeProvider,
-  unstable_createMuiStrictModeTheme as createMuiTheme,
   makeStyles,
+  ThemeProvider,
+  unstable_createMuiStrictModeTheme as createMuiTheme
 } from "@material-ui/core/styles"
-import { NavigationFrame } from "../components/navigation-frame"
 import { ConnectionProvider } from "../context/connection"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { SnackbarProvider } from "notistack"
 import { BackgroundProvider } from "../context/background"
-import { ContentPage } from "./content-page"
+import { Router } from "react-router-dom"
+import { history } from "../utils/history"
+import { Routes } from "../components/routes/routes"
 
 export const App: React.FC = () => {
   // TODO: add toggle for dark mode
@@ -23,25 +24,25 @@ export const App: React.FC = () => {
           type: prefersDarkMode ? "dark" : "light",
           primary: {
             main: "#25c2a0",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           secondary: {
             main: "#86b8b6",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           success: {
             main: "#25c2a0",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           info: {
             main: "#43b5c5",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           error: {
             main: "#fa62fc",
-            contrastText: "#fff",
-          },
-        },
+            contrastText: "#fff"
+          }
+        }
       }),
     [prefersDarkMode]
   )
@@ -49,7 +50,7 @@ export const App: React.FC = () => {
     success: { backgroundColor: "#25c2a0" },
     error: { backgroundColor: "#B45BDC" },
     warning: { backgroundColor: "#fa62fc" },
-    info: { backgroundColor: "#43b5c5" },
+    info: { backgroundColor: "#43b5c5" }
   })
 
   const classes = useStyles()
@@ -60,9 +61,9 @@ export const App: React.FC = () => {
   }
 
   return (
-    <Suspense fallback={<LoadingIndicator />}>
+    <Suspense fallback={<LoadingIndicator/>}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
+        <CssBaseline/>
         <BackgroundProvider>
           <ConnectionProvider>
             <SnackbarProvider
@@ -72,14 +73,12 @@ export const App: React.FC = () => {
                 variantSuccess: classes.success,
                 variantError: classes.error,
                 variantWarning: classes.warning,
-                variantInfo: classes.info,
+                variantInfo: classes.info
               }}
             >
-              <NavigationFrame>
-                <Suspense fallback={<LoadingIndicator />}>
-                  <ContentPage />
-                </Suspense>
-              </NavigationFrame>
+              <Router history={history}>
+                <Routes/>
+              </Router>
             </SnackbarProvider>
           </ConnectionProvider>
         </BackgroundProvider>
