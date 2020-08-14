@@ -1,61 +1,39 @@
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
-import { struct, u16, u32, u8, union } from 'buffer-layout';
-import {
-  orderTypeLayout,
-  publicKeyLayout,
-  sideLayout,
-  u128,
-  u64,
-  VersionedLayout,
-} from './layout';
-import { PublicKey, TransactionInstruction } from '@solana/web3.js';
-import { TOKEN_PROGRAM_ID } from './token-instructions';
+import { struct, u16, u32, u8, union } from "buffer-layout"
+import { orderTypeLayout, publicKeyLayout, sideLayout, u128, u64, VersionedLayout } from "./layout"
+import { PublicKey, TransactionInstruction } from "@solana/web3.js"
+import { TOKEN_PROGRAM_ID } from "./token-instructions"
 
-export const DEX_PROGRAM_ID = new PublicKey(
-  '9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw',
-);
+export const DEX_PROGRAM_ID = new PublicKey("9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw")
 
-export const INSTRUCTION_LAYOUT = new VersionedLayout(
-  0,
-  union(u32('instruction')),
-);
+export const INSTRUCTION_LAYOUT = new VersionedLayout(0, union(u32("instruction")))
 INSTRUCTION_LAYOUT.inner.addVariant(
   0,
   struct([
-    u64('baseLotSize'),
-    u64('quoteLotSize'),
-    u16('feeRateBps'),
-    u64('vaultSignerNonce'),
-    u64('quoteDustThreshold'),
+    u64("baseLotSize"),
+    u64("quoteLotSize"),
+    u16("feeRateBps"),
+    u64("vaultSignerNonce"),
+    u64("quoteDustThreshold"),
   ]),
-  'initializeMarket',
-);
+  "initializeMarket"
+)
 INSTRUCTION_LAYOUT.inner.addVariant(
   1,
-  struct([
-    sideLayout('side'),
-    u64('limitPrice'),
-    u64('maxQuantity'),
-    orderTypeLayout('orderType'),
-  ]),
-  'newOrder',
-);
-INSTRUCTION_LAYOUT.inner.addVariant(2, struct([u16('limit')]), 'matchOrders');
-INSTRUCTION_LAYOUT.inner.addVariant(3, struct([u16('limit')]), 'consumeEvents');
+  struct([sideLayout("side"), u64("limitPrice"), u64("maxQuantity"), orderTypeLayout("orderType")]),
+  "newOrder"
+)
+INSTRUCTION_LAYOUT.inner.addVariant(2, struct([u16("limit")]), "matchOrders")
+INSTRUCTION_LAYOUT.inner.addVariant(3, struct([u16("limit")]), "consumeEvents")
 INSTRUCTION_LAYOUT.inner.addVariant(
   4,
-  struct([
-    sideLayout('side'),
-    u128('orderId'),
-    publicKeyLayout('owner'),
-    u8('ownerSlot'),
-  ]),
-  'cancelOrder',
-);
+  struct([sideLayout("side"), u128("orderId"), publicKeyLayout("owner"), u8("ownerSlot")]),
+  "cancelOrder"
+)
 
 export function encodeInstruction(instruction) {
-  const b = Buffer.alloc(100);
-  return b.slice(0, INSTRUCTION_LAYOUT.encode(instruction, b));
+  const b = Buffer.alloc(100)
+  return b.slice(0, INSTRUCTION_LAYOUT.encode(instruction, b))
 }
 
 export class DexInstructions {
@@ -97,7 +75,7 @@ export class DexInstructions {
           quoteDustThreshold,
         },
       }),
-    });
+    })
   }
 
   static newOrder({
@@ -128,7 +106,7 @@ export class DexInstructions {
       data: encodeInstruction({
         newOrder: { side, limitPrice, maxQuantity, orderType },
       }),
-    });
+    })
   }
 
   static matchOrders({
@@ -153,7 +131,7 @@ export class DexInstructions {
       ],
       programId: DEX_PROGRAM_ID,
       data: encodeInstruction({ matchOrders: { limit } }),
-    });
+    })
   }
 
   static consumeEvents({ market, eventQueue, openOrdersAccounts, limit }) {
@@ -169,18 +147,10 @@ export class DexInstructions {
       ],
       programId: DEX_PROGRAM_ID,
       data: encodeInstruction({ consumeEvents: { limit } }),
-    });
+    })
   }
 
-  static cancelOrder({
-    market,
-    openOrders,
-    owner,
-    requestQueue,
-    side,
-    orderId,
-    ownerSlot,
-  }) {
+  static cancelOrder({ market, openOrders, owner, requestQueue, side, orderId, ownerSlot }) {
     return new TransactionInstruction({
       keys: [
         { pubkey: market, isSigner: false, isWritable: false },
@@ -192,6 +162,6 @@ export class DexInstructions {
       data: encodeInstruction({
         cancelOrder: { side, orderId, owner, ownerSlot },
       }),
-    });
+    })
   }
 }
