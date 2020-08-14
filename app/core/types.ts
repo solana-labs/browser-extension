@@ -42,6 +42,10 @@ export type StoredData = {
   authorizedOrigins: string[]
 }
 
+export type WalletState = {
+  state: "locked" | "unlocked" | "uninitialized"
+}
+
 export type PopupState = {
   walletState: "locked" | "unlocked" | "uninitialized"
   accounts: string[]
@@ -122,10 +126,6 @@ export type SecretBox = {
   digest: string //sha256
 }
 
-export type State = {
-  locked: boolean
-}
-
 export type Notification =
   | NotificationNetworkChanged
   | NotificationAccountsChanged
@@ -149,5 +149,5 @@ export type NotificationPopupStateChanged = {
 
 export type NotificationStateChanged = {
   type: "stateChanged"
-  data: State
+  data: WalletState
 }

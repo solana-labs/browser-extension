@@ -40,6 +40,10 @@ export class PopupController {
           const { mnemonic, seed, password } = req.params
           try {
             await this.store.createSecretBox(mnemonic, seed, password)
+            this._notifyAll({
+              type: "stateChanged",
+              data: { state: "unlocked" },
+            })
           } catch (err) {
             log("error: popup_createWallet failed  with error: %s", err)
             res.error = err
@@ -51,7 +55,7 @@ export class PopupController {
             await this.store.unlockSecretBox(req.params.password)
             this._notifyAll({
               type: "stateChanged",
-              data: { locked: false },
+              data: { state: "unlocked" },
             })
           } catch (err) {
             log("error: popup_unlockWallet failed  with error: %s", err)
@@ -221,10 +225,6 @@ export class PopupController {
     for (const network of AVAILABLE_NETWORKS) {
       if (network.endpoint == endpoint) {
         this.store.selectedNetwork = network
-        this._notifyAll({
-          type: "clusterChanged",
-          data: this.store.selectedNetwork,
-        })
         return
       }
     }
@@ -264,11 +264,15 @@ export class PopupController {
   }
 
   addAccount() {
-    this.store.wallet?.addAccount()
-    this._notifyAll({
-      type: "accountsChanged",
-      data: this.store.wallet?.getPublicKeysAsBs58() || [],
-    })
+    const newAccount = this.store.wallet?.addAccount()
+
+    if (newAccount) {
+     this.store.selectedAccount = newAccount.publicKey.toBase58()
+      this._notifyAll({
+        type: "accountsChanged",
+        data: this.store.wallet?.getPublicKeysAsBs58() || [],
+      })
+    }
   }
 
   _notifyAll(notification: Notification) {

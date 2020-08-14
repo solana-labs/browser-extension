@@ -69,12 +69,20 @@ export class Store {
     this.authorizedOrigins = authorizedOrigins || []
   }
 
+  isLocked(): boolean {
+    if (this.secretBox) {
+      return true
+    }
+    return false
+  }
+
   isUnlocked(): boolean {
     if (this.wallet) {
       return true
     }
     return false
   }
+
   getState(): PopupState {
     let state: PopupState = {
       walletState: "uninitialized",

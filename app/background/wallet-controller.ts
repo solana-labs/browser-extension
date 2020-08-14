@@ -75,11 +75,18 @@ export class WalletController {
           }
           break
         case "wallet_getCluster":
-          res.result = this.store.selectedNetwork.endpoint
+          res.result = this.store.selectedNetwork
           break
         case "wallet_getState":
-          res.result = { locked: !this.store.isUnlocked() }
-          log("wallet_getState returned:", { locked: !this.store.isUnlocked() })
+          let resp = { state: "uninitialized" }
+          if (this.store.isLocked()) {
+            resp.state = "locked"
+          }
+          if (this.store.isUnlocked()) {
+            resp.state = "unlocked"
+          }
+          log("wallet_getState returned:", resp)
+          res.result = resp
           break
         default:
           log("wallet controller unknown method name [%s] with params: %o", req.method, req.params)
@@ -117,6 +124,7 @@ export class WalletController {
     if (blockHash && message === "SPL_TEST") {
       message = createSplTransfer(blockHash)
     }
+
     log("Handling sign transaction tabId: %s message: %s", tabId, message)
     let trxDetails: (TransactionDetails | undefined) = undefined
     try {
