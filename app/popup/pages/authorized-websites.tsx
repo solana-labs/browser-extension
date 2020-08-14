@@ -17,6 +17,7 @@ import { useCallAsync } from "../utils/notifications"
 
 const AuthorizedWebsitesPageBase: React.FC = () => {
   const { popupState, request } = useBackground()
+  const callAsync = useCallAsync()
 
   if (!popupState) {
     return <LoadingIndicator />
@@ -27,8 +28,7 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
     return null
   }
 
-  const DeleteWebsite = (origin: string) => {
-    const callAsync = useCallAsync()
+  const deleteWebsite = (origin: string) => {
     console.log("delete item:", origin)
     callAsync(
       request("popup_deleteAuthorizedWebsite", {
@@ -58,7 +58,7 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
                 {origins.map((origin: string) => (
                   <ListItem>
                     <ListItemText primary={origin} />
-                    <IconButton onClick={() => DeleteWebsite(origin)}>
+                    <IconButton onClick={() => deleteWebsite(origin)}>
                       <DeleteIcon />
                     </IconButton>
                   </ListItem>
