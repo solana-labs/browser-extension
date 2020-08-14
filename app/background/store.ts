@@ -13,7 +13,8 @@ import {
   RequestAccountsResp,
   SecretBox,
   SignTransactionResp,
-  StoredData, InstructionDetails
+  StoredData,
+  InstructionDetails,
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -283,9 +284,15 @@ export class Store {
     this.pendingTransactions.delete(tabId)
   }
 
-  _addAutorizedOrigin(origin: string) {
+  _addAuthorizedOrigin(origin: string) {
     this.authorizedOrigins = [...this.authorizedOrigins, origin]
     log("Authorized this origin %s", origin)
+  }
+
+  _removeAuthorizedOrigin(originToRemove: string) {
+    this.authorizedOrigins = this.authorizedOrigins.filter(function (origin) {
+      return origin !== originToRemove
+    })
   }
 
   _isOriginAuthorized(origin: string): boolean {

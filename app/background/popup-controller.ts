@@ -66,6 +66,14 @@ export class PopupController {
             res.error = err
           }
           break
+        case "popup_deleteAuthorizedWebsite":
+          try {
+            await this.deleteAuthorizedWebsite(req)
+          } catch (err) {
+            log("Failed popup_deleteAuthorizedWebsite with error: %s", err)
+            res.error = err
+          }
+          break
         case "popup_declineRequestAccounts":
           try {
             await this.declineRequestAccounts(req)
@@ -148,7 +156,7 @@ export class PopupController {
       log("Request Account with origin %s and tabId %s not found", origin, tabId)
       return
     }
-    this.store._addAutorizedOrigin(origin)
+    this.store._addAuthorizedOrigin(origin)
     Object.keys(tabs).forEach((tabId) => {
       tabs[tabId].resolve({
         accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
@@ -156,6 +164,14 @@ export class PopupController {
     })
 
     this.store._removePendingRequestAccountsForOrigin(origin)
+  }
+
+  async deleteAuthorizedWebsite(req: any) {
+    log("deleting authorized website: %O", req)
+
+    const { origin } = req.params
+
+    this.store._removeAuthorizedOrigin(origin)
   }
 
   async declineRequestAccounts(req: any) {
