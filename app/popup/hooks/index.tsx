@@ -10,6 +10,7 @@ import { BalanceInfo, OwnedAccount } from "../types"
 import { tuple } from "immutable-tuple"
 import { useBackground } from "../context/background"
 import { Buffer } from "buffer"
+import { Mint } from "../../core/types"
 
 const log = require("debug")("sol:hooks")
 const bip32 = require("bip32")
@@ -52,6 +53,7 @@ export const useBalanceInfo = (publicKey: PublicKey, accountInfo: AccountInfo<Bu
     ? parseTokenAccountData(accountInfo.data)
     : { mint: null, owner: null, amount: BigInt(0) }
   const [mintInfo, mintInfoLoaded] = useAccountInfo(mint)
+  let { name, symbol } = useTokenName(mint);
 
   if (accountInfo && mint && mintInfo && mintInfoLoaded && owner) {
     let { decimals } = parseMintData(mintInfo.data)
@@ -60,6 +62,8 @@ export const useBalanceInfo = (publicKey: PublicKey, accountInfo: AccountInfo<Bu
       decimals,
       mint,
       owner,
+      tokenName: name,
+      tokenSymbol: symbol,
       initialized: true,
       lamports: BigInt(accountInfo?.lamports ?? 0),
     }
@@ -143,6 +147,24 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
     } as OwnedAccount<Buffer>
   })
 }
+
+export const useTokenName = (mintPubKey: PublicKey | null):{name: (string | undefined), symbol: (string | undefined) } => {
+  const { popupState } = useBackground();
+
+  if(!mintPubKey) {
+    return { name: undefined, symbol: undefined };
+  }
+
+  let match = popupState?.tokens.find(
+    (token) => token.publicKey === mintPubKey.toBase58(),
+  );
+  if (match) {
+    return { name: match.name, symbol: match.symbol };
+  }
+  return { name: undefined, symbol: undefined };
+
+}
+
 
 export function refreshAccountInfo(
   connection: Connection,

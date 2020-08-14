@@ -19,7 +19,7 @@ export class TokenCache {
           name: "MegaSerum",
           symbol: "MSRM",
           decimals: 9, // TODO validate this number
-        }
+        },
       },
       [clusterApiUrl('testnet')]: {
         "G65iDJGE9NPYVrPNAFbYvTN4Q7bPhtemwAjrdvmVk4Ly": {
@@ -28,10 +28,22 @@ export class TokenCache {
           symbol: "DFU",
           decimals: 2,
         },
+        "9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw": {
+          publicKey: "9o1FisE366msTQcEvXapyMorTLmvezrxSD8DnM5e5XKw",
+          name: "Serum",
+          symbol: "SRM",
+          decimals: 9, // TODO validate this number
+        }
       },
     }
   }
 
+  getTokens(networkEndpoint: string): Mint[] {
+    const networkMints = this.tokens[networkEndpoint]
+    return Object.keys(networkMints).map(key => {
+      return networkMints[key]
+    })
+  }
 
   getToken(networkEndpoint: string, accountAddress: string): (Mint | undefined) {
     const networkMints = this.tokens[networkEndpoint]

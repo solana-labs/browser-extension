@@ -16,6 +16,7 @@ import {
   StoredData,
   InstructionDetails,
 } from "../core/types"
+import { TokenCache } from "../core/decoder/layouts/token"
 
 const log = createLogger("sol:bg:store")
 
@@ -44,6 +45,7 @@ export class Store {
   public selectedNetwork: Network
   public selectedAccount: string
   public authorizedOrigins: string[]
+  private tokenCache: TokenCache
 
   constructor(initialStore: StoredData) {
     const {
@@ -68,6 +70,7 @@ export class Store {
       this.secretBox = secretBox
     }
     this.authorizedOrigins = authorizedOrigins || []
+    this.tokenCache = new TokenCache()
   }
 
   isLocked(): boolean {
@@ -94,6 +97,7 @@ export class Store {
       pendingTransactions: [],
       pendingRequestAccounts: [],
       authorizedOrigins: [],
+      tokens: this.tokenCache.getTokens(this.selectedNetwork.endpoint)
     }
 
     if (this.secretBox) {

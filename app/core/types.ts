@@ -55,6 +55,7 @@ export type PopupState = {
   pendingTransactions: PendingSignTransaction[]
   pendingRequestAccounts: PendingRequestAccounts[]
   authorizedOrigins: string[]
+  tokens: Mint[]
 }
 
 export type WallActions =
