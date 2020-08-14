@@ -70,6 +70,7 @@ export type PopupActions =
   | "popup_authoriseTransaction"
   | "popup_declineTransaction"
   | "popup_authoriseRequestAccounts"
+  | "popup_deleteAuthorizedWebsite"
   | "popup_declineRequestAccounts"
   | "popup_addWalletAccount"
   | "popup_sendToken"

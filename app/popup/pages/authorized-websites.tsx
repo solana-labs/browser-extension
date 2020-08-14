@@ -3,6 +3,7 @@ import { withLayout } from "../components/layout"
 import { useBackground } from "../context/background"
 import { LoadingIndicator } from "../components/loading-indicator"
 import DeleteIcon from "@material-ui/icons/Delete"
+import IconButton from "@material-ui/core/IconButton"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
@@ -12,9 +13,11 @@ import AppBar from "@material-ui/core/AppBar"
 import Toolbar from "@material-ui/core/Toolbar"
 import Container from "@material-ui/core/Container"
 import Grid from "@material-ui/core/Grid"
+import { useCallAsync } from "../utils/notifications"
 
 const AuthorizedWebsitesPageBase: React.FC = () => {
-  const { popupState } = useBackground()
+  const { popupState, request } = useBackground()
+  const callAsync = useCallAsync()
 
   if (!popupState) {
     return <LoadingIndicator />
@@ -23,6 +26,19 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
   const origins = popupState.authorizedOrigins || []
   if (origins.length === 0) {
     return null
+  }
+
+  const deleteWebsite = (origin: string) => {
+    console.log("delete item:", origin)
+    callAsync(
+      request("popup_deleteAuthorizedWebsite", {
+        origin: origin,
+      }),
+      {
+        progressMessage: "Deleting website...",
+        successMessage: "Success!",
+      }
+    )
   }
 
   return (
@@ -42,7 +58,9 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
                 {origins.map((origin: string) => (
                   <ListItem>
                     <ListItemText primary={origin} />
-                    <DeleteIcon />
+                    <IconButton onClick={() => deleteWebsite(origin)}>
+                      <DeleteIcon />
+                    </IconButton>
                   </ListItem>
                 ))}
               </List>
