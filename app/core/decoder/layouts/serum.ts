@@ -25,7 +25,7 @@ export class SplDecoder {
 	}
 
 	programId(): PublicKey {
-		return DEX_PROGRAM_ID
+		return new PublicKey("6CZL4vVQqVzms4ZQEFtH91nMiPEph2szTHaRMjyrDyWM")
 	}
 
 	decodeInstruction = async (connection: Web3Connection, instruction: TransactionInstruction): Promise<(InstructionDetails | undefined)> => {

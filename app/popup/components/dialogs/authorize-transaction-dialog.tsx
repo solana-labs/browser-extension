@@ -53,6 +53,10 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 				)
 			}
 			switch (detail.type) {
+        case "sol_createAccount":
+          return (
+            <p>SOL Create new account {detail.params.newAccount} from: {detail.params.from}</p>
+          )
 				case "sol_transfer":
 					return (
 						<p>SOL Transfer {displayAmount(detail.params.amount,9)} SOL from {detail.params.from} to {detail.params.to}</p>

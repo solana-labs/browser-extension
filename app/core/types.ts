@@ -1,4 +1,4 @@
-import { clusterApiUrl, Cluster } from "@solana/web3.js"
+import { clusterApiUrl, Cluster, PublicKey } from "@solana/web3.js"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -86,7 +86,18 @@ export type PendingSignTransaction = {
   tabId: string
 }
 
-export type InstructionDetails = InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer | InstructionDetailsDexNewOrder | InstructionDetailsDexCancelOrder
+export type InstructionDetails = InstructionDetailsSOLCreateAccount | InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer | InstructionDetailsDexNewOrder | InstructionDetailsDexCancelOrder
+
+export type InstructionDetailsSOLCreateAccount = {
+  type: "sol_createAccount"
+  params: {
+    from: string
+    newAccount: string
+    lamports: number
+    space: number
+    programId: string
+  }
+}
 
 export type InstructionDetailsSOLTransfer = {
   type: "sol_transfer"
