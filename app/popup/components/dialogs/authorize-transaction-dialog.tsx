@@ -42,7 +42,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     if (!transaction.details) {
       return null
     }
-    transaction.details.map((detail, idx) => {
+    return transaction.details.map((detail, idx) => {
     	if (!detail) {
     		return (
     			<p>Unable to decode instruction at index {idx}</p>

@@ -79,6 +79,7 @@ export type PopupActions =
 
 export type PendingSignTransaction = {
   message: string
+  signer: string
   details?: (InstructionDetails | undefined)[]
   tabId: string
 }

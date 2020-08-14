@@ -77,7 +77,7 @@ class Provider extends EventEmitter {
 
   // Called when connection is lost to critical streams.
   _handleDisconnect = (streamName: any, err: any) => {
-    log("Solana Inpage Provider lost connection to %s: %s", streamName, err)
+    log("Solana Inpage Provider lost connection to %s: %s with stack %O", streamName, err, err.stack)
     this.emit("disconnected")
   }
 }

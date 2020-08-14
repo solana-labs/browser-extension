@@ -206,10 +206,17 @@ export class PopupController {
       log("Unable sign tranasction with out a wallet for tabId %s", tabId)
       return
     }
-    // TODO: the request to sign should specify a public key
-    const account = this.store.wallet.accounts[0]
-    const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
 
+
+    const signer = pendingTransaction.transaction.signer
+    log("Search for signer account: %s", signer)
+    let account = this.store.wallet.findAccount(signer)
+    if(!account) {
+      log("Signer account %s not found defaulting to first account", signer)
+      account = this.store.wallet.accounts[0]
+    }
+
+    const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
     const signature = nacl.sign.detached(m, account.secretKey)
     invariant(signature.length === 64)
 

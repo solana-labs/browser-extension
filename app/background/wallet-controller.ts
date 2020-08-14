@@ -1,21 +1,12 @@
 import { Store } from "./store"
 import { createLogger, decodeSerializedMessage } from "../core/utils"
-import { RequestAccountsResp, SignTransactionResp, InstructionDetails, WallActions } from "../core/types"
+import { InstructionDetails, RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
 import bs58 from "bs58"
-import {
-  SystemProgram,
-  PublicKey,
-  LAMPORTS_PER_SOL,
-  SystemInstruction,
-  Transaction,
-  TransactionInstruction,
-  Connection
-} from "@solana/web3.js"
+import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { Decoder } from "../core/decoder"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
-import { Web3Connection } from "../core/connection"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -118,39 +109,35 @@ export class WalletController {
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
     let {
       tabId,
-      params: { message, blockHash },
+      params: { message, signer }
     } = req
-    // FIXME: remove this... we only have this for testing
-    if (blockHash && message === "SPL_TEST") {
-      message = createSplTransfer(blockHash)
-    }
-    if (blockHash && message === "DEX_TEST_NEW_ORDER") {
-			message = createDEXNewOrder(blockHash)
-		}
-		if (blockHash && message === "DEX_TEST_CANCEL_ORDER") {
-			message = createDEXCancelOrder(blockHash)
-		}
-    log("Handling sign transaction tabId: %s message: %s", tabId, message)
+    // if (message === "DEX_TEST_NEW_ORDER") {
+    //   message = createDEXNewOrder(blockHash)
+    // }
+    // if (message === "DEX_TEST_CANCEL_ORDER") {
+    //   message = createDEXCancelOrder(blockHash)
+    // }
+    log("Handling sign transaction tabId: %s message: %s for signer %s", tabId, message, signer)
     let instructionDetailsList: (InstructionDetails | undefined)[] = []
     try {
       const decodedMessage = bs58.decode(message)
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
-      const trx = Transaction.populate(trxMessage,[])
-      log("transaction: %O",trx)
-			instructionDetailsList = await this.decoder.decode(trx)
+      const trx = Transaction.populate(trxMessage, [])
+      log("transaction: %O", trx)
+      instructionDetailsList = await this.decoder.decode(trx)
       if (instructionDetailsList) {
         log("Transaction details: %O", instructionDetailsList)
       } else {
         log("Could not determine transaction details")
       }
-    }catch (e) {
-      log("error populating transaction: %O",e)
+    } catch (e) {
+      log("error populating transaction: %O", e)
     }
 
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store._addPendingTransaction(tabId, message, resolve, reject, instructionDetailsList)
+      this.store._addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
     })
   }
 
@@ -161,37 +148,37 @@ export class WalletController {
   }
 }
 
-const createSplTransfer = (blockHash: string):string => {
+const createSplTransfer = (blockHash: string): string => {
   const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
   const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
   const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
   const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
-  const bufferLayout = BufferLayout.union(BufferLayout.u8('instruction'));
+  const bufferLayout = BufferLayout.union(BufferLayout.u8("instruction"))
   bufferLayout.addVariant(
     3,
     BufferLayout.struct([
-      BufferLayout.nu64('amount')
+      BufferLayout.nu64("amount")
     ]),
-    'transfer',
-  );
+    "transfer"
+  )
 
   const instructionMaxSpan = Math.max(
-    ...Object.values(bufferLayout.registry).map((r: any) => r.span),
-  );
-  let b = Buffer.alloc(instructionMaxSpan);
+    ...Object.values(bufferLayout.registry).map((r: any) => r.span)
+  )
+  let b = Buffer.alloc(instructionMaxSpan)
   let span = bufferLayout.encode({
-    transfer: {amount: 0.25 * Math.pow(10, 9)}
-  }, b);
-  const encodedData = b.slice(0, span);
+    transfer: { amount: 0.25 * Math.pow(10, 9) }
+  }, b)
+  const encodedData = b.slice(0, span)
   const transaction = new Transaction()
   transaction.add(new TransactionInstruction({
     keys: [
       { pubkey: fromPubKey, isSigner: false, isWritable: true },
       { pubkey: toPubKey, isSigner: false, isWritable: true },
-      { pubkey: ownerPubKey, isSigner: true, isWritable: false },
+      { pubkey: ownerPubKey, isSigner: true, isWritable: false }
     ],
     data: encodedData,
-    programId: tokenProgramId,
+    programId: tokenProgramId
   }))
   transaction.recentBlockhash = blockHash
   log("created SPl transfer", transaction)
@@ -201,82 +188,82 @@ const createSplTransfer = (blockHash: string):string => {
   return message
 }
 
-const createDEXNewOrder = (blockHash: string):string => {
-	const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
-	const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
-	const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
-	const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
-	const bufferLayout = BufferLayout.union(BufferLayout.u8('instruction'));
-	bufferLayout.addVariant(
-		3,
-		BufferLayout.struct([
-			BufferLayout.nu64('amount')
-		]),
-		'transfer',
-	);
+const createDEXNewOrder = (blockHash: string): string => {
+  const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
+  const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
+  const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
+  const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
+  const bufferLayout = BufferLayout.union(BufferLayout.u8("instruction"))
+  bufferLayout.addVariant(
+    3,
+    BufferLayout.struct([
+      BufferLayout.nu64("amount")
+    ]),
+    "transfer"
+  )
 
-	const instructionMaxSpan = Math.max(
-		...Object.values(bufferLayout.registry).map((r: any) => r.span),
-	);
-	let b = Buffer.alloc(instructionMaxSpan);
-	let span = bufferLayout.encode({
-		transfer: {amount: 0.25 * Math.pow(10, 9)}
-	}, b);
-	const encodedData = b.slice(0, span);
-	const transaction = new Transaction()
-	transaction.add(new TransactionInstruction({
-		keys: [
-			{ pubkey: fromPubKey, isSigner: false, isWritable: true },
-			{ pubkey: toPubKey, isSigner: false, isWritable: true },
-			{ pubkey: ownerPubKey, isSigner: true, isWritable: false },
-		],
-		data: encodedData,
-		programId: tokenProgramId,
-	}))
-	transaction.recentBlockhash = blockHash
-	log("created SPl transfer", transaction)
-	const serializedMessage = transaction.serializeMessage()
-	const message = bs58.encode(serializedMessage)
-	log("serialized SPl transfer", serializedMessage)
-	return message
+  const instructionMaxSpan = Math.max(
+    ...Object.values(bufferLayout.registry).map((r: any) => r.span)
+  )
+  let b = Buffer.alloc(instructionMaxSpan)
+  let span = bufferLayout.encode({
+    transfer: { amount: 0.25 * Math.pow(10, 9) }
+  }, b)
+  const encodedData = b.slice(0, span)
+  const transaction = new Transaction()
+  transaction.add(new TransactionInstruction({
+    keys: [
+      { pubkey: fromPubKey, isSigner: false, isWritable: true },
+      { pubkey: toPubKey, isSigner: false, isWritable: true },
+      { pubkey: ownerPubKey, isSigner: true, isWritable: false }
+    ],
+    data: encodedData,
+    programId: tokenProgramId
+  }))
+  transaction.recentBlockhash = blockHash
+  log("created SPl transfer", transaction)
+  const serializedMessage = transaction.serializeMessage()
+  const message = bs58.encode(serializedMessage)
+  log("serialized SPl transfer", serializedMessage)
+  return message
 }
 
-const createDEXCancelOrder = (blockHash: string):string => {
-	const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
-	const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
-	const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
-	const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
-	const bufferLayout = BufferLayout.union(BufferLayout.u8('instruction'));
-	bufferLayout.addVariant(
-		3,
-		BufferLayout.struct([
-			BufferLayout.nu64('amount')
-		]),
-		'transfer',
-	);
+const createDEXCancelOrder = (blockHash: string): string => {
+  const fromPubKey = new PublicKey("FMv36JBTBUKA6zCxQSwb8z8Fp3Q1EvaiPu33vNV5uSyT")
+  const toPubKey = new PublicKey("8ooe4PBL5ZBdUHssn1y1JeGQB3HVj2LBE3TswP9CU32w")
+  const ownerPubKey = new PublicKey("FTTRznSXjgQg8CxfvsgxbKCNTYCZ3m6kNVTxaXyj2zNC")
+  const tokenProgramId = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
+  const bufferLayout = BufferLayout.union(BufferLayout.u8("instruction"))
+  bufferLayout.addVariant(
+    3,
+    BufferLayout.struct([
+      BufferLayout.nu64("amount")
+    ]),
+    "transfer"
+  )
 
-	const instructionMaxSpan = Math.max(
-		...Object.values(bufferLayout.registry).map((r: any) => r.span),
-	);
-	let b = Buffer.alloc(instructionMaxSpan);
-	let span = bufferLayout.encode({
-		transfer: {amount: 0.25 * Math.pow(10, 9)}
-	}, b);
-	const encodedData = b.slice(0, span);
-	const transaction = new Transaction()
-	transaction.add(new TransactionInstruction({
-		keys: [
-			{ pubkey: fromPubKey, isSigner: false, isWritable: true },
-			{ pubkey: toPubKey, isSigner: false, isWritable: true },
-			{ pubkey: ownerPubKey, isSigner: true, isWritable: false },
-		],
-		data: encodedData,
-		programId: tokenProgramId,
-	}))
-	transaction.recentBlockhash = blockHash
-	log("created SPl transfer", transaction)
-	const serializedMessage = transaction.serializeMessage()
-	const message = bs58.encode(serializedMessage)
-	log("serialized SPl transfer", serializedMessage)
-	return message
+  const instructionMaxSpan = Math.max(
+    ...Object.values(bufferLayout.registry).map((r: any) => r.span)
+  )
+  let b = Buffer.alloc(instructionMaxSpan)
+  let span = bufferLayout.encode({
+    transfer: { amount: 0.25 * Math.pow(10, 9) }
+  }, b)
+  const encodedData = b.slice(0, span)
+  const transaction = new Transaction()
+  transaction.add(new TransactionInstruction({
+    keys: [
+      { pubkey: fromPubKey, isSigner: false, isWritable: true },
+      { pubkey: toPubKey, isSigner: false, isWritable: true },
+      { pubkey: ownerPubKey, isSigner: true, isWritable: false }
+    ],
+    data: encodedData,
+    programId: tokenProgramId
+  }))
+  transaction.recentBlockhash = blockHash
+  log("created SPl transfer", transaction)
+  const serializedMessage = transaction.serializeMessage()
+  const message = bs58.encode(serializedMessage)
+  log("serialized SPl transfer", serializedMessage)
+  return message
 }

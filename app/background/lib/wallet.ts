@@ -36,6 +36,16 @@ export class Wallet {
     return newAccount
   }
 
+  findAccount(pubKey: string): (Account | undefined) {
+    let account = undefined
+    this.accounts.forEach(acc => {
+      if(acc.publicKey.toBase58() === pubKey) {
+        account =  acc
+      }
+    })
+    return account
+  }
+
   getPublicKeysAsBs58 = (): string[] => {
     return this.accounts.map((a) => a.publicKey.toBase58())
   }
