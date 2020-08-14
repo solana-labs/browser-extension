@@ -1,4 +1,4 @@
-import { clusterApiUrl } from "@solana/web3.js"
+import { clusterApiUrl, Cluster } from "@solana/web3.js"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -9,11 +9,11 @@ export const MUX_PROVIDER_SUBSTREAM = "sol.provider"
 export const MUX_CONTROLLER_SUBSTREAM = "sol.controller"
 export const CHROME_CONN_CS = "sol.cs"
 
-export const DEFAULT_NETWORK: Network = { title: "Devnet", endpoint: clusterApiUrl("devnet") }
+export const DEFAULT_NETWORK: Network = { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet")}
 export const AVAILABLE_NETWORKS: Network[] = [
-  { title: "Mainnet Beta", endpoint: clusterApiUrl("mainnet-beta") },
-  { title: "Devnet", endpoint: clusterApiUrl("devnet") },
-  { title: "Testnet", endpoint: clusterApiUrl("testnet") },
+  { title: "Mainnet Beta", cluster: "mainnet-beta", endpoint: clusterApiUrl("mainnet-beta") },
+  { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet") },
+  { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") },
 ]
 export type RequestAccountsResp = {
   accounts: string[]
@@ -25,6 +25,7 @@ export type SignTransactionResp = {
 
 export type Network = {
   title: string
+  cluster: Cluster
   endpoint: string
 }
 

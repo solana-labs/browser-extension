@@ -109,14 +109,17 @@ export class WalletController {
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
     let {
       tabId,
-      params: { message, signer }
+      params: { message, blockHash, signer }
     } = req
-    // if (message === "DEX_TEST_NEW_ORDER") {
-    //   message = createDEXNewOrder(blockHash)
-    // }
-    // if (message === "DEX_TEST_CANCEL_ORDER") {
-    //   message = createDEXCancelOrder(blockHash)
-    // }
+    if (message === "SPL_TEST") {
+      message = createSplTransfer(blockHash)
+    }
+    if (message === "DEX_TEST_NEW_ORDER") {
+      message = createDEXNewOrder(blockHash)
+    }
+    if (message === "DEX_TEST_CANCEL_ORDER") {
+      message = createDEXCancelOrder(blockHash)
+    }
     log("Handling sign transaction tabId: %s message: %s for signer %s", tabId, message, signer)
     let instructionDetailsList: (InstructionDetails | undefined)[] = []
     try {

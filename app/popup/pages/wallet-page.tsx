@@ -13,7 +13,7 @@ interface WalletPageProps {
 
 export const WalletPage: React.FC<WalletPageProps> = ({ account }) => {
   const { popupState } = useBackground()
-  const isProdNetwork = popupState?.selectedNetwork.endpoint === clusterApiUrl("mainnet-beta")
+  const isProdNetwork = popupState?.selectedNetwork.cluster === "mainnet-beta"
 
   if (account == "") {
     return <LoadingIndicator />

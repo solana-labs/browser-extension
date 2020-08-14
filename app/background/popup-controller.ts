@@ -241,28 +241,35 @@ export class PopupController {
   changeNetwork(req: any) {
     log("Changing network: %O", req)
 
-    const { endpoint } = req.params
-    if (!endpoint) {
+    const onExit = (network: Network) => {
+      // change the connection network option
+      this.connection.changeNetwork(network)
+      this._notifyAll({
+        type: "clusterChanged",
+        data: network,
+      })
+    }
+    // TODO: Endpoint will be used here to add a customer cluster
+    const { cluster, endpoint } = req.params
+    if (!cluster) {
       throw new Error("Must specify an network endpoint to change network")
     }
     for (const network of AVAILABLE_NETWORKS) {
-      if (network.endpoint == endpoint) {
+      if (network.cluster == cluster) {
         this.store.selectedNetwork = network
+        onExit(network)
         return
       }
     }
 
     this.store.selectedNetwork = {
       title: "Custom",
+      cluster: cluster,
       endpoint: endpoint,
     }
-    // change the connection network optoin
-    this.connection.changeNetwork(endpoint)
+    onExit(this.store.selectedNetwork)
 
-    this._notifyAll({
-      type: "clusterChanged",
-      data: this.store.selectedNetwork,
-    })
+
   }
 
   changeAccount(req: any) {
@@ -299,6 +306,7 @@ export class PopupController {
   }
 
   _notifyAll(notification: Notification) {
+    log("Notifying all domains")
     if (this._notifyAllDomains) {
       this._notifyAllDomains(notification)
         .then(() => {

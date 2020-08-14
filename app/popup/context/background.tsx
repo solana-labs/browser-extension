@@ -106,15 +106,15 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }
 
   const changeNetwork: BackgroundContextType["changeNetwork"] = (network: Network) => {
-    log("Changing network from: %s to %s", state?.selectedNetwork.endpoint, network.endpoint)
-    request("popup_changeNetwork", { endpoint: network.endpoint })
+    log("Changing network from: %s to %s", state?.selectedNetwork.cluster, network.cluster)
+    request("popup_changeNetwork", { cluster: network.cluster })
       .then((state) => {
-        log("Changed network to: %s", state.result.selectedNetwork.endpoint)
+        log("Changed network to: %s", state.result.selectedNetwork.cluster)
       })
       .catch((err) => {
         log(
           "Unable to switch network from: %s to %s : ",
-          state?.selectedNetwork.endpoint,
+          state?.selectedNetwork.cluster,
           network,
           err
         )

@@ -3,7 +3,6 @@ import { createLogger, createObjectMultiplex } from "../core/utils"
 import { WallActions, Notification } from "../core/types"
 import { EventEmitter } from "events"
 import { CONTENT_MESSAGE_STREAM, INPAGE_MESSAGE_STREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
-
 const LocalMessageDuplexStream = require("post-message-stream")
 const RpcEngine = require("json-rpc-engine")
 const createJsonRpcStream = require("json-rpc-middleware-stream")
@@ -18,9 +17,12 @@ export interface RequestArgs {
 class Provider extends EventEmitter {
   private _csStream: any
   private _rpcEngine: any
+  private _nextRequestId: number
 
   constructor(csStream: any) {
     super() // TODO: secure that, do we want to expose all the methods therein?
+
+    this._nextRequestId = 1;
 
     this._csStream = csStream
 
@@ -50,6 +52,7 @@ class Provider extends EventEmitter {
     // json rpc notification listener
     const that = this;
     jsonRpcConnection.events.on("notification", (resp: Notification) => {
+      log("Notification : %O", resp)
       log("Received notification [%s] : %O", resp.type, resp.data)
       that.emit(resp.type, resp.data)
     })
@@ -57,18 +60,20 @@ class Provider extends EventEmitter {
 
   request = (args: RequestArgs): Promise<any> => {
     const that = this
-    log("provider with method: ", args.method)
+    const requestId = this._nextRequestId;
+    ++this._nextRequestId;
+    log("inpage requesting %s with params: %O", args.method, args.params)
     return new Promise<any>(function(resolve, reject) {
-      let req = { id: 1, jsonrpc: "2.0", method: args.method }
+      let req = { id: requestId, jsonrpc: "2.0", method: args.method }
       if (args.params) {
         req = Object.assign(req, { params: args.params })
       }
       that._rpcEngine.handle(req, function(err: any, response: any) {
-        log("rpc engine response: ", response)
-        log("rpc engine err: ", err)
         if (err) {
+          log("rpc engine [%s] failed: %O ", err)
           reject(err)
         } else {
+          log("rpc engine [%s] responded: %O ", response)
           resolve(response)
         }
       })

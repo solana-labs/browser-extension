@@ -6,8 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <script src="./index.iife.js"></script>
     <script src="./bs58.bundle.js"></script>
-    <script src="./buffer-layout.js"></script>
-
     <style type="text/css">
         body {
             background-color: #f0f0f2;
@@ -128,7 +126,7 @@
     window.solana.on("clusterChanged", function(cluster) {
       // cluster: {"title": "network", "endpoint": "http://..."}
       console.log("dapp got clusterChange:", cluster)
-      updateNetworkAddress(cluster.endpoint)
+      updateNetworkAddress(cluster)
     })
 
     window.solana.on("stateChanged", function(state) {
@@ -230,16 +228,16 @@
     })
   }
 
-  function updateNetworkAddress(address){
-    console.log("updating network address to:", address)
-    connection = new solanaWeb3.Connection(address) //todo: Get network url
-    document.getElementById("network-address").innerText = address
+  function updateNetworkAddress(network){
+    console.log("updating network address to:", network)
+    connection = new solanaWeb3.Connection(network.endpoint) //todo: Get network url
+    document.getElementById("network-address").innerText = network.endpoint
   }
 
   function updateState(state){
     console.log("updating state:", state)
     let status = "Wallet locked"
-    if (!state.locked) {
+    if (state.state == "unlocked") {
       requestCluster()
       status = "Wallet unlocked"
     }

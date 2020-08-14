@@ -42,7 +42,7 @@ export default class SolanaController {
     log("Setting up Solana Controller")
     const { storedData, persistData } = opts
     const store = new Store(storedData)
-    const connection = new Web3Connection(store.selectedNetwork.endpoint)
+    const connection = new Web3Connection(store.selectedNetwork)
     const decoder = new Decoder(connection)
 
     this.store = store

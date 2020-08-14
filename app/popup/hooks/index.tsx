@@ -16,9 +16,9 @@ const bip32 = require("bip32")
 
 export const useSolanaExplorerUrlSuffix = (): string => {
   const { popupState } = useBackground()
-  if (popupState?.selectedNetwork.endpoint === clusterApiUrl("devnet")) {
+  if (popupState?.selectedNetwork.cluster === "devnet") {
     return "?cluster=devnet"
-  } else if (popupState?.selectedNetwork.endpoint === clusterApiUrl("testnet")) {
+  } else if (popupState?.selectedNetwork.cluster === "testnet") {
     return "?cluster=testnet"
   }
   return ""
