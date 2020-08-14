@@ -39,6 +39,16 @@ export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<B
       publicKey: publicKey,
       accountInfo: externalAccountInfo
     } as OwnedAccount<Buffer>]
+  } else if(externalAccountInfoLoaded && !externalAccountInfo) {
+    // lets create a place holder account
+    out = [{
+      publicKey: publicKey,
+      accountInfo: {
+        executable: false,
+        owner: publicKey,
+        lamports: 0,
+      }
+    } as OwnedAccount<Buffer>]
   }
 
   if (storagedAcountInfo.length > 0) {

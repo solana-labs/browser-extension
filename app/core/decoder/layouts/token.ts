@@ -40,6 +40,9 @@ export class TokenCache {
 
   getTokens(networkEndpoint: string): Mint[] {
     const networkMints = this.tokens[networkEndpoint]
+    if (!networkMints) {
+      return []
+    }
     return Object.keys(networkMints).map(key => {
       return networkMints[key]
     })

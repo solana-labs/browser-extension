@@ -38,6 +38,10 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     })
   }
 
+  const displayAmount = (amount: number, decimal: number):string => {
+    return `${amount / Math.pow(10, decimal)}`
+  }
+
   const renderTransactionDetails = () => {
     if (!transaction.details) {
       return null
@@ -51,13 +55,21 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 			switch (detail.type) {
 				case "sol_transfer":
 					return (
-						<p>SOL Transfer {detail.params.amount} SOL from {detail.params.from} to {detail.params.to}</p>
+						<p>SOL Transfer {displayAmount(detail.params.amount,9)} SOL from {detail.params.from} to {detail.params.to}</p>
 					)
 				case "spl_transfer":
 					return (
-						<p>SPL Transfer {detail.params.amount} {detail.params.mint.symbol} from {detail.params.from} to {detail.params.to}</p>
+						<p>SPL Transfer {displayAmount(detail.params.amount,(detail.params.mint.decimals || 9))} {detail.params.mint.symbol} from {detail.params.from} to {detail.params.to}</p>
 					)
-			}
+        case "dex_cancelorder":
+          return (
+            <p>Dex Cancel Order: TBD</p>
+          )
+        case "dex_neworder":
+          return (
+            <p>Dex New Order: TBD</p>
+          )
+      }
 		})
   }
 

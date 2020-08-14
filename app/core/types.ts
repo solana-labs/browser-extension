@@ -86,7 +86,7 @@ export type PendingSignTransaction = {
   tabId: string
 }
 
-export type InstructionDetails = InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer
+export type InstructionDetails = InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer | InstructionDetailsDexNewOrder | InstructionDetailsDexCancelOrder
 
 export type InstructionDetailsSOLTransfer = {
   type: "sol_transfer"
@@ -107,6 +107,28 @@ export type InstructionDetailsSPLTransfer = {
     mint: Mint
   }
 }
+
+
+export type InstructionDetailsDexNewOrder = {
+  type: "dex_neworder"
+  params: {
+    side: string
+    price: number
+    size: number
+    orderType: string
+  }
+}
+
+export type InstructionDetailsDexCancelOrder = {
+  type: "dex_cancelorder"
+  params: {
+    side: string
+    orderId: string
+    owner: string
+    ownerSlot: number
+  }
+}
+
 
 export type Mint = {
   publicKey?: string
