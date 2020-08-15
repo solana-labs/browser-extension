@@ -40,6 +40,7 @@ export type StoredData = {
   selectedNetwork: Network
   selectedAccount: string
   authorizedOrigins: string[]
+  tokens: {[network: string]: {[mintAddress: string]: Mint}}
 }
 
 export type WalletState = {
@@ -78,6 +79,9 @@ export type PopupActions =
   | "popup_sendToken"
   | "popup_changeNetwork"
   | "popup_changeAccount"
+  | "popup_addToken"
+  | "popup_removeToken"
+  | "popup_updateToken"
 
 export type PendingSignTransaction = {
   message: string

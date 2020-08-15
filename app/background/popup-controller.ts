@@ -110,6 +110,20 @@ export class PopupController {
             res.error = err
           }
           break
+        case "popup_addToken":
+          log(`adding token for req %O`, req)
+          const { mint } = req
+          this.store.addMint(mint)
+          break
+        case "popup_removeToken":
+          log(`remove token for req %O`, req)
+          const { mintAddress } = req
+          this.store.remoteMint(mintAddress)
+          break
+        case "popup_updateToken":
+          log(`update token for req %O`, req)
+          this.store.updateMint(req['`publicKey`'], req['mint'])
+          break
         case "popup_addWalletAccount":
           this.addAccount()
           break
@@ -154,20 +168,20 @@ export class PopupController {
       )
       return
     }
-    const tabs = this.store._getPendingRequestAccountsForOrigin(origin)
+    const tabs = this.store.getPendingRequestAccountsForOrigin(origin)
 
     if (!tabs) {
       log("Request Account with origin %s and tabId %s not found", origin, tabId)
       return
     }
-    this.store._addAuthorizedOrigin(origin)
+    this.store.addAuthorizedOrigin(origin)
     Object.keys(tabs).forEach((tabId) => {
       tabs[tabId].resolve({
         accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
       })
     })
 
-    this.store._removePendingRequestAccountsForOrigin(origin)
+    this.store.removePendingRequestAccountsForOrigin(origin)
   }
 
   async deleteAuthorizedWebsite(req: any) {
@@ -175,21 +189,21 @@ export class PopupController {
 
     const { origin } = req.params
 
-    this.store._removeAuthorizedOrigin(origin)
+    this.store.removeAuthorizedOrigin(origin)
   }
 
   async declineRequestAccounts(req: any) {
     log("Declining request accounts for %O", req)
     const { origin, tabId } = req.params
 
-    const request = this.store._getPendingRequestAccounts(origin, tabId)
+    const request = this.store.getPendingRequestAccounts(origin, tabId)
     if (!request) {
       log("Permissions request with origin %s and tabId %s not found", origin, tabId)
       return
     }
 
     request.reject("access to accounts deny")
-    this.store._removePendingRequestAccounts(origin, tabId)
+    this.store.removePendingRequestAccounts(origin, tabId)
   }
 
   async signTransaction(req: any) {
@@ -221,7 +235,7 @@ export class PopupController {
     invariant(signature.length === 64)
 
     pendingTransaction.resolve({ signature: bs58.encode(signature) })
-    this.store._removePendingTransaction(tabId)
+    this.store.removePendingTransaction(tabId)
   }
 
   async declineTransaction(req: any) {
@@ -235,7 +249,7 @@ export class PopupController {
     }
 
     pendingTransaction.reject("Transaction declined")
-    this.store._removePendingTransaction(tabId)
+    this.store.removePendingTransaction(tabId)
   }
 
   changeNetwork(req: any) {

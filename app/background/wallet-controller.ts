@@ -93,7 +93,7 @@ export class WalletController {
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
 
     //todo: popup only if user never agree to request account for this origin
-    if (this.store._isOriginAuthorized(origin)) {
+    if (this.store.isOriginAuthorized(origin)) {
       return new Promise<RequestAccountsResp>((resolve, reject) => {
         resolve({ accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] })
       })
@@ -102,7 +102,7 @@ export class WalletController {
     //origin need authorization
     this._showPopup()
     return new Promise<RequestAccountsResp>((resolve, reject) => {
-      this.store._addPendingRequestAccount(tabId, origin, resolve, reject)
+      this.store.addPendingRequestAccount(tabId, origin, resolve, reject)
     })
   }
 
@@ -140,7 +140,7 @@ export class WalletController {
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store._addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
+      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
     })
   }
 

@@ -14,9 +14,8 @@ import {
   SecretBox,
   SignTransactionResp,
   StoredData,
-  InstructionDetails,
+  InstructionDetails, Mint
 } from "../core/types"
-import { TokenCache } from "../core/decoder/layouts/token"
 
 const log = createLogger("sol:bg:store")
 
@@ -45,7 +44,7 @@ export class Store {
   public selectedNetwork: Network
   public selectedAccount: string
   public authorizedOrigins: string[]
-  private tokenCache: TokenCache
+  private tokens: {[network: string]: {[mintAddress: string]: Mint}}
 
   constructor(initialStore: StoredData) {
     const {
@@ -54,6 +53,7 @@ export class Store {
       selectedNetwork,
       selectedAccount,
       authorizedOrigins,
+      tokens
     } = initialStore
     this.popIsOpen = false
 
@@ -70,7 +70,7 @@ export class Store {
       this.secretBox = secretBox
     }
     this.authorizedOrigins = authorizedOrigins || []
-    this.tokenCache = new TokenCache()
+    this.tokens = tokens
   }
 
   isLocked(): boolean {
@@ -97,7 +97,7 @@ export class Store {
       pendingTransactions: [],
       pendingRequestAccounts: [],
       authorizedOrigins: [],
-      tokens: this.tokenCache.getTokens(this.selectedNetwork.endpoint)
+      tokens: this._getTokens(this.selectedNetwork)
     }
 
     if (this.secretBox) {
@@ -203,13 +203,13 @@ export class Store {
       })
   }
 
-  _getPendingRequestAccountsForOrigin(
+  getPendingRequestAccountsForOrigin(
     origin: string
   ): { [tabId: string]: StorePendingRequestAccount } | undefined {
     return this.pendingRequestAccounts.get(origin)
   }
 
-  _getPendingRequestAccounts(
+  getPendingRequestAccounts(
     origin: string,
     tabId: string
   ): StorePendingRequestAccount | undefined {
@@ -221,7 +221,7 @@ export class Store {
     return originTabs[tabId]
   }
 
-  _addPendingRequestAccount(tabId: string, origin: string, resolve: any, reject: any) {
+  addPendingRequestAccount(tabId: string, origin: string, resolve: any, reject: any) {
     const pendingRequestAccount = {
       request: { origin, tabId },
       resolve,
@@ -250,12 +250,12 @@ export class Store {
     this.pendingRequestAccounts.set(origin, originTabs)
   }
 
-  _removePendingRequestAccountsForOrigin(origin: string) {
+  removePendingRequestAccountsForOrigin(origin: string) {
     log("Removing pending request accounts for origin %s ", origin)
     this.pendingRequestAccounts.delete(origin)
   }
 
-  _removePendingRequestAccounts(origin: string, tabId: string) {
+  removePendingRequestAccounts(origin: string, tabId: string) {
     log("Removing pending request accounts for origin %s and tabId %s", origin, tabId)
     const originTabs = this.pendingRequestAccounts.get(origin)
     if (!originTabs) {
@@ -269,7 +269,7 @@ export class Store {
     }
   }
 
-  _addPendingTransaction(
+  addPendingTransaction(
     tabId: string,
     message: string,
     signer: string,
@@ -294,7 +294,7 @@ export class Store {
     })
   }
 
-  _removePendingTransaction(tabId: string) {
+  removePendingTransaction(tabId: string) {
     const result = this.pendingTransactions.get(tabId)
     if (!result) {
       return
@@ -302,18 +302,18 @@ export class Store {
     this.pendingTransactions.delete(tabId)
   }
 
-  _addAuthorizedOrigin(origin: string) {
+  addAuthorizedOrigin(origin: string) {
     this.authorizedOrigins = [...this.authorizedOrigins, origin]
     log("Authorized this origin %s", origin)
   }
 
-  _removeAuthorizedOrigin(originToRemove: string) {
+  removeAuthorizedOrigin(originToRemove: string) {
     this.authorizedOrigins = this.authorizedOrigins.filter(function (origin) {
       return origin !== originToRemove
     })
   }
 
-  _isOriginAuthorized(origin: string): boolean {
+  isOriginAuthorized(origin: string): boolean {
     const found = this.authorizedOrigins.includes(origin)
 
     if (found) {
@@ -323,6 +323,88 @@ export class Store {
 
     log("origin need to be authorize")
     return false
+  }
+
+  _getTokens(network: Network): Mint[] {
+    const networkMints = this.tokens[network.endpoint]
+    if (!networkMints) {
+      return []
+    }
+    return Object.keys(networkMints).map(key => {
+      return networkMints[key]
+    })
+  }
+
+  addMint(mint: Mint): boolean {
+    log("Adding mint [%s] %s to network %s",mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+    if (!mint.publicKey) {
+      log("Unable to add mint [%s] %s to network %s: Mint does not have a public key",mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    const networkMints = this.tokens[this.selectedNetwork.endpoint]
+    if (!networkMints) {
+      log("Unable to add mint [%s] %s to network %s: network not found",mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    networkMints[mint.publicKey] = mint
+    return true
+  }
+
+  updateMint(oldPublicKey: string, mint: Mint): boolean {
+    log("Updating mint with public key: %s to:  [%s] %s to network %s",oldPublicKey, mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+
+    if (!mint.publicKey) {
+      log("Unable to update mint: Mint %s does not have a public key",mint.name)
+      return false
+    }
+
+    const networkMints = this.tokens[this.selectedNetwork.endpoint]
+    if (!networkMints) {
+      log("Unable to update mint [%s] %s to network %s: network not found",mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    if (!networkMints[oldPublicKey]) {
+      log("Unable to update mint [%s] %s to network %s: mint not found",mint.publicKey, mint.name, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    if (mint.publicKey !== oldPublicKey) {
+      log("Mint public key is changing removing old mint and adding new one")
+      delete networkMints[oldPublicKey]
+    }
+
+    log("Updating mint")
+    networkMints[mint.publicKey] = mint
+    return true
+  }
+
+  remoteMint(publicKey: string): boolean {
+    log("Removing mint with public key %s: %s",publicKey, this.selectedNetwork.endpoint)
+
+    const networkMints = this.tokens[this.selectedNetwork.endpoint]
+    if (!networkMints) {
+      log("Unable to remove mint %s to network %s: network not found",publicKey, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    if (!networkMints[publicKey]) {
+      log("Unable to remove mint %s from network %s: mint not found",publicKey, this.selectedNetwork.endpoint)
+      return false
+    }
+
+    delete networkMints[publicKey]
+    return true
+  }
+
+  getToken(network: Network, accountAddress: string): (Mint | undefined) {
+    const networkMints = this.tokens[network.endpoint]
+    if (networkMints) {
+      return networkMints[accountAddress]
+    }
+    return undefined
   }
 }
 

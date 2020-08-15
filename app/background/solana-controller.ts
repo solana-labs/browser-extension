@@ -43,7 +43,7 @@ export default class SolanaController {
     const { storedData, persistData } = opts
     const store = new Store(storedData)
     const connection = new Web3Connection(store.selectedNetwork)
-    const decoder = new Decoder(connection)
+    const decoder = new Decoder(connection, store)
 
     this.store = store
     this.connection = connection
@@ -201,8 +201,8 @@ export default class SolanaController {
         conn.tabId,
         origin
       )
-      this.store._removePendingTransaction(conn.tabId)
-      this.store._removePendingRequestAccounts(origin, conn.tabId)
+      this.store.removePendingTransaction(conn.tabId)
+      this.store.removePendingRequestAccounts(origin, conn.tabId)
     }
   }
 

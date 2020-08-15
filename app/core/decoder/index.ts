@@ -5,6 +5,8 @@ import { createLogger } from "../utils"
 import { SplDecoder } from "./layouts/spl"
 import { Web3Connection } from "../connection"
 import { InstructionDetails } from "../types"
+import { Store } from "../../background/store"
+import { SerumDecoder } from "./layouts/serum"
 
 const log = createLogger("sol:decoder")
 const supportedProgramId = new Map<string, ProgramDecoder>()
@@ -12,10 +14,12 @@ const supportedProgramId = new Map<string, ProgramDecoder>()
 export class Decoder {
   private supportedProgramId: Map<string, ProgramDecoder>
   private connection: Web3Connection
+  private store: Store
 
-  constructor(connection: Web3Connection) {
+  constructor(connection: Web3Connection, store: Store) {
     this.supportedProgramId = new Map<string, ProgramDecoder>()
     this.connection = connection
+    this.store = store
     this._setupDecoders()
   }
 
@@ -46,7 +50,9 @@ export class Decoder {
   _setupDecoders = (): void => {
     log("setting up known decoders")
     this._registerProgramId(new SolanaDecoder())
-    this._registerProgramId(new SplDecoder())
+    this._registerProgramId(new SplDecoder(this.store))
+    this._registerProgramId(new SerumDecoder())
+
   }
 
   _registerProgramId = (decoder: ProgramDecoder): void => {

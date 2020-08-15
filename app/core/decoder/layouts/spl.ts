@@ -11,8 +11,8 @@ import BufferLayout from "buffer-layout"
 import * as Layout from './common';
 import { Web3Connection } from "../../connection"
 import { Buffer } from "buffer"
-import { TokenCache } from "./token"
-import { Mint, InstructionDetails } from "../../types"
+import { Mint, InstructionDetails, Network } from "../../types"
+import { Store } from "../../../background/store"
 const log = createLogger("sol:decoder:sol")
 
 export const ACCOUNT_LAYOUT = BufferLayout.struct([
@@ -58,10 +58,10 @@ SPL_LAYOUT.addVariant(
 
 
 export class SplDecoder {
-  private tokenCache: TokenCache
+  private store: Store
 
-  constructor() {
-    this.tokenCache = new TokenCache()
+  constructor(store: Store) {
+    this.store = store
   }
 
   programId(): PublicKey {
@@ -115,7 +115,7 @@ export class SplDecoder {
               }
             }
           }
-          const mint = this._getMint(connection.networkEndpoint, mintPubKey, mintAccount);
+          const mint = this._getMint(connection.network, mintPubKey, mintAccount);
           return {
             type: "spl_transfer",
             params: {
@@ -140,9 +140,9 @@ export class SplDecoder {
     return new PublicKey(mint)
   }
 
-  _getMint(networkEndpoint: string, mintPubkey: PublicKey,mintAccount: AccountInfo<Buffer>): Mint {
-    log("Retrieving mint %s information on %s", mintPubkey.toBase58(), networkEndpoint)
-    const mint = this.tokenCache.getToken(networkEndpoint, mintPubkey.toBase58())
+  _getMint(network: Network, mintPubkey: PublicKey,mintAccount: AccountInfo<Buffer>): Mint {
+    log("Retrieving mint %s information on %s", mintPubkey.toBase58(), network.endpoint)
+    const mint = this.store.getToken(network, mintPubkey.toBase58())
     if (mint) {
       return mint
     }

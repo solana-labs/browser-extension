@@ -16,7 +16,7 @@ export default function createOriginMiddleware(opts: { origin: string; store: St
       return
     }
 
-    if (store._isOriginAuthorized(origin)) {
+    if (store.isOriginAuthorized(origin)) {
       log("origin already authorize")
       next()
       return
