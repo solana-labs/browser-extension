@@ -73,7 +73,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   const getBackgroundState = () => {
     log("retrieving popup state from background")
     request("popup_getState", {}).catch((err) => {
-      log("error received popup state from background: %s", err)
+      log("error received popup state from background: %O", err)
     })
   }
 

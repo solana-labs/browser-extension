@@ -70,7 +70,12 @@ export class Store {
       this.secretBox = secretBox
     }
     this.authorizedOrigins = authorizedOrigins || []
-    this.tokens = tokens
+
+    if (tokens == undefined) {
+      this.tokens = {}
+    } else {
+      this.tokens = tokens
+    }
   }
 
   isLocked(): boolean {
@@ -99,7 +104,7 @@ export class Store {
       authorizedOrigins: [],
       tokens: this._getTokens(this.selectedNetwork)
     }
-
+    log("popup state: %O", state)
     if (this.secretBox) {
       state.walletState = "locked"
     }
@@ -326,6 +331,7 @@ export class Store {
   }
 
   _getTokens(network: Network): Mint[] {
+    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
     const networkMints = this.tokens[network.endpoint]
     if (!networkMints) {
       return []
