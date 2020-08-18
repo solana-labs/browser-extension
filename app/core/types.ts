@@ -19,8 +19,12 @@ export type RequestAccountsResp = {
   accounts: string[]
 }
 
+export type SignatureResult = {
+  publicKey: string
+  signature: string
+}
 export type SignTransactionResp = {
-  signatures: string[]
+  signatureResults: SignatureResult[]
 }
 
 export type Network = {

@@ -118,12 +118,13 @@ export class WalletController {
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
       const trx = Transaction.populate(trxMessage, [])
       log("transaction: %O", trx)
-      instructionDetailsList = await this.decoder.decode(trx)
-      if (instructionDetailsList) {
-        log("Transaction details: %O", instructionDetailsList)
-      } else {
-        log("Could not determine transaction details")
-      }
+
+      // instructionDetailsList = await this.decoder.decode(trx)
+      // if (instructionDetailsList) {
+      //   log("Transaction details: %O", instructionDetailsList)
+      // } else {
+      //   log("Could not determine transaction details")
+      // }
     } catch (e) {
       log("error populating transaction: %O", e)
     }
@@ -131,7 +132,8 @@ export class WalletController {
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
+      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, [])
+      // this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
     })
   }
 

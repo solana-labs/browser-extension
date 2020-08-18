@@ -4,7 +4,7 @@ import { Buffer } from "buffer"
 import bs58 from "bs58"
 import nacl from "tweetnacl"
 import invariant from "assert"
-import { AVAILABLE_NETWORKS, Network, Notification, PopupActions } from "../core/types"
+import { AVAILABLE_NETWORKS, Network, Notification, PopupActions, SignatureResult } from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
 
@@ -224,7 +224,7 @@ export class PopupController {
 
     const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
 
-    const signatures: string[] = []
+    const signatureResults: SignatureResult[] = []
     pendingTransaction.transaction.signers.forEach(signerKey => {
       log("Search for signer account: %s", signerKey)
       const account = wallet.findAccount(signerKey)
@@ -233,10 +233,10 @@ export class PopupController {
       }
       const signature = nacl.sign.detached(m, account.secretKey)
       invariant(signature.length === 64)
-      signatures.push(bs58.encode(signature))
+      signatureResults.push( {publicKey: signerKey, signature:bs58.encode(signature)})
     })
 
-    pendingTransaction.resolve({ signatures: signatures })
+    pendingTransaction.resolve({ signatureResults: signatureResults })
     this.store.removePendingTransaction(tabId)
   }
 
