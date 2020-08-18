@@ -3,7 +3,7 @@ import { createLogger } from "../../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import { Web3Connection } from "../../connection"
 import { InstructionDetails } from "../../types"
-import { INSTRUCTION_LAYOUT } from "./serum-js/instructions"
+import { DEX_PROGRAM_ID, INSTRUCTION_LAYOUT } from "@project-serum/serum/lib/instructions"
 
 const log = createLogger("sol:decoder:serum-js")
 
@@ -13,14 +13,18 @@ export class SerumDecoder {
   }
 
   programId(): PublicKey {
-    return new PublicKey("6CZL4vVQqVzms4ZQEFtH91nMiPEph2szTHaRMjyrDyWM")
+    return DEX_PROGRAM_ID
   }
 
   decodeInstruction = async (connection: Web3Connection, instruction: TransactionInstruction): Promise<(InstructionDetails | undefined)> => {
-    const foo = INSTRUCTION_LAYOUT.decode(instruction.data)
-    log("Decoding spl transaction: %O", foo)
-    return undefined
+    try {
+      console.log("decoding instruction: %O",instruction)
+      const foo = INSTRUCTION_LAYOUT.decode(instruction.data)
+      log("Decoding serum transaction: %O", foo)
+
+    }catch (e) {
+      log("ERROR: failed to decode instruction: %O", e)
+      return undefined
+    }
   }
-
 }
-

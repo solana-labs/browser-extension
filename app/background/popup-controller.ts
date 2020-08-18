@@ -42,7 +42,7 @@ export class PopupController {
             await this.store.createSecretBox(mnemonic, seed, password)
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" },
+              data: { state: "unlocked" }
             })
           } catch (err) {
             log("error: popup_createWallet failed  with error: %s", err)
@@ -55,7 +55,7 @@ export class PopupController {
             await this.store.unlockSecretBox(req.params.password)
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" },
+              data: { state: "unlocked" }
             })
           } catch (err) {
             log("error: popup_unlockWallet failed  with error: %s", err)
@@ -122,7 +122,7 @@ export class PopupController {
           break
         case "popup_updateToken":
           log(`update token for req %O`, req)
-          this.store.updateMint(req['`publicKey`'], req['mint'])
+          this.store.updateMint(req["`publicKey`"], req["mint"])
           break
         case "popup_addWalletAccount":
           this.addAccount()
@@ -177,7 +177,7 @@ export class PopupController {
     this.store.addAuthorizedOrigin(origin)
     Object.keys(tabs).forEach((tabId) => {
       tabs[tabId].resolve({
-        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
+        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : []
       })
     })
 
@@ -220,21 +220,23 @@ export class PopupController {
       log("Unable sign tranasction with out a wallet for tabId %s", tabId)
       return
     }
-
-
-    const signer = pendingTransaction.transaction.signer
-    log("Search for signer account: %s", signer)
-    let account = this.store.wallet.findAccount(signer)
-    if(!account) {
-      log("Signer account %s not found defaulting to first account", signer)
-      account = this.store.wallet.accounts[0]
-    }
+    const wallet = this.store.wallet
 
     const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
-    const signature = nacl.sign.detached(m, account.secretKey)
-    invariant(signature.length === 64)
 
-    pendingTransaction.resolve({ signature: bs58.encode(signature) })
+    const signatures: string[] = []
+    pendingTransaction.transaction.signers.forEach(signerKey => {
+      log("Search for signer account: %s", signerKey)
+      const account = wallet.findAccount(signerKey)
+      if (!account) {
+        throw new Error("no account found for signer key: "+ signerKey)
+      }
+      const signature = nacl.sign.detached(m, account.secretKey)
+      invariant(signature.length === 64)
+      signatures.push(bs58.encode(signature))
+    })
+
+    pendingTransaction.resolve({ signatures: signatures })
     this.store.removePendingTransaction(tabId)
   }
 
@@ -260,7 +262,7 @@ export class PopupController {
       this.connection.changeNetwork(network)
       this._notifyAll({
         type: "clusterChanged",
-        data: network,
+        data: network
       })
     }
     // TODO: Endpoint will be used here to add a customer cluster
@@ -279,7 +281,7 @@ export class PopupController {
     this.store.selectedNetwork = {
       title: "Custom",
       cluster: cluster,
-      endpoint: endpoint,
+      endpoint: endpoint
     }
     onExit(this.store.selectedNetwork)
 
@@ -311,10 +313,10 @@ export class PopupController {
     const newAccount = this.store.wallet?.addAccount()
 
     if (newAccount) {
-     this.store.selectedAccount = newAccount.publicKey.toBase58()
+      this.store.selectedAccount = newAccount.publicKey.toBase58()
       this._notifyAll({
         type: "accountsChanged",
-        data: this.store.wallet?.getPublicKeysAsBs58() || [],
+        data: this.store.wallet?.getPublicKeysAsBs58() || []
       })
     }
   }
@@ -356,7 +358,7 @@ export class PopupController {
     const transaction = SystemProgram.transfer({
       fromPubkey: new PublicKey(transfer.fromPubkey),
       toPubkey: new PublicKey(transfer.toPubkey),
-      lamports: lamports,
+      lamports: lamports
     })
 
     log("creating connection with address: ", this.store.selectedNetwork.endpoint)

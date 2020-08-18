@@ -4,6 +4,7 @@ import React, { ReactNode } from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
 import { AccountPage } from "../../pages/account-page"
+import { LockWalletPage } from "../../pages/lock-wallet-page"
 
 const RoutesBase: React.FC = () => {
   const routes: {
@@ -11,6 +12,7 @@ const RoutesBase: React.FC = () => {
   } = {
     [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
     [Paths.account]: AccountPage,
+    [Paths.lockWallet]: LockWalletPage,
   }
 
   return (

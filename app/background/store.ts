@@ -277,7 +277,7 @@ export class Store {
   addPendingTransaction(
     tabId: string,
     message: string,
-    signer: string,
+    signers: string[],
     resolve: any,
     reject: any,
     details?: (InstructionDetails | undefined)[]
@@ -290,7 +290,7 @@ export class Store {
     this.pendingTransactions.set(tabId, {
       transaction: {
         message,
-        signer,
+        signers,
         tabId,
         details
       },

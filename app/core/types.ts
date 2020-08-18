@@ -20,7 +20,7 @@ export type RequestAccountsResp = {
 }
 
 export type SignTransactionResp = {
-  signature: string
+  signatures: string[]
 }
 
 export type Network = {
@@ -85,7 +85,7 @@ export type PopupActions =
 
 export type PendingSignTransaction = {
   message: string
-  signer: string
+  signers: string[]
   details?: (InstructionDetails | undefined)[]
   tabId: string
 }

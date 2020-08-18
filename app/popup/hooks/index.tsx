@@ -104,7 +104,7 @@ export const useAccountInfo = (publicKey: PublicKey | null): [AccountInfo<Buffer
         return null
       }
       try {
-        const resp =connection.getAccountInfo(publicKey)
+        const resp = connection.getAccountInfo(publicKey)
         log("received account information by owner %s: %O",publicKey.toBase58(), resp)
         return resp
       }catch (e) {

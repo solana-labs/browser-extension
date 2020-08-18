@@ -3,6 +3,7 @@ import { compile } from "path-to-regexp"
 export const Paths = {
   authorizedWebsites: "/authorized-websites",
   account: "/account",
+  lockWallet: "/lock-wallet",
 }
 
 export const Links = {
