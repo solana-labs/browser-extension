@@ -1593,10 +1593,10 @@
     schema-utils "^2.6.5"
     source-map "^0.7.3"
 
-"@project-serum/serum@0.4.3":
-  version "0.4.3"
-  resolved "https://registry.yarnpkg.com/@project-serum/serum/-/serum-0.4.3.tgz#c3b8d81f8ccd3b14dbc7e78667636ab8b519bd83"
-  integrity sha512-K6Hqb6DJGnEiO5OIAvaaGlxeH8WzO3qACILtwUD8tiwm4ag+T7TXtRGg0BLV1V+ViDKoyINqDjJ9AQgw9wFLXg==
+"@project-serum/serum@0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@project-serum/serum/-/serum-0.5.3.tgz#3c65f02e62ee543e6b941c48f03eae435fb934b5"
+  integrity sha512-j6wbx45hq/bE+R9K3NvhGZtOv4L+3rD9oRE6HaLQea44ALDClPftGexVXQwxn2h9VCXtZpwWd/GcqnuSMoM7pA==
   dependencies:
     "@solana/web3.js" "^0.70.3"
     bn.js "^5.1.2"
