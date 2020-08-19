@@ -5,11 +5,9 @@ import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "../components/routes/paths"
 import { withLayout } from "../components/layout"
 
-interface LockWalletPageProps {
-}
+interface LockWalletPageProps {}
 
-const LockWalletPageBase: React.FC<LockWalletPageProps> = ({}) => {
-
+const LockWalletPageBase: React.FC<LockWalletPageProps> = () => {
   return (
     <Container maxWidth="sm">
       <>

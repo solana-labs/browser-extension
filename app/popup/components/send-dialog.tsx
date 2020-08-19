@@ -11,9 +11,7 @@ import { useCallAsync, useSendTransaction } from "../utils/notifications"
 import { DialogProps } from "@material-ui/core"
 import { BalanceInfo } from "../types"
 import { useBackground } from "../context/background"
-import { Connection, LAMPORTS_PER_SOL, PublicKey, SystemProgram } from "@solana/web3.js"
-import bs58 from "bs58"
-import { Buffer } from "buffer"
+import { PublicKey } from "@solana/web3.js"
 
 export type Props = Omit<DialogProps, "onClose"> & {
   onClose: () => void
@@ -26,7 +24,7 @@ export const SendDialog: React.FC<Props> = ({ open, onClose, publicKey, balanceI
   const callAsync = useCallAsync()
   const [destinationAddress, setDestinationAddress] = useState("")
   const [transferAmountString, setTransferAmountString] = useState("")
-  const [sendTransaction, sending] = useSendTransaction()
+  const [, sending] = useSendTransaction()
 
   let { amount: balanceAmount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
 

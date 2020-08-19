@@ -3,11 +3,7 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import {
-  useAllAccountsForPublicKey,
-  useBalanceInfo,
-  useSolanaExplorerUrlSuffix
-} from "../hooks"
+import { useAllAccountsForPublicKey, useBalanceInfo, useSolanaExplorerUrlSuffix } from "../hooks"
 import { LoadingIndicator } from "./loading-indicator"
 import Collapse from "@material-ui/core/Collapse"
 import { Typography } from "@material-ui/core"
@@ -18,7 +14,6 @@ import { makeStyles } from "@material-ui/core/styles"
 import { abbreviateAddress } from "../utils/utils"
 import Button from "@material-ui/core/Button"
 import SendIcon from "@material-ui/icons/Send"
-import ReceiveIcon from "@material-ui/icons/CallReceived"
 import AttachmentIcon from "@material-ui/icons/Attachment"
 import AppBar from "@material-ui/core/AppBar"
 import Toolbar from "@material-ui/core/Toolbar"
@@ -28,7 +23,6 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { AccountInfo, PublicKey } from "@solana/web3.js"
 import { AuthorizeTransactionDialog } from "./dialogs/authorize-transaction-dialog"
 import { useBackground } from "../context/background"
-import { BalanceInfo } from "../types"
 import { PendingRequestAccounts, PendingSignTransaction } from "../../core/types"
 import { AuthorizeRequestAccountsDialog } from "./dialogs/authorize-request-accounts-dialog"
 import { createLogger } from "../../core/utils"
@@ -58,25 +52,28 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
   const [pendingSignTransaction, setPendingSignTransaction] = useState<PendingSignTransaction>()
   const [pendingRequestAccounts, setPendingRequestAccount] = useState<PendingRequestAccounts>()
 
+  const popupPendingTransactions = popupState?.pendingTransactions
+  const popupPendingRequestAccounts = popupState?.pendingRequestAccounts
+
   useEffect(() => {
-    if (!popupState) {
+    if (!popupPendingTransactions) {
       setPendingSignTransaction(undefined)
       return
     }
-    if (popupState.pendingTransactions.length > 0) {
-      setPendingSignTransaction(popupState?.pendingTransactions[0])
+    if (popupPendingTransactions.length > 0) {
+      setPendingSignTransaction(popupPendingTransactions[0])
     }
-  }, [popupState?.pendingTransactions])
+  }, [popupPendingTransactions])
 
   useEffect(() => {
-    if (!popupState) {
+    if (!popupPendingRequestAccounts) {
       setPendingRequestAccount(undefined)
       return
     }
-    if (popupState.pendingRequestAccounts.length > 0) {
-      setPendingRequestAccount(popupState?.pendingRequestAccounts[0])
+    if (popupPendingRequestAccounts.length > 0) {
+      setPendingRequestAccount(popupPendingRequestAccounts[0])
     }
-  }, [popupState?.pendingRequestAccounts])
+  }, [popupPendingRequestAccounts])
 
   return (
     <Paper>
@@ -102,7 +99,11 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
       </AppBar>
       <List disablePadding>
         {ownedAccounts.map((ownedAccount) => (
-          <BalanceListItem key={ownedAccount.publicKey.toBase58()} publicKey={ownedAccount.publicKey} accountInfo={ownedAccount.accountInfo} />
+          <BalanceListItem
+            key={ownedAccount.publicKey.toBase58()}
+            publicKey={ownedAccount.publicKey}
+            accountInfo={ownedAccount.accountInfo}
+          />
         ))}
       </List>
       {pendingSignTransaction && (
@@ -208,10 +209,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ publicKey, accountInf
           ) : null}
           <Typography variant="body2">
             <Link
-              href={
-                `https://explorer.solana.com/account/${publicKey.toBase58()}` +
-                urlSuffix
-              }
+              href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}
               target="_blank"
               rel="noopener"
             >

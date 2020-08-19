@@ -1,12 +1,10 @@
 import { Store } from "./store"
 import { createLogger, decodeSerializedMessage } from "../core/utils"
-import { InstructionDetails, RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
+import { RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
 import bs58 from "bs58"
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js"
+import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { Decoder } from "../core/decoder"
-// @ts-ignore FIXME We need to add a mock definition of this library to the overall project
-import BufferLayout from "buffer-layout"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -36,7 +34,7 @@ export class WalletController {
   }
 
   createMiddleware(opts: MiddlewareOpts) {
-    const { origin, extensionId } = opts
+    const { origin } = opts
 
     if (typeof origin !== "string" || !origin.length) {
       throw new Error("Must provide non-empty string origin.")
@@ -109,10 +107,9 @@ export class WalletController {
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
     let {
       tabId,
-      params: { message, blockHash, signer }
+      params: { message, signer },
     } = req
     log("Handling sign transaction tabId: %s message: %s for signer %s", tabId, message, signer)
-    let instructionDetailsList: (InstructionDetails | undefined)[] = []
     try {
       const decodedMessage = bs58.decode(message)
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))

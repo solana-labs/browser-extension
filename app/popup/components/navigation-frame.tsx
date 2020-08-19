@@ -19,11 +19,8 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { useCallAsync } from "../utils/notifications"
 import { useBackground } from "../context/background"
 import { Network } from "../../core/types"
-import Link from "@material-ui/core/Link"
 import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "./routes/paths"
-
-const log = require("debug")("sol:nav")
 
 const useStyles = makeStyles((theme) => ({
   content: {

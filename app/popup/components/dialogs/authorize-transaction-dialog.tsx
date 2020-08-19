@@ -38,7 +38,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     })
   }
 
-  const displayAmount = (amount: number, decimal: number):string => {
+  const displayAmount = (amount: number, decimal: number): string => {
     return `${amount / Math.pow(10, decimal)}`
   }
 
@@ -46,35 +46,40 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
     if (!transaction.details) {
       return null
     }
+
+    // ESLint is not smart enough to understand that TypeScript tells us that all case are covered
+    // eslint-disable-next-line array-callback-return
     return transaction.details.map((detail, idx) => {
-    	if (!detail) {
-    		return (
-    			<p>Unable to decode instruction at index {idx}</p>
-				)
-			}
-			switch (detail.type) {
+      if (!detail) {
+        return <p>Unable to decode instruction at index {idx}</p>
+      }
+      switch (detail.type) {
         case "sol_createAccount":
           return (
-            <p>SOL Create new account {detail.params.newAccount} from: {detail.params.from}</p>
+            <p>
+              SOL Create new account {detail.params.newAccount} from: {detail.params.from}
+            </p>
           )
-				case "sol_transfer":
-					return (
-						<p>SOL Transfer {displayAmount(detail.params.amount,9)} SOL from {detail.params.from} to {detail.params.to}</p>
-					)
-				case "spl_transfer":
-					return (
-						<p>SPL Transfer {displayAmount(detail.params.amount,(detail.params.mint.decimals || 9))} {detail.params.mint.symbol} from {detail.params.from} to {detail.params.to}</p>
-					)
+        case "sol_transfer":
+          return (
+            <p>
+              SOL Transfer {displayAmount(detail.params.amount, 9)} SOL from {detail.params.from} to{" "}
+              {detail.params.to}
+            </p>
+          )
+        case "spl_transfer":
+          return (
+            <p>
+              SPL Transfer {displayAmount(detail.params.amount, detail.params.mint.decimals || 9)}{" "}
+              {detail.params.mint.symbol} from {detail.params.from} to {detail.params.to}
+            </p>
+          )
         case "dex_cancelorder":
-          return (
-            <p>Dex Cancel Order: TBD</p>
-          )
+          return <p>Dex Cancel Order: TBD</p>
         case "dex_neworder":
-          return (
-            <p>Dex New Order: TBD</p>
-          )
+          return <p>Dex New Order: TBD</p>
       }
-		})
+    })
   }
 
   return (

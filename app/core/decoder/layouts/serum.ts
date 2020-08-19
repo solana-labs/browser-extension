@@ -8,21 +8,19 @@ import { DEX_PROGRAM_ID, INSTRUCTION_LAYOUT } from "@project-serum/serum/lib/ins
 const log = createLogger("sol:decoder:serum-js")
 
 export class SerumDecoder {
-
-  constructor() {
-  }
-
   programId(): PublicKey {
     return DEX_PROGRAM_ID
   }
 
-  decodeInstruction = async (connection: Web3Connection, instruction: TransactionInstruction): Promise<(InstructionDetails | undefined)> => {
+  decodeInstruction = async (
+    connection: Web3Connection,
+    instruction: TransactionInstruction
+  ): Promise<InstructionDetails | undefined> => {
     try {
-      console.log("decoding instruction: %O",instruction)
+      console.log("decoding instruction: %O", instruction)
       const foo = INSTRUCTION_LAYOUT.decode(instruction.data)
       log("Decoding serum transaction: %O", foo)
-
-    }catch (e) {
+    } catch (e) {
       log("ERROR: failed to decode instruction: %O", e)
       return undefined
     }

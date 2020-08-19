@@ -46,7 +46,7 @@ export function useEffectAfterTimeout(effect: (...args: any[]) => void, timeout:
 }
 
 export function useListener(emitter: EventEmitter, eventName: string) {
-  let [_, forceUpdate] = useState(0)
+  let [, forceUpdate] = useState(0)
 
   useEffect(() => {
     const listener = () => forceUpdate((i) => i + 1)

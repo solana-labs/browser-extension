@@ -1,4 +1,4 @@
-import { clusterApiUrl, Cluster, PublicKey } from "@solana/web3.js"
+import { clusterApiUrl, Cluster } from "@solana/web3.js"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -9,7 +9,11 @@ export const MUX_PROVIDER_SUBSTREAM = "sol.provider"
 export const MUX_CONTROLLER_SUBSTREAM = "sol.controller"
 export const CHROME_CONN_CS = "sol.cs"
 
-export const DEFAULT_NETWORK: Network = { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet")}
+export const DEFAULT_NETWORK: Network = {
+  title: "Devnet",
+  cluster: "devnet",
+  endpoint: clusterApiUrl("devnet"),
+}
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", cluster: "mainnet-beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet") },
@@ -44,7 +48,7 @@ export type StoredData = {
   selectedNetwork: Network
   selectedAccount: string
   authorizedOrigins: string[]
-  tokens: {[network: string]: {[mintAddress: string]: Mint}}
+  tokens: { [network: string]: { [mintAddress: string]: Mint } }
 }
 
 export type WalletState = {
@@ -94,7 +98,12 @@ export type PendingSignTransaction = {
   tabId: string
 }
 
-export type InstructionDetails = InstructionDetailsSOLCreateAccount | InstructionDetailsSOLTransfer | InstructionDetailsSPLTransfer | InstructionDetailsDexNewOrder | InstructionDetailsDexCancelOrder
+export type InstructionDetails =
+  | InstructionDetailsSOLCreateAccount
+  | InstructionDetailsSOLTransfer
+  | InstructionDetailsSPLTransfer
+  | InstructionDetailsDexNewOrder
+  | InstructionDetailsDexCancelOrder
 
 export type InstructionDetailsSOLCreateAccount = {
   type: "sol_createAccount"
@@ -127,7 +136,6 @@ export type InstructionDetailsSPLTransfer = {
   }
 }
 
-
 export type InstructionDetailsDexNewOrder = {
   type: "dex_neworder"
   params: {
@@ -147,7 +155,6 @@ export type InstructionDetailsDexCancelOrder = {
     ownerSlot: number
   }
 }
-
 
 export type Mint = {
   publicKey?: string

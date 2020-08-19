@@ -83,6 +83,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     if (process.env.NODE_ENV === "production") {
       setupStreams()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const request: BackgroundContextType["request"] = (method: PopupActions, params: any) => {

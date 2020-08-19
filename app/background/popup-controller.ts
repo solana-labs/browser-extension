@@ -4,7 +4,13 @@ import { Buffer } from "buffer"
 import bs58 from "bs58"
 import nacl from "tweetnacl"
 import invariant from "assert"
-import { AVAILABLE_NETWORKS, Network, Notification, PopupActions, SignatureResult } from "../core/types"
+import {
+  AVAILABLE_NETWORKS,
+  Network,
+  Notification,
+  PopupActions,
+  SignatureResult,
+} from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
 
@@ -42,7 +48,7 @@ export class PopupController {
             await this.store.createSecretBox(mnemonic, seed, password)
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" }
+              data: { state: "unlocked" },
             })
           } catch (err) {
             log("error: popup_createWallet failed  with error: %s", err)
@@ -55,7 +61,7 @@ export class PopupController {
             await this.store.unlockSecretBox(req.params.password)
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" }
+              data: { state: "unlocked" },
             })
           } catch (err) {
             log("error: popup_unlockWallet failed  with error: %s", err)
@@ -177,7 +183,7 @@ export class PopupController {
     this.store.addAuthorizedOrigin(origin)
     Object.keys(tabs).forEach((tabId) => {
       tabs[tabId].resolve({
-        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : []
+        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
       })
     })
 
@@ -225,15 +231,15 @@ export class PopupController {
     const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
 
     const signatureResults: SignatureResult[] = []
-    pendingTransaction.transaction.signers.forEach(signerKey => {
+    pendingTransaction.transaction.signers.forEach((signerKey) => {
       log("Search for signer account: %s", signerKey)
       const account = wallet.findAccount(signerKey)
       if (!account) {
-        throw new Error("no account found for signer key: "+ signerKey)
+        throw new Error("no account found for signer key: " + signerKey)
       }
       const signature = nacl.sign.detached(m, account.secretKey)
       invariant(signature.length === 64)
-      signatureResults.push( {publicKey: signerKey, signature:bs58.encode(signature)})
+      signatureResults.push({ publicKey: signerKey, signature: bs58.encode(signature) })
     })
 
     pendingTransaction.resolve({ signatureResults: signatureResults })
@@ -262,7 +268,7 @@ export class PopupController {
       this.connection.changeNetwork(network)
       this._notifyAll({
         type: "clusterChanged",
-        data: network
+        data: network,
       })
     }
     // TODO: Endpoint will be used here to add a customer cluster
@@ -271,7 +277,7 @@ export class PopupController {
       throw new Error("Must specify an network endpoint to change network")
     }
     for (const network of AVAILABLE_NETWORKS) {
-      if (network.cluster == cluster) {
+      if (network.cluster === cluster) {
         this.store.selectedNetwork = network
         onExit(network)
         return
@@ -281,11 +287,9 @@ export class PopupController {
     this.store.selectedNetwork = {
       title: "Custom",
       cluster: cluster,
-      endpoint: endpoint
+      endpoint: endpoint,
     }
     onExit(this.store.selectedNetwork)
-
-
   }
 
   changeAccount(req: any) {
@@ -300,7 +304,7 @@ export class PopupController {
     }
 
     for (const act of this.store.wallet?.getPublicKeysAsBs58()) {
-      if (account == act) {
+      if (account === act) {
         this.store.selectedAccount = account
         return
       }
@@ -316,7 +320,7 @@ export class PopupController {
       this.store.selectedAccount = newAccount.publicKey.toBase58()
       this._notifyAll({
         type: "accountsChanged",
-        data: this.store.wallet?.getPublicKeysAsBs58() || []
+        data: this.store.wallet?.getPublicKeysAsBs58() || [],
       })
     }
   }
@@ -344,7 +348,7 @@ export class PopupController {
 
     let signingAccount: Account | undefined
     this.store.wallet.accounts.forEach((a: Account) => {
-      if (a.publicKey.toBase58() == req.params.transfer.fromPubkey) {
+      if (a.publicKey.toBase58() === req.params.transfer.fromPubkey) {
         signingAccount = a
       }
     })
@@ -358,7 +362,7 @@ export class PopupController {
     const transaction = SystemProgram.transfer({
       fromPubkey: new PublicKey(transfer.fromPubkey),
       toPubkey: new PublicKey(transfer.toPubkey),
-      lamports: lamports
+      lamports: lamports,
     })
 
     log("creating connection with address: ", this.store.selectedNetwork.endpoint)

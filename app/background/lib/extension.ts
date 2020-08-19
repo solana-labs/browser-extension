@@ -1,8 +1,6 @@
 import { checkForError } from "../../core/utils"
 
 export default class ExtensionPlatform {
-  constructor() {}
-
   openWindow(options: chrome.windows.CreateData) {
     return new Promise((resolve, reject) => {
       chrome.windows.create(options, (newWindow) => {

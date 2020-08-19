@@ -2,9 +2,6 @@ import React, { useContext, useMemo } from "react"
 import { Connection } from "@solana/web3.js"
 import { useBackground } from "./background"
 
-const log = require("debug")("sol:connContext")
-const tuple = require("immutable-tuple")
-
 interface ConnectionContextType {
   connection: Connection
 }
@@ -12,11 +9,10 @@ interface ConnectionContextType {
 const ConnectionContext = React.createContext<ConnectionContextType>(null!)
 
 export function ConnectionProvider(props: React.PropsWithChildren<{}>) {
-  const { request, popupState } = useBackground()
-  const connection = useMemo<Connection>(
-    () => new Connection(popupState?.selectedNetwork.endpoint || "", "single"),
-    [popupState?.selectedNetwork.endpoint]
-  )
+  const { popupState } = useBackground()
+
+  const endpoint = popupState?.selectedNetwork.endpoint ?? ""
+  const connection = useMemo<Connection>(() => new Connection(endpoint, "single"), [endpoint])
 
   return (
     <ConnectionContext.Provider value={{ connection }}>{props.children}</ConnectionContext.Provider>

@@ -1,5 +1,4 @@
 import React, { useState } from "react"
-import { loadMnemonicAndSeed } from "../utils/wallet-seed"
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"

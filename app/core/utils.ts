@@ -5,7 +5,7 @@ import {
 } from "./types"
 import { memoize } from "lodash"
 import { CompiledInstruction, Message } from "@solana/web3.js"
-import * as shortvec from './shortvec-encoding';
+import * as shortvec from "./shortvec-encoding"
 import bs58 from "bs58"
 const debug = require("debug")
 const ObjectMultiplex = require("obj-multiplex")
@@ -20,7 +20,7 @@ export const createObjectMultiplex = (name: string): any => {
 }
 
 export const isInternalProcess = (processName: string): boolean => {
-  return processName == ENVIRONMENT_TYPE_POPUP || processName == ENVIRONMENT_TYPE_POPUP
+  return processName === ENVIRONMENT_TYPE_POPUP || processName === ENVIRONMENT_TYPE_POPUP
 }
 // `popup` refers to the extension opened through the browser app icon (in top right corner in chrome)
 // `notification` refers to the popup that appears in its own window when taking action outside of solana
@@ -50,41 +50,40 @@ export const checkForError = () => {
   return new Error(lastError.message)
 }
 
+const PUBKEY_LENGTH = 32
 
-const PUBKEY_LENGTH = 32;
+export const decodeSerializedMessage = (buffer: Buffer): Message => {
+  log("Decoding serialized message: %O", buffer)
+  let byteArray = [...buffer]
 
-export const decodeSerializedMessage = (buffer: Buffer ): Message => {
-  log('Decoding serialized message: %O', buffer);
-  let byteArray = [...buffer];
+  const numRequiredSignatures = byteArray.shift() as number
+  const numReadonlySignedAccounts = byteArray.shift() as number
+  const numReadonlyUnsignedAccounts = byteArray.shift() as number
 
-  const numRequiredSignatures = byteArray.shift() as number;
-  const numReadonlySignedAccounts = byteArray.shift() as number;
-  const numReadonlyUnsignedAccounts = byteArray.shift() as number;
-
-  const accountCount = shortvec.decodeLength(byteArray);
-  let accountKeys = [];
+  const accountCount = shortvec.decodeLength(byteArray)
+  let accountKeys = []
   for (let i = 0; i < accountCount; i++) {
-    const account = byteArray.slice(0, PUBKEY_LENGTH);
-    byteArray = byteArray.slice(PUBKEY_LENGTH);
-    accountKeys.push(bs58.encode(Buffer.from(account)));
+    const account = byteArray.slice(0, PUBKEY_LENGTH)
+    byteArray = byteArray.slice(PUBKEY_LENGTH)
+    accountKeys.push(bs58.encode(Buffer.from(account)))
   }
 
-  const recentBlockhash = byteArray.slice(0, PUBKEY_LENGTH);
-  byteArray = byteArray.slice(PUBKEY_LENGTH);
+  const recentBlockhash = byteArray.slice(0, PUBKEY_LENGTH)
+  byteArray = byteArray.slice(PUBKEY_LENGTH)
 
-  const instructionCount = shortvec.decodeLength(byteArray);
-  let instructions = [];
+  const instructionCount = shortvec.decodeLength(byteArray)
+  let instructions = []
   for (let i = 0; i < instructionCount; i++) {
-    let instruction = {} as CompiledInstruction;
-    instruction.programIdIndex = byteArray.shift() as number;
-    const accountCount = shortvec.decodeLength(byteArray);
-    instruction.accounts = byteArray.slice(0, accountCount);
-    byteArray = byteArray.slice(accountCount);
-    const dataLength = shortvec.decodeLength(byteArray);
-    const data = byteArray.slice(0, dataLength);
-    instruction.data = bs58.encode(Buffer.from(data));
-    byteArray = byteArray.slice(dataLength);
-    instructions.push(instruction);
+    let instruction = {} as CompiledInstruction
+    instruction.programIdIndex = byteArray.shift() as number
+    const accountCount = shortvec.decodeLength(byteArray)
+    instruction.accounts = byteArray.slice(0, accountCount)
+    byteArray = byteArray.slice(accountCount)
+    const dataLength = shortvec.decodeLength(byteArray)
+    const data = byteArray.slice(0, dataLength)
+    instruction.data = bs58.encode(Buffer.from(data))
+    byteArray = byteArray.slice(dataLength)
+    instructions.push(instruction)
   }
 
   const messageArgs = {
@@ -96,6 +95,6 @@ export const decodeSerializedMessage = (buffer: Buffer ): Message => {
     recentBlockhash: bs58.encode(Buffer.from(recentBlockhash)),
     accountKeys,
     instructions,
-  };
+  }
   return new Message(messageArgs)
 }

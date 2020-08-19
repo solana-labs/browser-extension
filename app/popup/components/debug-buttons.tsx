@@ -11,7 +11,7 @@ export const DebugButtons: React.FC = () => {
   // @ts-ignore FIXME wallet can potentially be null, we need to deal with it!
   const { popupState } = useBackground()
   const { connection } = useConnection()
-  const [sendTransaction, sending] = useSendTransaction()
+  const [, sending] = useSendTransaction()
   const callAsync = useCallAsync()
   const publicKey = new PublicKey(popupState?.selectedAccount || "")
 

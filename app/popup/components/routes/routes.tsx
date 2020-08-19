@@ -1,6 +1,6 @@
 import { Route, Switch } from "react-router-dom"
 import { RouteComponentProps, RouteProps, withRouter } from "react-router"
-import React, { ReactNode } from "react"
+import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
 import { AccountPage } from "../../pages/account-page"

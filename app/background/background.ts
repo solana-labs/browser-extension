@@ -15,8 +15,6 @@ const log = createLogger("sol:bg")
 log("Background script started")
 const localStore = new LocalStore()
 let versionedData: VersionedData
-let popupIsOpen = false
-let notificationIsOpen = false
 
 initialize().catch((err) => {
   log("Background initialization failed: %O", err)
@@ -109,20 +107,15 @@ function setupController(versionedData: VersionedData) {
       solanaController.setupTrustedCommunication(processName, portStream, remotePort.sender)
 
       if (processName === ENVIRONMENT_TYPE_POPUP) {
-        popupIsOpen = true
         solanaController.setPopupOpen()
         endOfStream(portStream, () => {
-          popupIsOpen = false
           solanaController.setPopupClose()
           log("popup remote stream has ended")
         })
       }
 
       if (processName === ENVIRONMENT_TYPE_NOTIFICATION) {
-        notificationIsOpen = true
         endOfStream(portStream, () => {
-          notificationIsOpen = false
-          // controller.isClientOpen = isClientOpenStatus()
           log("notification remote stream has ended")
         })
       }
