@@ -1607,10 +1607,10 @@
   resolved "https://registry.yarnpkg.com/@sheerun/mutationobserver-shim/-/mutationobserver-shim-0.3.3.tgz#5405ee8e444ed212db44e79351f0c70a582aae25"
   integrity sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
 
-"@solana/web3.js@0.70.0":
-  version "0.70.0"
-  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.70.0.tgz#7cefa1826f12df9b6fcb487aed4f9532660aaec0"
-  integrity sha512-nhBt2xyHAUxinXXUVgMFORVixXUbVV0h/XY3GMi4TR7j0VI0D0V42TNuTMSxvHlfOFFISbxEdOJx0SR+VtlQOg==
+"@solana/web3.js@0.71.6":
+  version "0.71.6"
+  resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-0.71.6.tgz#91ff597ef8b25dfe031b23ec33680b158511d2c6"
+  integrity sha512-mVCqVSEsBacL0xHHwuciHg8qJmFF7Yao9ItASLokYvUYfgwocNS0urnCytOqAFwfE27JRXLHOMOPq6mLbX/2Kg==
   dependencies:
     "@babel/runtime" "^7.3.1"
     bn.js "^5.0.0"
