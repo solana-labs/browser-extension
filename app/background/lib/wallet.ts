@@ -31,7 +31,7 @@ export class Wallet {
 		// >> https://github.com/MyCryptoHQ/MyCrypto/issues/2070#issue-341249164
     const derivedSeed = bip32
       .fromSeed(this.seed)
-			.derivePath(`m/44'/501'/${accountIndex}'/0/0'`)
+			.derivePath(`m/44'/501'/${accountIndex}'/0/0`)
 			.privateKey
     const newAccount = new Account(nacl.sign.keyPair.fromSeed(derivedSeed).secretKey)
     this.accounts = [...this.accounts, newAccount]
