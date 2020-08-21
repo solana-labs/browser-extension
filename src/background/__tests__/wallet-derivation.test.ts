@@ -31,11 +31,11 @@ describe("Wallet", () => {
 		// >> https://github.com/MyCryptoHQ/MyCrypto/issues/2070#issue-341249164
 		// m / purpose' / coin_type' / account'    / change / address_index
 		// m / 44'      / 501'       / [VARIABLE]' / 0      / 0
-		const bip32Derivation_path_0_0 = bip32.fromSeed(bufSeed).derivePath(`m/44'/60'/0'/0/0`)
-		expect(bip32Derivation_path_0_0.publicKey.toString("hex")).toEqual("039d928d5d18a1ef75415c850574375efe511b7e67e7a5aa293533d10b772d471e")
+		const bip32DerivationAt_0_0 = bip32.fromSeed(bufSeed).derivePath(`m/44'/501'/0'/0/0`)
+		expect(bip32DerivationAt_0_0.publicKey.toString("hex")).toEqual("0371b1c70293709d25ef34b11e9b9fd5d04f99e7716e2266cb43a51f892562e8fa")
 
-		const naclPubKey = nacl.sign.keyPair.fromSeed(new Uint8Array(bip32Derivation_path_0_0.privateKey)).publicKey
-		expect(bs58.encode(naclPubKey)).toEqual("Adey5bvbc1P8A4bh78h8kdp4Rq378wcA9R9cTTwJ1hA3")
+		const naclPubKey = nacl.sign.keyPair.fromSeed(new Uint8Array(bip32DerivationAt_0_0.privateKey)).publicKey
+		expect(bs58.encode(naclPubKey)).toEqual("78wNUVa5HrESLUKrU2GYu5HWDh1cGuvCnK2Ep4STZ62n")
 	})
 
 
