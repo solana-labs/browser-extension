@@ -35,8 +35,8 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
         origin: origin,
       }),
       {
-        progressMessage: "Deleting website...",
-        successMessage: "Success!",
+        progress: { message: "Deleting website..." },
+        success: { message: "Success!" },
       }
     )
   }

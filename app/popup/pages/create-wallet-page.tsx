@@ -52,8 +52,8 @@ const CreateWalletForm: React.FC = () => {
 
     const { mnemonic, seed } = mnemonicAndSeed
     callAsync(request("popup_createWallet", { mnemonic, seed, password }), {
-      progressMessage: "Creating wallet...",
-      successMessage: "Wallet created",
+      progress: { message: "Creating wallet..." },
+      success: { message: "Wallet created" },
     })
   }
 

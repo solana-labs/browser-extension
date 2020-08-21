@@ -38,8 +38,8 @@ const LoginForm: React.FC = () => {
 
   function submit() {
     callAsync(request("popup_unlockWallet", { password }), {
-      progressMessage: "Unlocking wallet...",
-      successMessage: "Wallet unlocked",
+      progress: { message: "Unlocking wallet..." },
+      success: { message: "Wallet unlocked" },
     })
   }
 

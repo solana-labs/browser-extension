@@ -22,9 +22,9 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 
   const handleAuthorize = () => {
     callAsync(request("popup_authoriseTransaction", { tabId: transaction.tabId }), {
-      progressMessage: "Authorizing Transaction...",
-      successMessage: "Success!",
-      callback: () => {
+      progress: { message: "Authorizing Transaction..." },
+      success: { message: "Success!" },
+      onFinish: () => {
         onClose()
       },
     })
@@ -32,9 +32,9 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 
   const handleDecline = () => {
     callAsync(request("popup_declineTransaction", { tabId: transaction.tabId }), {
-      progressMessage: "Declining Transaction...",
-      successMessage: "Success!",
-      callback: () => {
+      progress: { message: "Declining Transaction..." },
+      success: { message: "Declined", variant: "error" },
+      onFinish: () => {
         onClose()
       },
     })
@@ -45,14 +45,14 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
       <DialogTitle>Authorize Transaction</DialogTitle>
       <DialogContent>
         <TextField
-          label="Message"
+          label="Message!"
           fullWidth
           variant="outlined"
           margin="normal"
           value={transaction.message}
           disabled={true}
         />
-        {renderTransactionDetails(transaction)}
+        <div>{renderTransactionDetails(transaction)}</div>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleDecline}>Cancel</Button>

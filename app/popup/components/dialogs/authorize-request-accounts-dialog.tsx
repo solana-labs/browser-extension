@@ -29,9 +29,9 @@ export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
         origin: pendingRequestAccounts.origin,
       }),
       {
-        progressMessage: "Authorizing Request Account...",
-        successMessage: "Success!",
-        callback: () => {
+        progress: { message: "Authorizing Request Account..." },
+        success: { message: "Success!" },
+        onFinish: () => {
           onClose()
         },
       }
@@ -44,9 +44,9 @@ export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
         origin: pendingRequestAccounts.origin,
       }),
       {
-        progressMessage: "Declining Request Account...",
-        successMessage: "Success!",
-        callback: () => {
+        progress: { message: "Declining Request Account..." },
+        success: { message: "Success!" },
+        onFinish: () => {
           onClose()
         },
       }

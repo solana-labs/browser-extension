@@ -43,9 +43,9 @@ export const SendDialog: React.FC<Props> = ({ open, onClose, publicKey, balanceI
         },
       }),
       {
-        progressMessage: "Transferring...",
-        successMessage: "Success!",
-        callback: () => {
+        progress: { message: "Transferring..." },
+        success: { message: "Success!" },
+        onFinish: () => {
           onClose()
         },
       }

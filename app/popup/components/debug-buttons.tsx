@@ -24,8 +24,10 @@ export const DebugButtons: React.FC = () => {
       onError: () => {
         window.alert("HANDLE ME, THIS IS UGLY SO IT GOES NOTICED!")
       },
-      successMessage:
-        "Success! Please wait up to 30 seconds for the SOL tokens to appear in your wallet.",
+      success: {
+        message:
+          "Success! Please wait up to 30 seconds for the SOL tokens to appear in your wallet.",
+      },
     })
   }
 

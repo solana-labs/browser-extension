@@ -56,8 +56,8 @@ export const NavigationFrame: React.FC = ({ children }) => {
 
   const handleCreateAccount = () => {
     callAsync(request("popup_addWalletAccount", {}), {
-      progressMessage: "Creating a new account",
-      successMessage: "Account created!",
+      progress: { message: "Creating a new account" },
+      success: { message: "Account created!" },
     })
   }
 

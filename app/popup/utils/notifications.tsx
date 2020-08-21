@@ -3,7 +3,7 @@ import { useConnection } from "../context/connection"
 import { useSolanaExplorerUrlSuffix } from "../hooks"
 import Button from "@material-ui/core/Button"
 import { TransactionSignature } from "@solana/web3.js"
-import { useSnackbar } from "notistack"
+import { useSnackbar, OptionsObject } from "notistack"
 
 interface SendTransactionOpts {
   onSuccess?: (signature: TransactionSignature) => void
@@ -80,27 +80,37 @@ const ViewTransactionOnExplorerButton = (opts: { signature: TransactionSignature
   )
 }
 
+interface notifOptions {
+  message?: string
+  variant?: OptionsObject["variant"]
+}
+
+interface errorNotifOptions extends notifOptions {
+  errorMapper?: (error: unknown) => string
+}
+
 interface callAsyncOpts<T> {
-  progressMessage?: string
-  successMessage?: string
+  progress?: notifOptions
+  success?: notifOptions
+  error?: errorNotifOptions
   onSuccess?: (result: T) => void
   onError?: (err: any) => void
-  callback?: () => void
+  onFinish?: () => void
 }
 
 export function useCallAsync<T>() {
   const { enqueueSnackbar, closeSnackbar } = useSnackbar()
   return async function callAsync<T>(promise: Promise<T>, opts: callAsyncOpts<T>) {
-    const { progressMessage, successMessage, onSuccess, onError, callback } = opts
-    const id = enqueueSnackbar(progressMessage || "Submitting...", {
-      variant: "info",
+    const { progress, success, error, onSuccess, onError, onFinish } = opts
+    const id = enqueueSnackbar(progress?.message || "Submitting...", {
+      variant: progress?.variant ?? "info",
       persist: true,
     })
     try {
       let result = await promise
       closeSnackbar(id)
-      if (successMessage) {
-        enqueueSnackbar(successMessage, { variant: "success" })
+      if (success?.message) {
+        enqueueSnackbar(success.message, { variant: success.variant ?? "success" })
       }
 
       if (onSuccess) {
@@ -108,13 +118,21 @@ export function useCallAsync<T>() {
       }
     } catch (e) {
       closeSnackbar(id)
-      enqueueSnackbar(e.message, { variant: "error" })
+
+      let message: string = e.message || (e != null ? e.toString() : "Unknown error")
+      if (error?.message) {
+        message = error.message
+      } else if (error?.errorMapper) {
+        message = error?.errorMapper(e)
+      }
+
+      enqueueSnackbar(message, { variant: error?.variant ?? "error" })
       if (onError) {
         onError(e)
       }
     }
-    if (callback) {
-      callback()
+    if (onFinish) {
+      onFinish()
     }
   }
 }
