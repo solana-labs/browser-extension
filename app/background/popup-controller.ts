@@ -10,7 +10,6 @@ import {
   Notification,
   PopupActions,
   SignatureResult,
-  WalletState,
 } from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"

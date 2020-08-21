@@ -89,15 +89,13 @@ export class WalletController {
     })
   }
 
-  _handleRequestAccounts = (req: any): Promise<RequestAccountsResp> => {
+  _handleRequestAccounts = async (req: any): Promise<RequestAccountsResp> => {
     const { tabId, origin, metadata } = req
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
 
     //todo: popup only if user never agree to request account for this origin
-    if (this.store.isOriginAuthorized(origin) && this.store.getState().walletState == "unlocked") {
-      return new Promise<RequestAccountsResp>((resolve, reject) => {
-        resolve({ accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] })
-      })
+    if (this.store.isOriginAuthorized(origin) && this.store.getState().walletState === "unlocked") {
+      return { accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] }
     }
 
     //origin need authorization
@@ -112,6 +110,7 @@ export class WalletController {
       tabId,
       params: { message, signer },
     } = req
+
     log("Handling sign transaction tabId: %s message: %s for signer %s", tabId, message, signer)
     try {
       const decodedMessage = bs58.decode(message)
@@ -133,7 +132,6 @@ export class WalletController {
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
       this.store.addPendingTransaction(tabId, message, signer, resolve, reject, [])
-      // this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructionDetailsList)
     })
   }
 

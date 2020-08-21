@@ -16,8 +16,8 @@ const AccountPageBase: React.FC = () => {
 
   log(
     "rendering Account page with wallet state: %s with displaying account %s",
-    popupState?.walletState,
-    popupState?.selectedAccount
+    popupState?.walletState ?? "<no state!>",
+    popupState?.selectedAccount ?? "<no account!>"
   )
 
   if (!popupState) {

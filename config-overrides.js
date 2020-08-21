@@ -18,10 +18,21 @@ module.exports = {
       ],
     })
     config = rewireWebEx.webpack(config, env)
-    // do not mimify, remove for PRODUCTION temp fix
-    config.optimization.minimize = false
     return config
   },
+
+  devServer: function (craGenerateDevServerConfig) {
+    return function (proxy, allowedHost) {
+      // Generate the base dev server config via CRA
+      const config = craGenerateDevServerConfig(proxy, allowedHost)
+
+      // Enable writing files to the destination so we can easily reload the extension once build is done
+      config.writeToDisk = true
+
+      return config
+    }
+  },
+
   // The paths config to use when compiling your react app for development or production.
   paths: function (paths, env) {
     paths["appSrc"] = helper.resolveApp("app")

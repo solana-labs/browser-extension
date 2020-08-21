@@ -27,7 +27,7 @@ export const TransactionList: React.FC<TransctionListProp> = ({ account }) => {
         log("got transaction: ", confirmedSignatureInfos)
         setConfirmedSignatureInfos(confirmedSignatureInfos)
       })
-  }, [])
+  }, [account, connection])
 
   return (
     <>

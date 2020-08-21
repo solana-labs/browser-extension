@@ -51,7 +51,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
       }
     )
 
-    // @ts-ignore FIXME: Type definition in json-rpx-engine is incorrect, RpcEngine is not exported
+    // @ts-ignore FIXME: Type definition in json-rpc-engine is incorrect, RpcEngine is not exported
     const rpcEngine = new RpcEngine()
     rpcEngine.push(jsonRpcConnection.middleware)
     // json rpc notification listener
@@ -78,11 +78,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }
 
   useEffect(() => {
-    // Currently `yarn start` doesn't connect to the background script so
-    // we only enable the stream setup in production
-    if (process.env.NODE_ENV === "production") {
-      setupStreams()
-    }
+    setupStreams()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

@@ -1,22 +1,10 @@
-import {
-  PublicKey,
-  SystemInstruction,
-  SystemProgram,
-  TransactionInstruction,
-} from "@solana/web3.js"
-import { createLogger } from "../../utils"
-// @ts-ignore FIXME We need to add a mock definition of this library to the overall project
+import { SystemInstruction, TransactionInstruction } from "@solana/web3.js"
+import { createLogger } from "../utils"
 import { InstructionDetails } from "../types"
-import { Web3Connection } from "../../connection"
 const log = createLogger("sol:decoder:sol")
 
 export class SolanaDecoder {
-  programId(): PublicKey {
-    return SystemProgram.programId
-  }
-
   decodeInstruction = async (
-    _: Web3Connection,
     instruction: TransactionInstruction
   ): Promise<InstructionDetails | undefined> => {
     log("Decoding solana system program transaction")
@@ -34,6 +22,7 @@ export class SolanaDecoder {
               amount: params.lamports,
             },
           }
+
         case "Create":
           let crParam = SystemInstruction.decodeCreateAccount(instruction)
           log("Decoded transaction: %s", instructionType)
