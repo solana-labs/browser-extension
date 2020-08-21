@@ -50,7 +50,7 @@ usage_error() {
 }
 
 usage() {
-  echo "usage: open_ext <id>"
+  echo "usage: open_ext [<id>]"
   echo ""
   echo "Open background page and popup of the extension inside Chrome browser."
   echo ""
@@ -58,10 +58,11 @@ usage() {
   echo ""
   echo ""
   echo "Options"
-  echo "    -h            Display help about this script"
+  echo "    -h                       Display help about this script"
   echo ""
   echo "Environment Variables"
-  echo "    BROWSER_BIN   The binary to use to launch chrome"
+  echo "    BROWSER_BIN              The binary to use to launch chrome"
+  echo "    SOLANA_EXTENSION_ID      Default Chrome extension ID to use when the parameter is not provided"
 }
 
 main "$@"
