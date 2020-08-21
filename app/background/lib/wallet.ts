@@ -6,7 +6,6 @@ const log = require("debug")("sol:wallet")
 const bip32 = require("bip32")
 
 export class Wallet {
-  public walletIndex: number
   public seed: Buffer
   public accounts: Account[]
 
@@ -21,16 +20,19 @@ export class Wallet {
 
   constructor(seed: Buffer) {
     this.seed = seed
-    this.walletIndex = 0 // todo: in the future when we support multiple wallets we will change this
     this.accounts = []
   }
 
   addAccount() {
     const accountIndex = this.accounts.length
     log("Adding account to wallet with index %s", accountIndex)
+		// Ref. We align on BIP44 like Ledger's most recent Live products now do
+		// https://medium.com/myetherwallet/hd-wallets-and-derivation-paths-explained-865a643c7bf2
+		// >> https://github.com/MyCryptoHQ/MyCrypto/issues/2070#issue-341249164
     const derivedSeed = bip32
       .fromSeed(this.seed)
-      .derivePath(`m/501'/${this.walletIndex}'/0/${accountIndex}`).privateKey
+			.derivePath(`m/44'/501'/${accountIndex}'/0/0'`)
+			.privateKey
     const newAccount = new Account(nacl.sign.keyPair.fromSeed(derivedSeed).secretKey)
     this.accounts = [...this.accounts, newAccount]
     return newAccount
