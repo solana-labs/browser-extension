@@ -1,6 +1,4 @@
 import React, { useEffect } from "react"
-import Container from "@material-ui/core/Container"
-import Link from "@material-ui/core/Link"
 import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "../components/routes/paths"
 import { withLayout } from "../components/layout"
@@ -9,9 +7,6 @@ import { useBackground } from "../context/background"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
 import { Typography } from "@material-ui/core"
-import TextField from "@material-ui/core/TextField"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import Checkbox from "@material-ui/core/Checkbox"
 import CardActions from "@material-ui/core/CardActions"
 import Button from "@material-ui/core/Button"
 
@@ -26,7 +21,7 @@ const LockWalletPageBase: React.FC<LockWalletPageProps> = () => {
       progressMessage: "locking wallet...",
       successMessage: "Wallet locked",
     })
-  }, [])
+  })
 
   return (
     <Card>

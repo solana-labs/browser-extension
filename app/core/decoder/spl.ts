@@ -1,11 +1,12 @@
 import { PublicKey, AccountInfo, TransactionInstruction } from "@solana/web3.js"
-import { createLogger } from "../../utils"
+import { createLogger } from "../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
-import { Web3Connection } from "../../connection"
 import { Buffer } from "buffer"
-import { Mint, InstructionDetails, Network } from "../../types"
-import { Store } from "../../../background/store"
+import { Mint, InstructionDetails, Network } from "../types"
+import { Store } from "../../background/store"
+import { ProgramDecoderContext } from "./types"
+
 const log = createLogger("sol:decoder:sol")
 
 export const ACCOUNT_LAYOUT = BufferLayout.struct([
@@ -43,13 +44,9 @@ export class SplDecoder {
     this.store = store
   }
 
-  programId(): PublicKey {
-    return new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
-  }
-
   decodeInstruction = async (
-    connection: Web3Connection,
-    instruction: TransactionInstruction
+    instruction: TransactionInstruction,
+    { connection }: ProgramDecoderContext
   ): Promise<InstructionDetails | undefined> => {
     log("Decoding spl transaction")
     try {

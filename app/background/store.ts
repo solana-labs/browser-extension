@@ -223,13 +223,19 @@ export class Store {
     return originTabs[tabId]
   }
 
-  addPendingRequestAccount(tabId: string, origin: string, resolve: any, reject: any) {
-    log("addPendingRequestAccount with origin: %s and tabID: %s", origin, tabId)
-    const pendingRequestAccount = {
+  addPendingRequestAccount(
+    tabId: string,
+    origin: string,
+    resolve: StorePendingRequestAccount["resolve"],
+    reject: StorePendingRequestAccount["reject"]
+  ) {
+    log("adding pending request account with origin [%s] and tab [%s]", origin, tabId)
+    const pendingRequestAccount: StorePendingRequestAccount = {
       request: { origin, tabId },
       resolve,
       reject,
-    } as StorePendingRequestAccount
+    }
+
     let originTabs = this.pendingRequestAccounts.get(origin)
 
     if (!originTabs) {

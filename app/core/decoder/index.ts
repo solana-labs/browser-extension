@@ -1,22 +1,23 @@
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js"
+import { PublicKey, Transaction, TransactionInstruction, SystemProgram } from "@solana/web3.js"
 import { ProgramDecoder } from "./types"
-import { SolanaDecoder } from "./layouts/solana"
+import { SolanaDecoder } from "./system"
 import { createLogger } from "../utils"
-import { SplDecoder } from "./layouts/spl"
+import { SplDecoder } from "./spl"
 import { Web3Connection } from "../connection"
 import { InstructionDetails } from "../types"
 import { Store } from "../../background/store"
-import { SerumDecoder } from "./layouts/serum"
+import { SerumDecoder } from "./serum"
+import { DEX_PROGRAM_ID } from "@project-serum/serum/lib/instructions"
 
 const log = createLogger("sol:decoder")
 
 export class Decoder {
-  private supportedProgramId: Map<string, ProgramDecoder>
+  private supportedProgramId: Record<string, ProgramDecoder>
   private connection: Web3Connection
   private store: Store
 
   constructor(connection: Web3Connection, store: Store) {
-    this.supportedProgramId = new Map<string, ProgramDecoder>()
+    this.supportedProgramId = {}
     this.connection = connection
     this.store = store
     this._setupDecoders()
@@ -39,9 +40,11 @@ export class Decoder {
         }
 
         log("Decoding transaction for programId : %s", programId.toBase58())
-        decoder.decodeInstruction(this.connection, instruction).then((decodedInstruction) => {
-          resolve(decodedInstruction)
-        })
+        decoder
+          .decodeInstruction(instruction, { connection: this.connection, programId })
+          .then((decodedInstruction) => {
+            resolve(decodedInstruction)
+          })
       })
     }
 
@@ -52,16 +55,26 @@ export class Decoder {
 
   _setupDecoders = (): void => {
     log("setting up known decoders")
-    this._registerProgramId(new SolanaDecoder())
-    this._registerProgramId(new SplDecoder(this.store))
-    this._registerProgramId(new SerumDecoder())
+    this._registerProgramId(SystemProgram.programId, new SolanaDecoder())
+    this._registerProgramId(
+      "TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o",
+      new SplDecoder(this.store)
+    )
+    this._registerProgramId(DEX_PROGRAM_ID, new SerumDecoder())
   }
 
-  _registerProgramId = (decoder: ProgramDecoder): void => {
-    this.supportedProgramId.set(decoder.programId().toBase58(), decoder)
+  _registerProgramId = (programId: PublicKey | string, decoder: ProgramDecoder): void => {
+    let key: string
+    if (typeof programId === "string") {
+      key = programId
+    } else {
+      key = programId.toBase58()
+    }
+
+    this.supportedProgramId[key] = decoder
   }
 
   _getDecoder = (programId: PublicKey): ProgramDecoder | undefined => {
-    return this.supportedProgramId.get(programId.toBase58())
+    return this.supportedProgramId[programId.toBase58()]
   }
 }

@@ -34,7 +34,7 @@ export type SignTransactionResp = {
 
 export type Network = {
   title: string
-  cluster: Cluster
+  cluster: Cluster | string
   endpoint: string
 }
 
@@ -96,7 +96,7 @@ export type PopupActions =
 export type PendingSignTransaction = {
   message: string
   signers: string[]
-  details?: (InstructionDetails | undefined)[]
+  details?: Array<InstructionDetails | undefined>
   tabId: string
 }
 
