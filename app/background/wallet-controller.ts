@@ -91,7 +91,7 @@ export class WalletController {
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
 
     //todo: popup only if user never agree to request account for this origin
-    if (this.store.isOriginAuthorized(origin)) {
+    if (this.store.isOriginAuthorized(origin) && this.store.getState().walletState == "unlocked") {
       return new Promise<RequestAccountsResp>((resolve, reject) => {
         resolve({ accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] })
       })

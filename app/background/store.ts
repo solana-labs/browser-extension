@@ -224,6 +224,7 @@ export class Store {
   }
 
   addPendingRequestAccount(tabId: string, origin: string, resolve: any, reject: any) {
+    log("addPendingRequestAccount with origin: %s and tabID: %s", origin, tabId)
     const pendingRequestAccount = {
       request: { origin, tabId },
       resolve,

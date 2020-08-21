@@ -38,13 +38,19 @@ export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
     )
   }
   const handleDecline = () => {
-    callAsync(request("popup_declineRequestAccounts", { tabId: pendingRequestAccounts.tabId }), {
-      progressMessage: "Declining Request Account...",
-      successMessage: "Success!",
-      callback: () => {
-        onClose()
-      },
-    })
+    callAsync(
+      request("popup_declineRequestAccounts", {
+        tabId: pendingRequestAccounts.tabId,
+        origin: pendingRequestAccounts.origin,
+      }),
+      {
+        progressMessage: "Declining Request Account...",
+        successMessage: "Success!",
+        callback: () => {
+          onClose()
+        },
+      }
+    )
   }
 
   return (
