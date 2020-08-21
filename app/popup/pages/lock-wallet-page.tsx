@@ -21,7 +21,8 @@ const LockWalletPageBase: React.FC<LockWalletPageProps> = () => {
       progressMessage: "locking wallet...",
       successMessage: "Wallet locked",
     })
-  })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <Card>
