@@ -10,6 +10,7 @@ import {
   Notification,
   PopupActions,
   SignatureResult,
+  WalletState,
 } from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
@@ -38,6 +39,7 @@ export class PopupController {
 
   createMiddleware() {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
+      const { origin } = req.params
       const method = req.method as PopupActions
       switch (method) {
         case "popup_getState":
@@ -59,6 +61,15 @@ export class PopupController {
           log("Handling popup_unlockWallet")
           try {
             await this.store.unlockSecretBox(req.params.password)
+
+            if (this.store.isOriginAuthorized(origin)) {
+              this._notifyAll({
+                type: "stateChanged",
+                data: { state: "authorized" },
+              })
+              break
+            }
+
             this._notifyAll({
               type: "stateChanged",
               data: { state: "unlocked" },
@@ -84,6 +95,10 @@ export class PopupController {
         case "popup_authoriseRequestAccounts":
           try {
             await this.approveRequestAccounts(req)
+            this._notifyAll({
+              type: "stateChanged",
+              data: { state: "authorized" },
+            })
           } catch (err) {
             log("Failed popup_approvePermissionsRequest with error: %s", err)
             res.error = err
