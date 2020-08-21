@@ -120,7 +120,7 @@ const MenuSelector: React.FC = () => {
             <Typography>Authorized websites</Typography>
           </MenuItem>
         )}
-        <MenuItem key={"menu-0"} component={RouterLink} to={Paths.account}>
+        <MenuItem key={"menu-2"} component={RouterLink} to={Paths.lockWallet}>
           <Typography>Lock wallet</Typography>
         </MenuItem>
       </Menu>

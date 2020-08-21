@@ -79,6 +79,7 @@ export type PopupActions =
   | "popup_getState"
   | "popup_createWallet"
   | "popup_unlockWallet"
+  | "popup_lockWallet"
   | "popup_authoriseTransaction"
   | "popup_declineTransaction"
   | "popup_authoriseRequestAccounts"

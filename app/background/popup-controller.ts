@@ -68,6 +68,19 @@ export class PopupController {
             res.error = err
           }
           break
+        case "popup_lockWallet":
+          log("Handling popup_lockWallet")
+          try {
+            await this.store.lockSecretBox()
+            this._notifyAll({
+              type: "stateChanged",
+              data: { state: "locked" },
+            })
+          } catch (err) {
+            log("error: popup_lockWallet failed  with error: %s", err)
+            res.error = err
+          }
+          break
         case "popup_authoriseRequestAccounts":
           try {
             await this.approveRequestAccounts(req)

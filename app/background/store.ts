@@ -135,6 +135,10 @@ export class Store {
 
     return state
   }
+  lockSecretBox() {
+    this.wallet = null
+    this.selectedAccount = ""
+  }
 
   unlockSecretBox(password: string) {
     if (!this.secretBox) {
