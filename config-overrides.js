@@ -36,7 +36,6 @@ module.exports = {
   // The paths config to use when compiling your react app for development or production.
   paths: function (paths, env) {
     paths["appSrc"] = helper.resolveApp("app")
-    paths["testsSetup"] = helper.resolveApp("app/popup/setupTests.js")
     paths["proxySetup"] = helper.resolveApp("app/popup/setupProxy.js")
     paths["appPath"] = helper.resolveApp("")
     paths["appPublic"] = helper.resolveApp("app/popup/public")
