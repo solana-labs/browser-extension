@@ -28,6 +28,7 @@ import { AuthorizeRequestAccountsDialog } from "./dialogs/authorize-request-acco
 import { createLogger } from "../../core/utils"
 import CopyToClipboard from "react-copy-to-clipboard"
 import { SendDialog } from "./send-dialog"
+import { TransactionList } from "./transaction-list"
 
 const log = createLogger("sol:balancelist")
 
@@ -216,6 +217,7 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ publicKey, accountInf
               View on Solana Explorer
             </Link>
           </Typography>
+          <TransactionList account={publicKey} />
         </div>
       </Collapse>
       {balanceInfo && (
