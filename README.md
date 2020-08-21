@@ -146,7 +146,7 @@ window.addEventListener("solana#initialized", function (event) {
 })
 ```
 
-Once you got access to the solana client, you should fetch the extension state using `wallet_signTransaction` request.
+Once you got access to the solana client, you should fetch the extension state using `wallet_getState` request.
 
 ```ts
 const { result } = await solana.request({ method: "wallet_getState", params: {} })
