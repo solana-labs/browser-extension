@@ -13,6 +13,17 @@ export default class ExtensionPlatform {
     })
   }
 
+  closeWindow(windowId: number) {
+    return new Promise((resolve, reject) => {
+      chrome.windows.remove(windowId, () => {
+        const error = checkForError()
+        if (error) {
+          return reject(error)
+        }
+        return resolve()
+      })
+    })
+  }
   focusWindow(windowId: number) {
     return new Promise((resolve, reject) => {
       chrome.windows.update(windowId, { focused: true }, () => {
