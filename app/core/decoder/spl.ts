@@ -6,6 +6,7 @@ import { Buffer } from "buffer"
 import { Mint, InstructionDetails, Network } from "../types"
 import { Store } from "../../background/store"
 import { ProgramDecoderContext } from "./types"
+import { DecoderError } from "./common"
 
 const log = createLogger("sol:decoder:sol")
 
@@ -47,62 +48,26 @@ export class SplDecoder {
   decodeInstruction = async (
     instruction: TransactionInstruction,
     { connection }: ProgramDecoderContext
-  ): Promise<InstructionDetails | undefined> => {
+  ): Promise<InstructionDetails> => {
     log("Decoding spl transaction")
-    try {
-      const decodedData = SPL_LAYOUT.decode(instruction.data)
-      log("Decoded SPL Transaction: %O", decodedData)
-      const instructionType = Object.keys(decodedData)[0]
-      switch (instructionType) {
-        case "transfer":
-          if (instruction.keys.length !== 3) {
-            log(
-              "Unable to decode SPL transfer, expected 3 keys in instruction received: %s",
-              instruction.keys.length
-            )
-            return undefined
-          }
+    const decodedData = SPL_LAYOUT.decode(instruction.data)
+    log("Decoded SPL Transaction: %O", decodedData)
+    const instructionType = Object.keys(decodedData)[0]
+    switch (instructionType) {
+      case "transfer":
+        if (instruction.keys.length !== 3) {
+          throw new DecoderError(
+            `Unable to decode SPL transfer, expected 3 keys in instruction, got ${instruction.keys.length}`
+          )
+        }
 
-          const fromPubKey = instruction.keys[0].pubkey
-          const fromAccount = await connection.conn.getAccountInfo(fromPubKey)
-          if (!fromAccount) {
-            log(
-              "Could not retrieve 'from' account %s information for spl transfer",
-              fromPubKey.toBase58()
-            )
-            return {
-              type: "spl_transfer",
-              params: {
-                amount: decodedData.transfer.amount,
-                from: fromPubKey.toBase58(),
-                to: instruction.keys[1].pubkey.toBase58(),
-                owner: instruction.keys[2].pubkey.toBase58(),
-                mint: {},
-              },
-            }
-          }
-          const mintPubKey = this._getMintAccount(fromAccount.data)
-
-          const mintAccount = await connection.conn.getAccountInfo(mintPubKey)
-          if (!mintAccount) {
-            log(
-              "Could not retrieve 'mint' account %s information for spl transfer",
-              mintPubKey.toBase58()
-            )
-            return {
-              type: "spl_transfer",
-              params: {
-                amount: decodedData.transfer.amount,
-                from: fromPubKey.toBase58(),
-                to: instruction.keys[1].pubkey.toBase58(),
-                owner: instruction.keys[2].pubkey.toBase58(),
-                mint: {
-                  publicKey: mintPubKey.toBase58(),
-                },
-              },
-            }
-          }
-          const mint = this._getMint(connection.network, mintPubKey, mintAccount)
+        const fromPubKey = instruction.keys[0].pubkey
+        const fromAccount = await connection.conn.getAccountInfo(fromPubKey)
+        if (!fromAccount) {
+          log(
+            "Could not retrieve 'from' account %s information for spl transfer",
+            fromPubKey.toBase58()
+          )
           return {
             type: "spl_transfer",
             params: {
@@ -110,16 +75,45 @@ export class SplDecoder {
               from: fromPubKey.toBase58(),
               to: instruction.keys[1].pubkey.toBase58(),
               owner: instruction.keys[2].pubkey.toBase58(),
-              mint: mint,
+              mint: {},
             },
           }
-        default:
-          log("unhandled spl instruction type: %s", instructionType)
-      }
-    } catch (e) {
-      log("Unable to decode spl instruction: %O", e)
+        }
+        const mintPubKey = this._getMintAccount(fromAccount.data)
+
+        const mintAccount = await connection.conn.getAccountInfo(mintPubKey)
+        if (!mintAccount) {
+          log(
+            "Could not retrieve 'mint' account %s information for spl transfer",
+            mintPubKey.toBase58()
+          )
+          return {
+            type: "spl_transfer",
+            params: {
+              amount: decodedData.transfer.amount,
+              from: fromPubKey.toBase58(),
+              to: instruction.keys[1].pubkey.toBase58(),
+              owner: instruction.keys[2].pubkey.toBase58(),
+              mint: {
+                publicKey: mintPubKey.toBase58(),
+              },
+            },
+          }
+        }
+        const mint = this._getMint(connection.network, mintPubKey, mintAccount)
+        return {
+          type: "spl_transfer",
+          params: {
+            amount: decodedData.transfer.amount,
+            from: fromPubKey.toBase58(),
+            to: instruction.keys[1].pubkey.toBase58(),
+            owner: instruction.keys[2].pubkey.toBase58(),
+            mint: mint,
+          },
+        }
     }
-    return undefined
+
+    throw new DecoderError(`SPL instruction of type ${instructionType} is not supported`)
   }
 
   _getMintAccount(data: Buffer): PublicKey {

@@ -38,7 +38,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     popupMux.setMaxListeners(25)
 
     pump(bgStream, popupMux, bgStream, (err) => {
-      log("Background stream <> mux disconnected: %s", err)
+      log("Background stream <> mux disconnected", err)
     })
 
     const jsonRpcConnection = createJsonRpcStream()
@@ -47,7 +47,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
       popupMux.createStream(MUX_CONTROLLER_SUBSTREAM),
       jsonRpcConnection.stream,
       (err) => {
-        log("JsonRPC stream <> controller sub-stream disconnected: %s", err)
+        log("JsonRPC stream <> controller sub-stream disconnected", err)
       }
     )
 
@@ -58,11 +58,11 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     jsonRpcConnection.events.on("notification", (resp: Notification) => {
       switch (resp.type) {
         case "popupStateChanged":
-          log("Received state change notification: %O", resp.data)
+          log("Received state change notification %O", resp.data)
           setState(resp.data)
           return
         default:
-          log("Received unhandled notification [%s] : %O", resp.type, resp.data)
+          log("Received unhandled notification [%s] %O", resp.type, resp.data)
       }
     })
     setEngine(rpcEngine)
@@ -73,7 +73,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   const getBackgroundState = () => {
     log("retrieving popup state from background")
     request("popup_getState", {}).catch((err) => {
-      log("error received popup state from background: %O", err)
+      log("error received popup state from background %O", err)
     })
   }
 
@@ -103,14 +103,14 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }
 
   const changeNetwork: BackgroundContextType["changeNetwork"] = (network: Network) => {
-    log("Changing network from: %s to %s", state?.selectedNetwork.cluster, network.cluster)
+    log("Changing network from [%s] to [%s]", state?.selectedNetwork.cluster, network.cluster)
     request("popup_changeNetwork", { cluster: network.cluster })
       .then((state) => {
-        log("Changed network to: %s", state.result.selectedNetwork.cluster)
+        log("Changed network to [%s]", state.result.selectedNetwork.cluster)
       })
       .catch((err) => {
         log(
-          "Unable to switch network from: %s to %s : ",
+          "Unable to switch network from [%s] to [%s]",
           state?.selectedNetwork.cluster,
           network,
           err
@@ -119,13 +119,13 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }
 
   const changeAccount: BackgroundContextType["changeAccount"] = (account: string) => {
-    log("Changing account from: %s to %s", state?.selectedAccount, account)
+    log("Changing account from [%s] to [%s]", state?.selectedAccount, account)
     request("popup_changeAccount", { account: account })
       .then((state) => {
-        log("Changed account to: %s", state.result.selectedAccount)
+        log("Changed account to [%s]", state.result.selectedAccount)
       })
       .catch((err) => {
-        log("Unable to switch account from: %s to %s : ", state?.selectedAccount, account, err)
+        log("Unable to switch account from [%s] to [%s]", state?.selectedAccount, account, err)
       })
   }
 

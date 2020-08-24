@@ -284,7 +284,7 @@ export class Store {
     signers: string[],
     resolve: any,
     reject: any,
-    details?: (InstructionDetails | undefined)[]
+    details?: InstructionDetails[]
   ) {
     if (this.pendingTransactions.has(tabId)) {
       throw new Error(`Pending transaction from tabID '${tabId}' already exists.`)

@@ -1,4 +1,4 @@
-import { clusterApiUrl, Cluster } from "@solana/web3.js"
+import { clusterApiUrl, Cluster, TransactionInstruction } from "@solana/web3.js"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -96,7 +96,7 @@ export type PopupActions =
 export type PendingSignTransaction = {
   message: string
   signers: string[]
-  details?: Array<InstructionDetails | undefined>
+  details?: InstructionDetails[]
   tabId: string
 }
 
@@ -106,6 +106,7 @@ export type InstructionDetails =
   | InstructionDetailsSPLTransfer
   | InstructionDetailsDexNewOrder
   | InstructionDetailsDexCancelOrder
+  | UndecodabeInstructionDetails
 
 export type InstructionDetailsSOLCreateAccount = {
   type: "sol_createAccount"
@@ -155,6 +156,13 @@ export type InstructionDetailsDexCancelOrder = {
     orderId: string
     owner: string
     ownerSlot: number
+  }
+}
+
+export type UndecodabeInstructionDetails = {
+  type: "undecodable_instruction"
+  params: {
+    instruction: TransactionInstruction
   }
 }
 

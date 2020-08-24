@@ -34,7 +34,7 @@ export const TransactionList: React.FC<TransctionListProp> = ({ account }) => {
       <h3>Transaction list</h3>
       <List disablePadding>
         {confirmedSignatureInfos.map((info) => (
-          <TransactionListItem confirmedSignatureInfo={info} />
+          <TransactionListItem key={info.signature + info.slot} confirmedSignatureInfo={info} />
         ))}
       </List>
     </>

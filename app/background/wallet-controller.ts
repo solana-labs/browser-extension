@@ -1,6 +1,11 @@
 import { Store } from "./store"
 import { createLogger, decodeSerializedMessage } from "../core/utils"
-import { RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
+import {
+  RequestAccountsResp,
+  SignTransactionResp,
+  WallActions,
+  InstructionDetails,
+} from "../core/types"
 import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
@@ -110,28 +115,32 @@ export class WalletController {
       tabId,
       params: { message, signer },
     } = req
+    let instructions: InstructionDetails[] = []
 
-    log("Handling sign transaction tabId: %s message: %s for signer %s", tabId, message, signer)
+    log(
+      "Handling sign transaction from tab [%s] with message [%s] for signer %o",
+      tabId,
+      message,
+      signer
+    )
     try {
       const decodedMessage = bs58.decode(message)
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
       const trx = Transaction.populate(trxMessage, [])
-      log("transaction: %O", trx)
+      log("transaction %O", trx)
 
-      // instructionDetailsList = await this.decoder.decode(trx)
-      // if (instructionDetailsList) {
-      //   log("Transaction details: %O", instructionDetailsList)
-      // } else {
-      //   log("Could not determine transaction details")
-      // }
+      instructions = await this.decoder.decode(trx)
+      if (!instructions) {
+        log("Error! Decoding instructions should never fail")
+      }
     } catch (e) {
-      log("error populating transaction: %O", e)
+      log("error populating transaction %O", e)
     }
 
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, [])
+      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructions)
     })
   }
 
