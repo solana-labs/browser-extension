@@ -53,7 +53,7 @@ export type StoredData = {
 }
 
 export type WalletState = {
-  state: "locked" | "unlocked" | "uninitialized" | "authorized"
+  state: "locked" | "unlocked" | "uninitialized"
 }
 
 export type PopupState = {

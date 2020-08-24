@@ -326,11 +326,11 @@ export class Store {
     const found = this.authorizedOrigins.includes(origin)
 
     if (found) {
-      log("origin was already authorize")
+      log("origin was already authorize:", origin)
       return true
     }
 
-    log("origin need to be authorize")
+    log("origin need to be authorize", origin)
     return false
   }
 

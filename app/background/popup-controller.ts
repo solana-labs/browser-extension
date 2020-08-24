@@ -13,6 +13,7 @@ import {
 } from "../core/types"
 import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
+import { ExtensionManager } from "./lib/extension-manager"
 
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -21,24 +22,27 @@ export interface PopupControllerOpt {
   store: Store
   connection: Web3Connection
   notifyAllDomains: ((payload: Notification) => Promise<void>) | null
+  extensionManager: ExtensionManager
 }
 
 export class PopupController {
   private store: Store
   private _notifyAllDomains: ((payload: Notification) => Promise<void>) | null
   private connection: Web3Connection
+  private extensionManager: ExtensionManager
 
   constructor(opts: PopupControllerOpt) {
     log("popup controller constructor")
-    const { store, notifyAllDomains, connection } = opts
+    const { store, notifyAllDomains, connection, extensionManager } = opts
     this.store = store
     this.connection = connection
     this._notifyAllDomains = notifyAllDomains
+    this.extensionManager = extensionManager
   }
 
   createMiddleware() {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
-      const { origin } = req.params
+      log("createAsyncMiddleware with req: %O", req)
       const method = req.method as PopupActions
       switch (method) {
         case "popup_getState":
@@ -57,17 +61,9 @@ export class PopupController {
           }
           break
         case "popup_unlockWallet":
-          log("Handling popup_unlockWallet")
+          log("Handling popup_unlockWallet with origin:")
           try {
             await this.store.unlockSecretBox(req.params.password)
-
-            if (this.store.isOriginAuthorized(origin)) {
-              this._notifyAll({
-                type: "stateChanged",
-                data: { state: "authorized" },
-              })
-              break
-            }
 
             this._notifyAll({
               type: "stateChanged",
@@ -94,10 +90,7 @@ export class PopupController {
         case "popup_authoriseRequestAccounts":
           try {
             await this.approveRequestAccounts(req)
-            this._notifyAll({
-              type: "stateChanged",
-              data: { state: "authorized" },
-            })
+            await this.extensionManager.closePopup()
           } catch (err) {
             log("Failed popup_approvePermissionsRequest with error: %s", err)
             res.error = err
@@ -114,6 +107,7 @@ export class PopupController {
         case "popup_declineRequestAccounts":
           try {
             await this.declineRequestAccounts(req)
+            await this.extensionManager.closePopup()
           } catch (err) {
             log("Failed popup_declineRequestAccounts with error: %s", err)
             res.error = err
@@ -122,6 +116,7 @@ export class PopupController {
         case "popup_authoriseTransaction":
           try {
             await this.signTransaction(req)
+            await this.extensionManager.closePopup()
           } catch (err) {
             log("popup_approvePermissionsRequest failed with error: %s", err)
             res.error = err
@@ -130,6 +125,7 @@ export class PopupController {
         case "popup_declineTransaction":
           try {
             await this.declineTransaction(req)
+            await this.extensionManager.closePopup()
           } catch (err) {
             log("popup_declineTransaction failed with error: %s", err)
             res.error = err

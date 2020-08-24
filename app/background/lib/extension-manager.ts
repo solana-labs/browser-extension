@@ -14,18 +14,18 @@ export class ExtensionManager {
     this.platform = new ExtensionPlatform()
   }
 
-  async showPopup(notifyPopup: () => void) {
+  async closePopup() {
     const popup = await this._getPopup()
+    log("closing popup: %O", popup)
 
-    // Bring focus to chrome popup
     if (popup) {
-      // bring focus to existing chrome popup
-
       await this.platform.closeWindow(popup.id)
-      // await this.platform.focusWindow(popup.id)
-      // should also notify popup that he should refresh state
-      // notifyPopup()
+      log("popup closed")
     }
+  }
+
+  async showPopup(notifyPopup: () => void) {
+    await this.closePopup()
     let left = 0
     let top = 0
     try {
@@ -67,7 +67,12 @@ export class ExtensionManager {
   _getPopupIn(windows: chrome.windows.Window[]) {
     return windows
       ? windows.find((win) => {
-          // Returns notification popup
+          log(
+            "_getPopupIn: find: type: '%s' id: '%s' popupId: '%s'",
+            win.type,
+            win.id,
+            this._popupId
+          )
           return win && win.type === "popup" && win.id === this._popupId
         })
       : null

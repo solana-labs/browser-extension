@@ -57,6 +57,7 @@ export default class SolanaController {
       store,
       connection,
       notifyAllDomains: this.notifyAllConnections.bind(this),
+      extensionManager: this.extensionManager,
     })
     this.connections = {}
     this.persistData = persistData
