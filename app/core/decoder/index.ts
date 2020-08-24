@@ -23,31 +23,29 @@ export class Decoder {
     this._setupDecoders()
   }
 
-  decode = async (transaction: Transaction): Promise<(InstructionDetails | undefined)[]> => {
-    const decodeInstruction = (
+  decode = async (transaction: Transaction): Promise<InstructionDetails[]> => {
+    const decodeInstruction = async (
       instruction: TransactionInstruction
-    ): Promise<InstructionDetails | undefined> => {
-      return new Promise<InstructionDetails | undefined>((resolve, reject) => {
-        const programId = instruction.programId
-        log("Finding decoder for programId: %s", programId.toBase58())
-        const decoder = this._getDecoder(instruction.programId)
+    ): Promise<InstructionDetails> => {
+      const programId = instruction.programId
+      log("Finding decoder for program [%s]", programId)
+      const decoder = this._getDecoder(instruction.programId)
 
-        if (decoder == null) {
-          //TODO: Maybe add support to skip unknown instructions and put a placeholder type instead
-          log("Unable to retrieve decoder for programId: %s", programId.toBase58())
-          resolve(undefined)
-          return
-        }
+      if (decoder == null) {
+        log("Unable to retrieve decoder for program [%s]", programId)
+        return { type: "undecodable_instruction", params: { instruction } }
+      }
 
-        log("Decoding transaction for programId : %s", programId.toBase58())
-        decoder
-          .decodeInstruction(instruction, { connection: this.connection, programId })
-          .then((decodedInstruction) => {
-            resolve(decodedInstruction)
-          })
-      })
+      log("Decoding transaction for program [%s]", programId)
+      try {
+        return decoder.decodeInstruction(instruction, { connection: this.connection, programId })
+      } catch (error) {
+        log("An error occurred when decoding instruction for program [%s] %o", programId, error)
+        return { type: "undecodable_instruction", params: { instruction } }
+      }
     }
 
+    // Promise.all rejects as soon as one promise rejects, so we must make sure that `decodeInstruction` never fail
     return Promise.all(
       transaction.instructions.map((instruction) => decodeInstruction(instruction))
     )
