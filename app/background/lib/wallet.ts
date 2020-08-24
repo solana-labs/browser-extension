@@ -26,12 +26,17 @@ export class Wallet {
   addAccount() {
     const accountIndex = this.accounts.length
     log("Adding account to wallet with index %s", accountIndex)
-		// Ref. We align on BIP44 like Ledger's most recent Live products now do
-		// https://medium.com/myetherwallet/hd-wallets-and-derivation-paths-explained-865a643c7bf2
-		// >> https://github.com/MyCryptoHQ/MyCrypto/issues/2070#issue-341249164
+		// We align on BIP44 like the Ledger support in Solana 
+		// All path components are hardened (i.e with ')
+		// https://github.com/solana-labs/ledger-app-solana/blob/c66543976aa8171be6ea0c0771b1e9447a857c40/examples/example-sign.js#L57-L83v
+		//
+		// m/44'/501'/${accountIndex}'/0'
+		//
+		// m / purpose' / coin_type' / account'    / change / address_index
+		// m / 44'      / 501'       / [VARIABLE]' / 0'      / [ABSENT]
     const derivedSeed = bip32
       .fromSeed(this.seed)
-			.derivePath(`m/44'/501'/${accountIndex}'/0/0`)
+			.derivePath(`m/44'/501'/${accountIndex}'/0'`)
 			.privateKey
     const newAccount = new Account(nacl.sign.keyPair.fromSeed(derivedSeed).secretKey)
     this.accounts = [...this.accounts, newAccount]
