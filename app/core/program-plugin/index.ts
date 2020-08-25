@@ -79,7 +79,7 @@ export class ProgramPluginManager {
         decodedInstruction = plugin.decode(instruction)
       } catch (error) {
         log("An error occurred when decoding instruction for program [%s] %o", programId, error)
-        return renderUndecodedInsutrction(idx, instruction)x
+        return renderUndecodedInsutrction(idx, instruction)
       }
 
       log("Decorating transaction instruction for program [%s]", programId)

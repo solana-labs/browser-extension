@@ -10,7 +10,6 @@ import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { ProgramPluginManager } from "../core/program-plugin"
-import markdown = Mocha.reporters.markdown
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")

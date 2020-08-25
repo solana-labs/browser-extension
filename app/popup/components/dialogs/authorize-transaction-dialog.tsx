@@ -88,7 +88,7 @@ function renderTransactionDetails(transaction: PendingSignTransaction) {
     return <ReactMarkdown key={0} source={undecodedTransactionMessage()}/>
   }
   return transaction.details.map((detail, idx) => {
-    return <ReactMarkdown key={idx} source={detail}/>
+    return <ReactMarkdown key={idx} source={detail.content}/>
   })
 }
 
