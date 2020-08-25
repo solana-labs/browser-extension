@@ -3,7 +3,7 @@ import { createLogger } from "../../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
 import { Buffer } from "buffer"
-import { DecodedInstruction, Markdown } from "../../types"
+import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { PluginContext, ProgramPlugin } from "../types"
 import { DecoderError } from "../common"
 
@@ -88,7 +88,7 @@ export class SplPlugin implements ProgramPlugin{
 
         const mintPubKey = this._getMintAccount(fromAccount.data)
         // check in local cache for mint information
-        let mint = context.getSPLMint(mintPubKey)
+        let mint = context.getSPLToken(mintPubKey)
         if (!mint) {
           throw new Error(`Could not retrieve 'mint' account ${mintPubKey.toBase58()}`)
         }
@@ -106,17 +106,23 @@ export class SplPlugin implements ProgramPlugin{
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
-        return `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}</p>`
+        return {
+          type: "markdown",
+          content: `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}</p>`
+        }
     }
 
     throw new Error(`Markdown render does not support instruction of type ${decodedInstruction.instructionType}`)
   }
 
-  getRicardian(decodedInstruction: DecodedInstruction): string {
+  getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
-        return `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+        return {
+          type: "ricardian",
+          content: `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+        }
     }
 
     throw new Error(`Ricardian render does not support instruction of type ${decodedInstruction.instructionType} is not supported`)

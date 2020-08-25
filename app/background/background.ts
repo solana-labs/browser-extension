@@ -36,8 +36,9 @@ async function loadStateFromPersistence(): Promise<VersionedData> {
   const data = await localStore.get()
   if (!data) {
     versionedData = { version: "1.0", data: initialState }
-    log("Solana Empty vault found intializing")
+    log("Solana Empty vault found defaulting to initial state")
   } else {
+    log("Solana restoring vault")
     versionedData = data
   }
 
