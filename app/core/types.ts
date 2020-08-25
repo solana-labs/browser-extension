@@ -49,7 +49,7 @@ export type StoredData = {
   selectedNetwork: Network
   selectedAccount: string
   authorizedOrigins: string[]
-  tokens: { [network: string]: { [mintAddress: string]: Mint } }
+  tokens: { [network: string]: { [mintAddress: string]: Token } }
 }
 
 export type WalletState = {
@@ -65,7 +65,7 @@ export type PopupState = {
   pendingTransactions: PendingSignTransaction[]
   pendingRequestAccounts: PendingRequestAccounts[]
   authorizedOrigins: string[]
-  tokens: Mint[]
+  tokens: Token[]
 }
 
 export type WallActions =
@@ -96,81 +96,24 @@ export type PopupActions =
 export type PendingSignTransaction = {
   message: string
   signers: string[]
-  details?: InstructionDetails[]
+  details?: Markdown[]
   tabId: string
 }
 
-export type InstructionDetails =
-  | InstructionDetailsSOLCreateAccount
-  | InstructionDetailsSOLTransfer
-  | InstructionDetailsSPLTransfer
-  | InstructionDetailsDexNewOrder
-  | InstructionDetailsDexCancelOrder
-  | UndecodabeInstructionDetails
+export type Ricardian = string;
+export type Markdown = string;
 
-export type InstructionDetailsSOLCreateAccount = {
-  type: "sol_createAccount"
-  params: {
-    from: string
-    newAccount: string
-    lamports: number
-    space: number
-    programId: string
-  }
+export type DecodedInstruction = {
+  instruction: TransactionInstruction
+  instructionType: string
+  properties: {[key: string]: any}
 }
 
-export type InstructionDetailsSOLTransfer = {
-  type: "sol_transfer"
-  params: {
-    from: string
-    to: string
-    amount: number
-  }
-}
-
-export type InstructionDetailsSPLTransfer = {
-  type: "spl_transfer"
-  params: {
-    from: string
-    to: string
-    owner: string
-    amount: number
-    mint: Mint
-  }
-}
-
-export type InstructionDetailsDexNewOrder = {
-  type: "dex_neworder"
-  params: {
-    side: string
-    price: number
-    size: number
-    orderType: string
-  }
-}
-
-export type InstructionDetailsDexCancelOrder = {
-  type: "dex_cancelorder"
-  params: {
-    side: string
-    orderId: string
-    owner: string
-    ownerSlot: number
-  }
-}
-
-export type UndecodabeInstructionDetails = {
-  type: "undecodable_instruction"
-  params: {
-    instruction: TransactionInstruction
-  }
-}
-
-export type Mint = {
-  publicKey?: string
-  name?: string
-  symbol?: string
-  decimals?: number
+export type Token = {
+  mintAddress: string
+  name: string
+  symbol: string
+  decimals: number
 }
 
 export type PendingRequestAccounts = {

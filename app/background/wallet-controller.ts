@@ -4,19 +4,19 @@ import {
   RequestAccountsResp,
   SignTransactionResp,
   WallActions,
-  InstructionDetails,
+  Markdown
 } from "../core/types"
 import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
-import { Decoder } from "../core/decoder"
+import { ProgramPluginManager } from "../core/program-plugin"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
 
 interface WalletControllerOpt {
   store: Store
-  decoder: Decoder
+  pluginManager: ProgramPluginManager
   openPopup: () => Promise<void>
 }
 
@@ -28,14 +28,14 @@ interface MiddlewareOpts {
 export class WalletController {
   private store: Store
   private openPopup: any
-  private decoder: Decoder
+  private pluginManager: ProgramPluginManager
 
   constructor(opts: WalletControllerOpt) {
     log("wallet controller constructor")
-    const { store, openPopup, decoder } = opts
+    const { store, openPopup, pluginManager } = opts
     this.store = store
     this.openPopup = openPopup
-    this.decoder = decoder
+    this.pluginManager = pluginManager
   }
 
   createMiddleware(opts: MiddlewareOpts) {
@@ -115,7 +115,7 @@ export class WalletController {
       tabId,
       params: { message, signer },
     } = req
-    let instructions: InstructionDetails[] = []
+    let markdowns: Markdown[] = []
 
     log(
       "Handling sign transaction from tab [%s] with message [%s] for signer %o",
@@ -128,9 +128,8 @@ export class WalletController {
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
       const trx = Transaction.populate(trxMessage, [])
       log("transaction %O", trx)
-
-      instructions = await this.decoder.decode(trx)
-      if (!instructions) {
+      markdowns = await this.pluginManager.decode(trx)
+      if (!markdowns) {
         log("Error! Decoding instructions should never fail")
       }
     } catch (e) {
@@ -140,7 +139,7 @@ export class WalletController {
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, instructions)
+      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, markdowns)
     })
   }
 

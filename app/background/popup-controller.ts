@@ -142,16 +142,16 @@ export class PopupController {
         case "popup_addToken":
           log(`adding token for req %O`, req)
           const { mint } = req
-          this.store.addMint(mint)
+          this.store.addToken(mint)
           break
         case "popup_removeToken":
           log(`remove token for req %O`, req)
           const { mintAddress } = req
-          this.store.remoteMint(mintAddress)
+          this.store.removeToken(mintAddress)
           break
         case "popup_updateToken":
           log(`update token for req %O`, req)
-          this.store.updateMint(req["`publicKey`"], req["mint"])
+          this.store.updateToken(req["`publicKey`"], req["mint"])
           break
         case "popup_addWalletAccount":
           this.addAccount()

@@ -170,7 +170,7 @@ export const useTokenName = (
     return { name: undefined, symbol: undefined }
   }
 
-  let match = popupState?.tokens.find((token) => token.publicKey === mintPubKey.toBase58())
+  let match = popupState?.tokens.find((token) => token.mintAddress === mintPubKey.toBase58())
   if (match) {
     return { name: match.name, symbol: match.symbol }
   }

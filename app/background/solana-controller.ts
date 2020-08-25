@@ -8,11 +8,12 @@ import { PopupController } from "./popup-controller"
 import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex } from "../core/utils"
-import { ENVIRONMENT_TYPE_POPUP, Notification, StoredData } from "../core/types"
+import { ENVIRONMENT_TYPE_POPUP, Notification, StoredData, Token } from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
 import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
-import { Decoder } from "../core/decoder"
+import { ProgramPluginManager } from "../core/program-plugin"
 import { Web3Connection } from "../core/connection"
+import { Connection, PublicKey } from "@solana/web3.js"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -24,14 +25,14 @@ interface SolanaControllerOpts {
   persistData: (data: StoredData) => Promise<boolean>
 }
 
-interface Connection {
+interface RemoteConnection {
   engine: typeof RpcEngine
   tabId: string
 }
 export default class SolanaController {
   public store: Store
   // TODO: Figure out the typing for RpcEngine
-  private connections: { [origin: string]: { [id: string]: Connection } }
+  private connections: { [origin: string]: { [id: string]: RemoteConnection } }
   private walletController: WalletController
   private popupController: PopupController
   private extensionManager: ExtensionManager
@@ -43,14 +44,20 @@ export default class SolanaController {
     const { storedData, persistData } = opts
     const store = new Store(storedData)
     const connection = new Web3Connection(store.selectedNetwork)
-    const decoder = new Decoder(connection, store)
+
 
     this.store = store
     this.connection = connection
     this.extensionManager = new ExtensionManager()
+
+    const pluginManager = new ProgramPluginManager({
+      getConnection: this.getWeb3Connection.bind(this),
+      getSPLMint: this.getSPLMint.bind(this)
+    })
+
     this.walletController = new WalletController({
       store,
-      decoder,
+      pluginManager,
       openPopup: this.triggerUi.bind(this),
     })
     this.popupController = new PopupController({
@@ -233,6 +240,14 @@ export default class SolanaController {
         })
       })
     })
+  }
+
+  getSPLMint(publicKey: PublicKey): (Token | undefined) {
+    return this.store.getToken(this.connection.network,publicKey.toBase58())
+  }
+
+  getWeb3Connection(): Connection {
+    return this.connection.conn
   }
 
   async triggerUi() {
