@@ -410,29 +410,15 @@ export class PopupController {
     const connection = new Connection(this.store.selectedNetwork.endpoint)
 
     log("sending transaction %O", transaction)
-    connection
-      .sendTransaction(transaction, [signingAccount])
-      .then((signature) => {
-        log("Got signature:", signature)
-      })
-      .catch((err) => {
-        throw new Error("Failed to send transaction: " + err)
-      })
-    // log("signing with account:", signingAccount.publicKey.toBase58())
-    // const signature = nacl.sign.detached(transaction.serializeMessage(), signingAccount.secretKey)
-    // invariant(signature.length === 64)
-    // log("adding signature transaction:", bs58.encode(signature))
-    // transaction.addSignature(signingAccount.publicKey, Buffer.from(signature))
 
-    // connection
-    //   .sendRawTransaction(transaction.serialize())
-    //   .then((signature) => {
-    //     log("Got signature:", signature)
-    //   })
-    //   .catch((err) => {
-    //     throw new Error("Failed to send transaction: " + err)
-    //   })
+    try {
+      const signature = await connection.sendTransaction(transaction, [signingAccount])
+      log("Got signature:", signature)
+    } catch (e) {
+      throw new Error("Failed to send transaction: " + e)
+    }
   }
+
   async sendSplToken(req: any) {
     log(`send spl token for req %O`, req)
     const transfer = req.params.transfer
@@ -474,7 +460,8 @@ export class PopupController {
       new TransactionInstruction({
         keys: [
           { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
-          { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
+          { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
+          // { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
           { pubkey: signingAccount.publicKey, isSigner: false, isWritable: false },
         ],
         data: encodedData,
@@ -486,13 +473,11 @@ export class PopupController {
     const connection = new Connection(this.store.selectedNetwork.endpoint)
 
     log("sending transaction %O", transaction)
-    connection
-      .sendTransaction(transaction, [signingAccount])
-      .then((signature) => {
-        log("Got signature:", signature)
-      })
-      .catch((err) => {
-        throw new Error("Failed to send transaction: " + err)
-      })
+    try {
+      const signature = await connection.sendTransaction(transaction, [signingAccount])
+      log("Got signature:", signature)
+    } catch (e) {
+      throw new Error("Failed to send transaction: " + e)
+    }
   }
 }
