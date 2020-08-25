@@ -27,8 +27,9 @@ import { PendingRequestAccounts, PendingSignTransaction } from "../../core/types
 import { AuthorizeRequestAccountsDialog } from "./dialogs/authorize-request-accounts-dialog"
 import { createLogger } from "../../core/utils"
 import CopyToClipboard from "react-copy-to-clipboard"
-import { SendDialog } from "./send-dialog"
+import { SendSolDialog } from "./dialogs/send-sol-dialog"
 import { TransactionList } from "./transaction-list"
+import { SendSplDialog } from "./dialogs/send-spl-dialog"
 
 const log = createLogger("sol:balancelist")
 
@@ -103,6 +104,7 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
           <BalanceListItem
             key={ownedAccount.publicKey.toBase58()}
             publicKey={ownedAccount.publicKey}
+            signer={ownedAccounts[0].publicKey}
             accountInfo={ownedAccount.accountInfo}
           />
         ))}
@@ -144,11 +146,12 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 interface BalanceListItemProps {
+  signer: PublicKey
   publicKey: PublicKey
   accountInfo: AccountInfo<Buffer>
 }
 
-const BalanceListItem: React.FC<BalanceListItemProps> = ({ publicKey, accountInfo }) => {
+const BalanceListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, accountInfo }) => {
   const balanceInfo = useBalanceInfo(publicKey, accountInfo)
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const classes = useStyles()
@@ -220,12 +223,21 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ publicKey, accountInf
           <TransactionList account={publicKey} />
         </div>
       </Collapse>
-      {balanceInfo && (
-        <SendDialog
+      {balanceInfo && signer == publicKey && (
+        <SendSolDialog
           open={sendDialogOpen}
           onClose={() => setSendDialogOpen(false)}
           balanceInfo={balanceInfo}
-          publicKey={publicKey}
+          fromPublicKey={publicKey}
+        />
+      )}
+      {balanceInfo && signer != publicKey && (
+        <SendSplDialog
+          open={sendDialogOpen}
+          onClose={() => setSendDialogOpen(false)}
+          balanceInfo={balanceInfo}
+          fromPublicKey={publicKey}
+          signer={signer}
         />
       )}
     </>

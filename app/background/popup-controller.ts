@@ -11,9 +11,19 @@ import {
   PopupActions,
   SignatureResult,
 } from "../core/types"
-import { Account, Connection, PublicKey, SystemProgram } from "@solana/web3.js"
+import {
+  Account,
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
 import { ExtensionManager } from "./lib/extension-manager"
+import { TOKEN_PROGRAM_ID } from "../popup/components/dialogs/send-spl-dialog"
+// @ts-ignore
+import BufferLayout from "buffer-layout"
 
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -131,11 +141,19 @@ export class PopupController {
             res.error = err
           }
           break
-        case "popup_sendToken":
+        case "popup_sendSolToken":
           try {
-            await this.sendToken(req)
+            await this.sendSolToken(req)
           } catch (err) {
-            log("popup_signAndSendTransaction failed with error: %s", err)
+            log("popup_sendSolToken failed with error: %s", err)
+            res.error = err
+          }
+          break
+        case "popup_sendSplToken":
+          try {
+            await this.sendSplToken(req)
+          } catch (err) {
+            log("popup_sendSolToken failed with error: %s", err)
             res.error = err
           }
           break
@@ -361,7 +379,7 @@ export class PopupController {
     }
   }
 
-  async sendToken(req: any) {
+  async sendSolToken(req: any) {
     log(`send token for req %O`, req)
     const transfer = req.params.transfer
 
@@ -414,5 +432,67 @@ export class PopupController {
     //   .catch((err) => {
     //     throw new Error("Failed to send transaction: " + err)
     //   })
+  }
+  async sendSplToken(req: any) {
+    log(`send spl token for req %O`, req)
+    const transfer = req.params.transfer
+
+    if (!this.store.wallet) {
+      throw new Error(`Unable sign and send transaction with out a wallet`)
+    }
+
+    let signingAccount: Account | undefined
+    this.store.wallet.accounts.forEach((a: Account) => {
+      if (a.publicKey.toBase58() === req.params.transfer.signer) {
+        signingAccount = a
+      }
+    })
+
+    if (!signingAccount) {
+      throw new Error(`no account found in wallet for pubkey: ${req.params.transfer}`)
+    }
+
+    const amount = req.params.transfer.amount
+    log("amount for transaction: %O", amount)
+
+    const bufferLayout = BufferLayout.union(BufferLayout.u8("instruction"))
+    bufferLayout.addVariant(3, BufferLayout.struct([BufferLayout.nu64("amount")]), "transfer")
+    const instructionMaxSpan = Math.max(
+      ...Object.values(bufferLayout.registry).map((r: any) => r.span)
+    )
+    let b = Buffer.alloc(instructionMaxSpan)
+    let span = bufferLayout.encode(
+      {
+        transfer: { amount: amount },
+      },
+      b
+    )
+
+    const encodedData = b.slice(0, span)
+    const transaction = new Transaction()
+    transaction.add(
+      new TransactionInstruction({
+        keys: [
+          { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
+          { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
+          { pubkey: signingAccount.publicKey, isSigner: false, isWritable: false },
+        ],
+        data: encodedData,
+        programId: TOKEN_PROGRAM_ID,
+      })
+    )
+
+    log("creating connection with address: ", this.store.selectedNetwork.endpoint)
+    const connection = new Connection(this.store.selectedNetwork.endpoint)
+
+    log("sending transaction %O", transaction)
+    connection
+      .sendTransaction(transaction, [signingAccount])
+      .then((signature) => {
+        log("Got signature:", signature)
+      })
+      .catch((err) => {
+        throw new Error("Failed to send transaction: " + err)
+      })
   }
 }

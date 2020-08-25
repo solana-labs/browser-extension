@@ -78,9 +78,6 @@ export class WalletController {
           }
           if (this.store.isUnlocked()) {
             resp.state = "unlocked"
-            if (this.store.isOriginAuthorized(origin)) {
-              resp.state = "authorized"
-            }
           }
           log("wallet_getState returned:", resp)
           res.result = resp
