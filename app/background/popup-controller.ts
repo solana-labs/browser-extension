@@ -460,8 +460,7 @@ export class PopupController {
       new TransactionInstruction({
         keys: [
           { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
-          { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
-          // { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
+          { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
           { pubkey: signingAccount.publicKey, isSigner: false, isWritable: false },
         ],
         data: encodedData,
