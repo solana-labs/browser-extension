@@ -56,15 +56,6 @@ export const DebugButtons: React.FC = () => {
       <Button variant="contained" color="primary" onClick={requestAirdrop}>
         Request Airdrop
       </Button>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={mintTestToken}
-        disabled={sending}
-        style={{ marginLeft: 24 }}
-      >
-        Mint Test Token
-      </Button>
     </div>
   )
 }
