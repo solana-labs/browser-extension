@@ -6,9 +6,9 @@ import DialogContent from "@material-ui/core/DialogContent"
 import TextField from "@material-ui/core/TextField"
 import { DialogForm } from "./dialog-form"
 import { useCallAsync } from "../../utils/notifications"
-import { DialogProps, Card, CardContent, Typography, makeStyles } from "@material-ui/core"
+import { Card, CardContent, DialogProps, makeStyles, Typography } from "@material-ui/core"
 import { useBackground } from "../../context/background"
-import { PendingSignTransaction, InstructionDetails } from "../../../core/types"
+import { PendingSignTransaction } from "../../../core/types"
 import ReactMarkdown from "react-markdown"
 import { createLogger } from "../../../core/utils"
 
@@ -17,8 +17,8 @@ const log = createLogger("sol:authDialog")
 const useStyles = makeStyles({
   content: {
     // Required for big addresses to break otherwise it overflows, works great for addresses but might not be the case for other words...
-    wordBreak: "break-all",
-  },
+    wordBreak: "break-all"
+  }
 })
 
 export type Props = Omit<DialogProps, "onClose"> & {
@@ -37,7 +37,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
       success: { message: "Success!" },
       onFinish: () => {
         onClose()
-      },
+      }
     })
   }
 
@@ -47,7 +47,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
       success: { message: "Declined", variant: "error" },
       onFinish: () => {
         onClose()
-      },
+      }
     })
   }
 
@@ -85,47 +85,11 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 function renderTransactionDetails(transaction: PendingSignTransaction) {
   if (!transaction.details?.length) {
     log("Authorization dialog has no transaction details")
-    return <ReactMarkdown key={0} source={undecodedTransactionMessage()} />
+    return <ReactMarkdown key={0} source={undecodedTransactionMessage()}/>
   }
   return transaction.details.map((detail, idx) => {
-    const ricardianMarkdown = ricardianForInstruction(idx, detail)
-    log("Transformed instruction at index %s to markdown %s", ricardianMarkdown)
-
-    return <ReactMarkdown key={idx} source={ricardianMarkdown} />
+    return <ReactMarkdown key={idx} source={detail}/>
   })
-}
-
-function ricardianForInstruction(atIndex: number, detail: InstructionDetails): string {
-  switch (detail.type) {
-    case "sol_createAccount":
-      return `Create new account **${detail.params.newAccount}** (creator **${detail.params.from}**)`
-
-    case "sol_transfer":
-      return `Transfer of '${displayAmount(detail.params.amount, 9)} SOL' from **${
-        detail.params.from
-      }** to **${detail.params.to}**`
-
-    case "spl_transfer":
-      return `SPL Transfer ${displayAmount(
-        detail.params.amount,
-        detail.params.mint.decimals || 9
-      )} ${detail.params.mint.symbol} from ${detail.params.from} to ${detail.params.to}`
-
-    case "dex_cancelorder":
-      return `Dex Cancel Order: TBD`
-
-    case "dex_neworder":
-      return `Dex New Order: TBD`
-
-    case "undecodable_instruction":
-      return `Unknown instruction #${atIndex + 1} for program ${
-        detail.params.instruction.programId
-      }`
-  }
-}
-
-function displayAmount(amount: number, decimal: number): string {
-  return `${amount / Math.pow(10, decimal)}`
 }
 
 function undecodedTransactionMessage(): string {
