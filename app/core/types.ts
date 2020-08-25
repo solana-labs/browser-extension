@@ -101,9 +101,16 @@ export type PendingSignTransaction = {
   details?: Markdown[]
   tabId: string
 }
+// export interface
+export type Ricardian = {
+  type: "ricardian"
+  content: string
+};
 
-export type Ricardian = string;
-export type Markdown = string;
+export type Markdown = {
+  type: "markdown"
+  content: string
+};
 
 export type DecodedInstruction = {
   instruction: TransactionInstruction

@@ -10,6 +10,7 @@ import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { ProgramPluginManager } from "../core/program-plugin"
+import markdown = Mocha.reporters.markdown
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -125,7 +126,8 @@ export class WalletController {
       const trxMessage = decodeSerializedMessage(new Buffer(decodedMessage))
       const trx = Transaction.populate(trxMessage, [])
       log("transaction %O", trx)
-      markdowns = await this.pluginManager.decode(trx)
+
+      markdowns = await this.pluginManager.renderTransactionItemMarkdown(trx)
       if (!markdowns) {
         log("Error! Decoding instructions should never fail")
       }

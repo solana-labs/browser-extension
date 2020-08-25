@@ -21,6 +21,10 @@ import { useBackground } from "../context/background"
 import { Network } from "../../core/types"
 import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "./routes/paths"
+import { AuthorizedWebsitesPage } from "../pages/authorized-websites"
+import { TokensPage } from "../pages/tokens"
+import { AccountPage } from "../pages/account-page"
+import { LockWalletPage } from "../pages/lock-wallet-page"
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -90,6 +94,15 @@ export const NavigationFrame: React.FC = ({ children }) => {
 }
 
 const MenuSelector: React.FC = () => {
+  const menuItems:{
+    title: string
+    path: string
+  }[] = [
+    { title: "Account details", path: Paths.account },
+    { title: "Authorized websites", path: Paths.authorizedWebsites },
+    { title: "Known Tokens", path: Paths.tokens },
+    { title: "Lock wallet", path: Paths.lockWallet },
+  ]
   const [anchorEl, setAnchorEl] = useState<any>()
   const { popupState } = useBackground()
   return (
@@ -112,17 +125,11 @@ const MenuSelector: React.FC = () => {
         }}
         getContentAnchorEl={null}
       >
-        <MenuItem key={"menu-0"} component={RouterLink} to={Paths.account}>
-          <Typography>Account details</Typography>
-        </MenuItem>
-        {popupState?.authorizedOrigins && popupState.authorizedOrigins.length > 0 && (
-          <MenuItem key={"menu-1"} component={RouterLink} to={Paths.authorizedWebsites}>
-            <Typography>Authorized websites</Typography>
-          </MenuItem>
-        )}
-        <MenuItem key={"menu-2"} component={RouterLink} to={Paths.lockWallet}>
-          <Typography>Lock wallet</Typography>
-        </MenuItem>
+        { menuItems.map( (item, idx) => {
+          return (<MenuItem key={`menu-${idx}`} component={RouterLink} to={item.path}>
+            <Typography>{item.title}</Typography>
+          </MenuItem>)
+        })}
       </Menu>
     </>
   )

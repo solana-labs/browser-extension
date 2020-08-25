@@ -158,18 +158,16 @@ export class PopupController {
           }
           break
         case "popup_addToken":
-          log(`adding token for req %O`, req)
-          const { mint } = req
-          this.store.addToken(mint)
+          this.addToken(req)
           break
         case "popup_removeToken":
           log(`remove token for req %O`, req)
-          const { mintAddress } = req
+          const { mintAddress } = req.params
           this.store.removeToken(mintAddress)
           break
         case "popup_updateToken":
           log(`update token for req %O`, req)
-          this.store.updateToken(req["`publicKey`"], req["mint"])
+          this.store.updateToken(req.params['mintAddress'], req.params['token'])
           break
         case "popup_addWalletAccount":
           this.addAccount()
@@ -201,6 +199,16 @@ export class PopupController {
         res.result = this.store.getState()
       }
     })
+  }
+
+
+  addToken(req: any) {
+    log(`adding token for req %O`, req)
+    const { token } = req.params
+
+
+
+    this.store.addToken(token)
   }
 
   async approveRequestAccounts(req: any) {

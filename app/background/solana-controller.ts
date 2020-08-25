@@ -14,6 +14,8 @@ import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 import { ProgramPluginManager } from "../core/program-plugin"
 import { Web3Connection } from "../core/connection"
 import { Connection, PublicKey } from "@solana/web3.js"
+// @ts-ignore FIXME We need to add a mock definition of this library to the overall project
+import BufferLayout from "buffer-layout"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -29,6 +31,14 @@ interface RemoteConnection {
   engine: typeof RpcEngine
   tabId: string
 }
+
+// TODO not sure where to put this
+const MINT_LAYOUT = BufferLayout.struct([
+  BufferLayout.blob(36),
+  BufferLayout.u8("decimals"),
+  BufferLayout.blob(3),
+])
+
 export default class SolanaController {
   public store: Store
   // TODO: Figure out the typing for RpcEngine
@@ -52,7 +62,7 @@ export default class SolanaController {
 
     const pluginManager = new ProgramPluginManager({
       getConnection: this.getWeb3Connection.bind(this),
-      getSPLMint: this.getSPLMint.bind(this)
+      getSPLToken: this.getSPLToken.bind(this)
     })
 
     this.walletController = new WalletController({
@@ -242,8 +252,30 @@ export default class SolanaController {
     })
   }
 
-  getSPLMint(publicKey: PublicKey): (Token | undefined) {
-    return this.store.getToken(this.connection.network,publicKey.toBase58())
+  async getSPLToken(publicKey: PublicKey): Promise<(Token | undefined)> {
+    log("Retrieving SPL token at mint address %s", publicKey.toBase58())
+    const token = this.store.getToken(this.connection.network,publicKey.toBase58())
+    if (token) {
+      return token
+    }
+
+    log("SPL token at mint address %s not in cache", publicKey.toBase58())
+    const mintAccount = await this.connection.conn.getAccountInfo(publicKey)
+    if (!mintAccount) {
+      log(
+        "Could not retrieve 'mint' account %s information",
+        publicKey.toBase58()
+      )
+      return undefined
+    }
+
+    const { decimals } = MINT_LAYOUT.decode(mintAccount.data)
+    return {
+      mintAddress: publicKey.toBase58(),
+      name: "",
+      symbol: "",
+      decimals: decimals,
+    }
   }
 
   getWeb3Connection(): Connection {
@@ -278,6 +310,7 @@ export default class SolanaController {
       selectedNetwork: this.store.selectedNetwork,
       selectedAccount: this.store.selectedAccount,
       authorizedOrigins: this.store.authorizedOrigins,
+      tokens: this.store.tokens
     } as StoredData)
   }
   monitor() {

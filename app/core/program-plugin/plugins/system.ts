@@ -1,6 +1,6 @@
 import { SystemInstruction, TransactionInstruction } from "@solana/web3.js"
 import { createLogger } from "../../utils"
-import { DecodedInstruction, Markdown } from "../../types"
+import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { DecoderError } from "../common"
 import { PluginContext, ProgramPlugin } from "../types"
 const log = createLogger("sol:decoder:sol")
@@ -47,22 +47,39 @@ export class SolanaPlugin implements ProgramPlugin {
   }
 
   getMarkdown(decodedInstruction: DecodedInstruction): Markdown {
+    let content: string | undefined = undefined
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        return `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from **${decodedInstruction.properties.from}** to **${decodedInstruction.properties.to}**</p>`
+        content = `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from **${decodedInstruction.properties.from}** to **${decodedInstruction.properties.to}**</p>`
       case "Create":
-        return `<p>Create new account  **${decodedInstruction.properties.newAccount}** (creator **${decodedInstruction.properties.from}**)</p>`
+        content = `<p>Create new account  **${decodedInstruction.properties.newAccount}** (creator **${decodedInstruction.properties.from}**)</p>`
+    }
+
+    if(content) {
+      return {
+        type: 'markdown',
+        content: content
+      }
     }
     throw new Error(`Markdown render does not support instruction of type ${decodedInstruction.instructionType}`)
   }
 
-  getRicardian(decodedInstruction: DecodedInstruction): string {
+  getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
+    let content: string | undefined = undefined
+
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        return `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+        content = `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
       case "Create":
-        return `Create new account  ${decodedInstruction.properties.newAccount} (creator ${decodedInstruction.properties.from})</p>`
+        content = `Create new account  ${decodedInstruction.properties.newAccount} (creator ${decodedInstruction.properties.from})</p>`
 
+    }
+
+    if(content) {
+      return {
+        type: 'ricardian',
+        content: content
+      }
     }
     throw new Error(`Ricardian render does not support instruction of type ${decodedInstruction.instructionType}`)
   }

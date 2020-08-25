@@ -5,12 +5,14 @@ import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
 import { AccountPage } from "../../pages/account-page"
 import { LockWalletPage } from "../../pages/lock-wallet-page"
+import { TokensPage } from "../../pages/tokens"
 
 const RoutesBase: React.FC = () => {
   const routes: {
     [path: string]: React.ComponentType<any>
   } = {
     [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
+    [Paths.tokens]: TokensPage,
     [Paths.account]: AccountPage,
     [Paths.lockWallet]: LockWalletPage,
   }

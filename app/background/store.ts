@@ -45,7 +45,7 @@ export class Store {
   public selectedNetwork: Network
   public selectedAccount: string
   public authorizedOrigins: string[]
-  private tokens: { [network: string]: { [mintAddress: string]: Token } }
+  public tokens: { [network: string]: { [mintAddress: string]: Token } }
 
   constructor(initialStore: StoredData) {
     const {
@@ -71,6 +71,7 @@ export class Store {
       this.secretBox = secretBox
     }
     this.authorizedOrigins = authorizedOrigins || []
+    console.log("setting up tokens: ", tokens)
     this.tokens = tokens ?? {}
   }
 

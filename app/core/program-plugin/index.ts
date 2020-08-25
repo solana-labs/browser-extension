@@ -11,7 +11,7 @@ const log = createLogger("sol:decoder")
 
 interface ProgramPluginManagerOpt {
   getConnection: () => Connection
-  getSPLMint: (publicKey: PublicKey) => Token | undefined
+  getSPLToken: (publicKey: PublicKey) => Promise<Token | undefined>
 }
 
 export class ProgramPluginManager {
@@ -24,20 +24,53 @@ export class ProgramPluginManager {
     this._setupPlugins()
   }
 
-  decode = async(transaction: Transaction): Promise<(string)[]> => {
-    const decodeInstruction = async(
+  renderTransactionItemMarkdown = async(transaction: Transaction):Promise<Markdown[]> => {
+    const rd =  (idx: number, instruction: TransactionInstruction): Markdown => {
+      return {
+        type: 'markdown',
+        content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
+      }
+    }
+
+    const ri =  (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction): Markdown => {
+      return plugin.getMarkdown(decodedInstruction)
+    }
+
+    return this.render<Markdown>(transaction, rd, ri)
+  }
+
+  renderRicardian = async(transaction: Transaction):Promise<Ricardian[]> => {
+    const rd =  (idx: number, instruction: TransactionInstruction): Ricardian => {
+      return {
+        type: 'ricardian',
+        content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
+      }
+    }
+
+    const ri =  (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction): Ricardian => {
+      return plugin.getRicardian(decodedInstruction)
+    }
+
+    return this.render<Ricardian>(transaction, rd, ri)
+  }
+
+
+  render = async<T extends (Markdown | Ricardian)>(
+    transaction: Transaction,
+    renderUndecodedInsutrction: (idx: number, instruction: TransactionInstruction) => T,
+    renderInstruction: (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction) => T
+  ): Promise<T[]> => {
+    const decodeInstructionFunc = async(
       idx: number,
       instruction: TransactionInstruction
-    ): Promise<(Ricardian | Markdown)> => {
+    ): Promise<T> => {
       const programId = instruction.programId
       log("Finding decoder for program [%s]", programId)
       const plugin = this._getPlugin(instruction.programId)
-      const undecodedInstruction =  `Unknown instruction #${idx + 1} for program ${instruction.programId}`
-
 
       if (plugin == null) {
         log("Unable to retrieve decoder for program [%s]", programId)
-        return undecodedInstruction
+        return renderUndecodedInsutrction(idx, instruction)
       }
 
       let decodedInstruction: DecodedInstruction
@@ -46,37 +79,31 @@ export class ProgramPluginManager {
         decodedInstruction = plugin.decode(instruction)
       } catch (error) {
         log("An error occurred when decoding instruction for program [%s] %o", programId, error)
-        return undecodedInstruction
+        return renderUndecodedInsutrction(idx, instruction)x
       }
 
       log("Decorating transaction instruction for program [%s]", programId)
       try {
         decodedInstruction = await plugin.decorate(decodedInstruction, {
-          getConnection: (): Connection => {
-            return this.opts.getConnection()
-          },
-          getSPLMint: (publicKey: PublicKey): Token | undefined => {
-            return this.opts.getSPLMint(publicKey)
-          }
+          getConnection: this.opts.getConnection,
+          getSPLToken: this.opts.getSPLToken
         })
       } catch (error) {
         log("An error occurred when decorating instruction for program [%s] %o", programId, error)
-        return undecodedInstruction
+        return renderUndecodedInsutrction(idx, instruction)
       }
 
-
-      log("Generating markdown for transaction instruction for program [%s]", programId)
       try {
-        return plugin.getMarkdown(decodedInstruction)
+        return renderInstruction(plugin, decodedInstruction)
       } catch (error) {
-        log("An error occurred when generating markdown instruction for program [%s] %o", programId, error)
-        return undecodedInstruction
+        log("An error occurred when renderin instruction: %o", error)
+        return renderUndecodedInsutrction(idx, instruction)
       }
     }
 
     // Promise.all rejects as soon as one promise rejects, so we must make sure that `decodeInstruction` never fail
     return Promise.all(
-      transaction.instructions.map((instruction, index) => decodeInstruction(index, instruction))
+      transaction.instructions.map((instruction, index) => decodeInstructionFunc(index, instruction))
     )
   }
 
