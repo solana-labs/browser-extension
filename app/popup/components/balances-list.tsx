@@ -30,6 +30,7 @@ import CopyToClipboard from "react-copy-to-clipboard"
 import { SendSolDialog } from "./dialogs/send-sol-dialog"
 import { TransactionList } from "./transaction-list"
 import { SendSplDialog } from "./dialogs/send-spl-dialog"
+import { FileCopyOutlined, SendOutlined } from "@material-ui/icons"
 
 const log = createLogger("sol:balancelist")
 
@@ -44,6 +45,7 @@ interface BalancesListProp {
 }
 
 export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
+  const classes = useStyles()
   const { popupState } = useBackground()
 
   const publicKey = new PublicKey(account)
@@ -81,8 +83,11 @@ export const BalancesList: React.FC<BalancesListProp> = ({ account }) => {
     <Paper>
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }} component="h2">
+          <Typography variant="h6" component="h2">
             Balances
+          </Typography>
+          <Typography style={{ flexGrow: 1 }} className={classes.network}>
+            ({popupState?.selectedNetwork.title})
           </Typography>
           <Tooltip title="Refresh" arrow>
             <IconButton
@@ -137,6 +142,16 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(3),
     marginBottom: theme.spacing(2),
   },
+  publicKey: {
+    marginLeft: theme.spacing(1),
+  },
+  balances: {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1),
+  },
+  network: {
+    marginLeft: theme.spacing(2),
+  },
   buttonContainer: {
     display: "flex",
     justifyContent: "space-evenly",
@@ -174,12 +189,34 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
       <ListItem button onClick={() => setOpen((open) => !open)}>
         <ListItemText
           primary={
-            <>
-              {balanceFormat.format(parseFloat(balance))}{" "}
-              {tokenSymbol ?? (mint && abbreviateAddress(mint))}
-            </>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <SendOutlined fontSize="small" onClick={() => setSendDialogOpen(true)} />
+              <div className={classes.balances}>
+                {balanceFormat.format(parseFloat(balance))}{" "}
+                {tokenSymbol ?? (mint && abbreviateAddress(mint))}
+              </div>
+            </div>
           }
-          secondary={publicKey.toBase58()}
+          secondary={
+            <React.Fragment>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <FileCopyOutlined fontSize="small" />
+                <Typography
+                  className={classes.publicKey}
+                  component="span"
+                  variant="body2"
+                  color="textPrimary"
+                >
+                  {publicKey.toBase58()}
+                </Typography>
+              </div>
+            </React.Fragment>
+          }
           secondaryTypographyProps={{ className: classes.address }}
         />
         {open ? <ExpandLess /> : <ExpandMore />}
