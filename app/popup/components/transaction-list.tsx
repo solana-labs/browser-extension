@@ -5,39 +5,38 @@ import React, { useEffect, useState } from "react"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import List from "@material-ui/core/List"
-import { Typography } from "@material-ui/core"
+import { Paper, Typography } from "@material-ui/core"
 
 const log = createLogger("sol:trxlist")
 
 interface TransctionListProp {
-  account: PublicKey
+  accountKey: PublicKey
 }
 
-export const TransactionList: React.FC<TransctionListProp> = ({ account }) => {
+export const TransactionList: React.FC<TransctionListProp> = ({ accountKey }) => {
   const { connection } = useConnection()
   const [confirmedSignatureInfos, setConfirmedSignatureInfos] = useState<ConfirmedSignatureInfo[]>(
     []
   )
 
   useEffect(() => {
-    log("fetching transaction for account: ", account.toBase58())
+    log("fetching transaction for account: ", accountKey.toBase58())
     connection
-      .getConfirmedSignaturesForAddress2(account, { limit: 10 })
+      .getConfirmedSignaturesForAddress2(accountKey, { limit: 10 })
       .then((confirmedSignatureInfos) => {
         log("got transaction: ", confirmedSignatureInfos)
         setConfirmedSignatureInfos(confirmedSignatureInfos)
       })
-  }, [account, connection])
+  }, [accountKey, connection])
 
   return (
-    <>
-      <h3>Transaction list</h3>
-      <List disablePadding>
+    <Paper style={{ maxHeight: "100%", overflow: "auto" }}>
+      <List disablePadding style={{ maxHeight: "100%", overflow: "auto" }}>
         {confirmedSignatureInfos.map((info) => (
           <TransactionListItem key={info.signature + info.slot} confirmedSignatureInfo={info} />
         ))}
       </List>
-    </>
+    </Paper>
   )
 }
 
@@ -48,13 +47,15 @@ interface TransactionListItemProps {
 const TransactionListItem: React.FC<TransactionListItemProps> = ({ confirmedSignatureInfo }) => {
   return (
     <>
-      <ListItem>
-        <ListItemText>
-          <Typography variant="body2" noWrap={true}>
-            {confirmedSignatureInfo.signature}
-          </Typography>
-          {confirmedSignatureInfo.slot}{" "}
-        </ListItemText>
+      <ListItem divider={true}>
+        <ListItemText
+          primary={
+            <Typography variant="body2" noWrap={true}>
+              {confirmedSignatureInfo.signature}
+            </Typography>
+          }
+          secondary={confirmedSignatureInfo.slot}
+        />
       </ListItem>
     </>
   )

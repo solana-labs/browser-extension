@@ -10,9 +10,6 @@ interface TokenBalanceProp {
   publicKey: PublicKey
   balanceInfo: BalanceInfo | null
 }
-const useStyles = makeStyles((theme) => ({
-  balances: {},
-}))
 
 const balanceFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 4,
@@ -21,15 +18,13 @@ const balanceFormat = new Intl.NumberFormat(undefined, {
 })
 
 export const TokenBalance: React.FC<TokenBalanceProp> = ({ publicKey, balanceInfo }) => {
-  const classes = useStyles()
-
   if (!balanceInfo) {
     return <LoadingIndicator delay={0} />
   }
   let { amount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
   let balance = "" + amount / BigInt(Math.pow(10, decimals)) //todo: get decimal from know token
   return (
-    <div className={classes.balances}>
+    <div>
       {balanceFormat.format(parseFloat(balance))} {tokenSymbol ?? (mint && abbreviateAddress(mint))}
     </div>
   )

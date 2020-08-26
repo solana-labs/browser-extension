@@ -6,7 +6,7 @@ import { Buffer } from "buffer"
 import { Button, Typography } from "@material-ui/core"
 import { withLayout } from "../components/layout"
 import { useParams } from "react-router"
-import { Attachment, Send, ArrowBackIos } from "@material-ui/icons"
+import { Attachment, Send, ArrowBackIos, ArrowBack } from "@material-ui/icons"
 import CopyToClipboard from "react-copy-to-clipboard"
 import { SendSolDialog } from "../components/dialogs/send-sol-dialog"
 import { SendSplDialog } from "../components/dialogs/send-spl-dialog"
@@ -15,10 +15,44 @@ import { Paths } from "../components/routes/paths"
 import { TokenBalance } from "../components/token-balance"
 import Link from "@material-ui/core/Link"
 import { BalanceInfo } from "../types"
+import { makeStyles } from "@material-ui/core/styles"
+import AppBar from "@material-ui/core/AppBar"
+import Toolbar from "@material-ui/core/Toolbar"
+import Tooltip from "@material-ui/core/Tooltip"
+import IconButton from "@material-ui/core/IconButton"
+import RefreshIcon from "@material-ui/icons/Refresh"
+import { SolanaIcon } from "../components/solana-icon"
+import { TransactionList } from "../components/transaction-list"
+import Container from "@material-ui/core/Container"
+import Grid from "@material-ui/core/Grid"
+import { AccountList } from "../components/account-list"
+import { DebugButtons } from "../components/debug-buttons"
 
-export const AccountDetailBase: React.FC = () => {
+const useStyles = makeStyles((theme) => ({
+  itemDetails: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+  },
+  accountAddress: {
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+  },
+
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "space-evenly",
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1),
+  },
+}))
+
+const AccountDetailBase: React.FC = () => {
+  const classes = useStyles()
   let { accountAddress, signerAddress } = useParams()
   const [balanceInfo, setBalanceInfo] = useState<BalanceInfo | null>(null)
+  const [sendDialogOpen, setSendDialogOpen] = useState(false)
+
   const publicKey = new PublicKey(accountAddress)
   const signerKey = new PublicKey(signerAddress)
 
@@ -31,80 +65,103 @@ export const AccountDetailBase: React.FC = () => {
     setBalanceInfo(bi)
   }
 
-  return (
-    <Paper>
-      <Typography>address: {accountAddress}</Typography>
-      {accountInfo && <TokenBalance publicKey={publicKey} balanceInfo={balanceInfo} />}
-      <Button
-        variant="outlined"
-        color="primary"
-        startIcon={<ArrowBackIos />}
-        onClick={() => {
-          history.push(Paths.accounts)
-        }}
-      >
-        Go Back
-      </Button>
+  const goBack = () => {
+    history.push(Paths.accounts)
+  }
 
-      <div>
-        <CopyToClipboard text={accountAddress}>
-          <Button variant="outlined" color="primary" startIcon={<Attachment />}>
-            Copy Addr
-          </Button>
-        </CopyToClipboard>
-        <Link
-          component="button"
-          href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}
-          target="_blank"
-          rel="noopener"
-        >
-          Solana Explorer
-        </Link>
-      </div>
-    </Paper>
-  )
-}
-
-interface AccountInfoCompProp {
-  publicKey: PublicKey
-  signerKey: PublicKey
-  accountInfo: AccountInfo<Buffer>
-}
-
-const BalanceInfoComp: React.FC<AccountInfoCompProp> = ({ publicKey, signerKey, accountInfo }) => {
-  const balanceInfo = useBalanceInfo(publicKey, accountInfo)
-  const [sendDialogOpen, setSendDialogOpen] = useState(false)
+  const refresh = () => {
+    // refreshWalletPublicKeys(wallet)
+    // publicKeys.map((publicKey) =>
+    //   refreshAccountInfo(wallet.connection, publicKey, true)
+    // )
+  }
 
   return (
-    <Paper>
-      <Typography>balance: {balanceInfo?.amount.toString()}</Typography>
-      <Button
-        variant="outlined"
-        color="primary"
-        startIcon={<Send />}
-        onClick={() => setSendDialogOpen(true)}
-      >
-        Send
-      </Button>
+    <Container fixed maxWidth="md">
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Paper>
+            <AppBar position="static" color="default" elevation={1}>
+              <Toolbar>
+                <IconButton onClick={goBack}>
+                  <ArrowBackIos />
+                </IconButton>
 
-      {balanceInfo && signerKey == publicKey && (
-        <SendSolDialog
-          open={sendDialogOpen}
-          onClose={() => setSendDialogOpen(false)}
-          balanceInfo={balanceInfo}
-          fromPublicKey={publicKey}
-        />
-      )}
-      {balanceInfo && signerKey != publicKey && (
-        <SendSplDialog
-          open={sendDialogOpen}
-          onClose={() => setSendDialogOpen(false)}
-          balanceInfo={balanceInfo}
-          fromPublicKey={publicKey}
-          signer={signerKey}
-        />
-      )}
-    </Paper>
+                <Typography variant="h6" component="h2" style={{ flexGrow: 1 }}>
+                  Account Detail
+                </Typography>
+                <Tooltip title="Refresh" arrow>
+                  <IconButton onClick={refresh}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+              </Toolbar>
+            </AppBar>
+            <div className={classes.itemDetails}>
+              <Typography align="center" className={classes.accountAddress}>
+                {accountAddress}
+              </Typography>
+
+              {accountInfo && (
+                <Typography variant="h4" align="center" className={classes.accountAddress}>
+                  <TokenBalance publicKey={publicKey} balanceInfo={balanceInfo} />
+                </Typography>
+              )}
+              <div className={classes.buttonContainer}>
+                <div>
+                  <CopyToClipboard text={accountAddress}>
+                    <Button variant="outlined" color="primary" startIcon={<Attachment />}>
+                      Copy Addr
+                    </Button>
+                  </CopyToClipboard>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}
+                    target="_blank"
+                    rel="noopener"
+                    startIcon={<SolanaIcon />}
+                  >
+                    Explorer
+                  </Button>
+                </div>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  startIcon={<Send />}
+                  onClick={() => setSendDialogOpen(true)}
+                >
+                  Send
+                </Button>
+              </div>
+            </div>
+
+            <Typography variant="h6" align="center">
+              Transaction list
+            </Typography>
+            <TransactionList accountKey={publicKey} />
+
+            {balanceInfo && signerKey == publicKey && (
+              <SendSolDialog
+                open={sendDialogOpen}
+                onClose={() => setSendDialogOpen(false)}
+                balanceInfo={balanceInfo}
+                fromPublicKey={publicKey}
+              />
+            )}
+            {balanceInfo && signerKey != publicKey && (
+              <SendSplDialog
+                open={sendDialogOpen}
+                onClose={() => setSendDialogOpen(false)}
+                balanceInfo={balanceInfo}
+                fromPublicKey={publicKey}
+                signer={signerKey}
+              />
+            )}
+          </Paper>
+        </Grid>
+      </Grid>
+    </Container>
   )
 }
 

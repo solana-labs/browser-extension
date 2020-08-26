@@ -24,6 +24,28 @@ import { TokenBalance } from "./token-balance"
 
 const log = createLogger("sol:balancelist")
 
+const useStyles = makeStyles((theme) => ({
+  address: {
+    textOverflow: "ellipsis",
+    overflowX: "hidden",
+  },
+  publicKey: {
+    // marginLeft: theme.spacing(1),
+  },
+  network: {
+    marginLeft: theme.spacing(2),
+  },
+  externalAccount: {
+    backgroundColor: theme.palette.background.paper,
+  },
+  derivedAccount: {
+    backgroundColor: theme.palette.background.default,
+  },
+  detailButton: {
+    margin: theme.spacing(1),
+  },
+}))
+
 interface AccountListProp {
   account: string
 }
@@ -116,39 +138,6 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
   )
 }
 
-const useStyles = makeStyles((theme) => ({
-  address: {
-    textOverflow: "ellipsis",
-    overflowX: "hidden",
-  },
-  itemDetails: {
-    marginLeft: theme.spacing(3),
-    marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(2),
-  },
-  publicKey: {
-    // marginLeft: theme.spacing(1),
-  },
-  network: {
-    marginLeft: theme.spacing(2),
-  },
-  externalAccount: {
-    backgroundColor: theme.palette.background.paper,
-  },
-  derivedAccount: {
-    backgroundColor: theme.palette.background.default,
-  },
-  detailButton: {
-    margin: theme.spacing(1),
-  },
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "space-evenly",
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  },
-}))
-
 interface BalanceListItemProps {
   signer: PublicKey
   publicKey: PublicKey
@@ -198,44 +187,6 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
           <MoreVert />
         </IconButton>
       </ListItem>
-      {/*<Collapse in={open} timeout="auto" unmountOnExit>*/}
-      {/*  <div className={classes.itemDetails}>*/}
-      {/*    <div className={classes.buttonContainer}>*/}
-      {/*      <CopyToClipboard text={publicKey.toBase58()}>*/}
-      {/*        <Button variant="outlined" color="primary" startIcon={<AttachmentIcon />}>*/}
-      {/*          Copy Addr*/}
-      {/*        </Button>*/}
-      {/*      </CopyToClipboard>*/}
-      {/*      <Button*/}
-      {/*        variant="outlined"*/}
-      {/*        color="primary"*/}
-      {/*        startIcon={<SendIcon />}*/}
-      {/*        onClick={() => setSendDialogOpen(true)}*/}
-      {/*      >*/}
-      {/*        Send*/}
-      {/*      </Button>*/}
-      {/*      <Link*/}
-      {/*        component="button"*/}
-      {/*        href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}*/}
-      {/*        target="_blank"*/}
-      {/*        rel="noopener"*/}
-      {/*      >*/}
-      {/*        Solana Explorer*/}
-      {/*      </Link>*/}
-      {/*    </div>*/}
-      {/*    /!*<Typography variant="body2" className={classes.address}>*!/*/}
-      {/*    /!*  Deposit Address: {publicKey.toBase58()}*!/*/}
-      {/*    /!*</Typography>*!/*/}
-      {/*    /!*<Typography variant="body2">Token Name: {tokenName ?? "Unknown"}</Typography>*!/*/}
-      {/*    /!*<Typography variant="body2">Token Symbol: {tokenSymbol ?? "Unknown"}</Typography>*!/*/}
-      {/*    /!*{mint ? (*!/*/}
-      {/*    /!*  <Typography variant="body2" className={classes.address}>*!/*/}
-      {/*    /!*    Token Address: {mint.toBase58()}*!/*/}
-      {/*    /!*  </Typography>*!/*/}
-      {/*    /!*) : null}*!/*/}
-      {/*    <TransactionList account={publicKey} />*/}
-      {/*  </div>*/}
-      {/*</Collapse>*/}
     </>
   )
 }
