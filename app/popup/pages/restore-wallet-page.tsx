@@ -9,12 +9,14 @@ import CardActions from "@material-ui/core/CardActions"
 import Button from "@material-ui/core/Button"
 import { useCallAsync } from "../utils/notifications"
 import { useBackground } from "../context/background"
+import { withLayout } from "../components/layout"
 
-interface RestoreWalletPageProps {
-  goBack: () => void
-}
 
-export const RestoreWalletPage: React.FC<RestoreWalletPageProps> = ({ goBack }) => {
+const RestoreWalletPageBase: React.FC = () => {
+
+  const goBack = () => {
+
+  }
   return (
     <Container maxWidth="sm">
       <RestoreWalletForm goBack={goBack} />
@@ -92,3 +94,5 @@ const RestoreWalletForm: React.FC<RestoreWalletFormProps> = ({ goBack }) => {
     </Card>
   )
 }
+
+export const RestoreWalletPage = withLayout(RestoreWalletPageBase)

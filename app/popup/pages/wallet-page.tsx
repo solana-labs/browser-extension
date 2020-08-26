@@ -5,16 +5,18 @@ import Grid from "@material-ui/core/Grid"
 import { DebugButtons } from "../components/debug-buttons"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { useBackground } from "../context/background"
+import { withLayout } from "../components/layout"
 
-interface WalletPageProps {
-  account: string
-}
 
-export const WalletPage: React.FC<WalletPageProps> = ({ account }) => {
+export const WalletPageBase: React.FC =  () => {
   const { popupState } = useBackground()
   const isProdNetwork = popupState?.selectedNetwork.cluster === "mainnet-beta"
 
-  if (account === "") {
+  if (!popupState) {
+    return <LoadingIndicator />
+  }
+
+  if (!popupState?.selectedAccount) {
     return <LoadingIndicator />
   }
 
@@ -22,7 +24,7 @@ export const WalletPage: React.FC<WalletPageProps> = ({ account }) => {
     <Container fixed maxWidth="md">
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <BalancesList account={account} />
+          <BalancesList account={popupState?.selectedAccount} />
         </Grid>
         {isProdNetwork ? null : (
           <Grid item xs={12}>
@@ -33,3 +35,5 @@ export const WalletPage: React.FC<WalletPageProps> = ({ account }) => {
     </Container>
   )
 }
+
+export const WalletPage = withLayout(WalletPageBase)

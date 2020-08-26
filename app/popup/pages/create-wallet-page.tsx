@@ -14,12 +14,12 @@ import { useCallAsync } from "../utils/notifications"
 import Link from "@material-ui/core/Link"
 import { MnemonicAndSeed } from "../types"
 import { useBackground } from "../context/background"
+import { withLayout } from "../components/layout"
 
-interface CreateWalletPageProps {
-  goToRestore: () => void
-}
+const CreateWalletPageBase: React.FC = () => {
+  const goToRestore = () => {
 
-export const CreateWalletPage: React.FC<CreateWalletPageProps> = ({ goToRestore }) => {
+  }
   return (
     <Container maxWidth="sm">
       <>
@@ -176,3 +176,5 @@ const ChoosePasswordForm: React.FC<ChoosePasswordFormProps> = ({ goBack, onSubmi
     </Card>
   )
 }
+
+export const CreateWalletPage = withLayout(CreateWalletPageBase)

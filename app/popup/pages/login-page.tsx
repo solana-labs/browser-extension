@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useHistory } from "react-router-dom";
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -11,16 +12,22 @@ import Button from "@material-ui/core/Button"
 import { useCallAsync } from "../utils/notifications"
 import Link from "@material-ui/core/Link"
 import { useBackground } from "../context/background"
+import { withLayout } from "../components/layout"
+import { Links, Paths } from "../components/routes/paths"
 
-interface LoginPageProps {
-  goToRestore: () => void
-}
+const LoginPageBase: React.FC = () => {
+  const history = useHistory()
+  const goToRestore = () => {
+    history.push(Links.restore())
+  }
 
-export const LoginPage: React.FC<LoginPageProps> = ({ goToRestore }) => {
+  const handleSuccess = () => {
+    history.push(Links.accounts())
+  }
   return (
     <Container maxWidth="sm">
       <>
-        <LoginForm />
+        <LoginForm onSuccess={handleSuccess}/>
         <br />
         <Link style={{ cursor: "pointer" }} onClick={goToRestore}>
           Restore existing wallet
@@ -30,7 +37,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ goToRestore }) => {
   )
 }
 
-const LoginForm: React.FC = () => {
+const LoginForm: React.FC<{onSuccess: () => void}> = ({ onSuccess }) => {
   const [password, setPassword] = useState("")
   const [stayLoggedIn, setStayLoggedIn] = useState(false)
   const callAsync = useCallAsync()
@@ -40,6 +47,7 @@ const LoginForm: React.FC = () => {
     callAsync(request("popup_unlockWallet", { password }), {
       progress: { message: "Unlocking wallet..." },
       success: { message: "Wallet unlocked" },
+      onSuccess: onSuccess
     })
   }
 
@@ -82,3 +90,5 @@ const LoginForm: React.FC = () => {
     </Card>
   )
 }
+
+export const LoginPage = withLayout(LoginPageBase)

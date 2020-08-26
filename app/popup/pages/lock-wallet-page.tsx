@@ -10,9 +10,8 @@ import { Typography } from "@material-ui/core"
 import CardActions from "@material-ui/core/CardActions"
 import Button from "@material-ui/core/Button"
 
-interface LockWalletPageProps {}
 
-const LockWalletPageBase: React.FC<LockWalletPageProps> = () => {
+const LockWalletPageBase: React.FC = () => {
   const callAsync = useCallAsync()
   const { request } = useBackground()
 
