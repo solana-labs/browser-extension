@@ -31,6 +31,7 @@ import { SendSolDialog } from "./dialogs/send-sol-dialog"
 import { TransactionList } from "./transaction-list"
 import { SendSplDialog } from "./dialogs/send-spl-dialog"
 import { FileCopyOutlined, SendOutlined } from "@material-ui/icons"
+import { blue } from "@material-ui/core/colors"
 
 const log = createLogger("sol:balancelist")
 
@@ -143,14 +144,20 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   publicKey: {
-    marginLeft: theme.spacing(1),
+    // marginLeft: theme.spacing(1),
   },
   balances: {
-    marginRight: theme.spacing(1),
-    marginLeft: theme.spacing(1),
+    // marginRight: theme.spacing(1),
+    // marginLeft: theme.spacing(1),
   },
   network: {
     marginLeft: theme.spacing(2),
+  },
+  externalAccount: {
+    backgroundColor: theme.palette.background.paper,
+  },
+  derivedAccount: {
+    backgroundColor: theme.palette.background.default,
   },
   buttonContainer: {
     display: "flex",
@@ -186,40 +193,34 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
 
   return (
     <>
-      <ListItem button onClick={() => setOpen((open) => !open)}>
+      <ListItem
+        className={
+          balanceInfo && signer == publicKey ? classes.externalAccount : classes.derivedAccount
+        }
+        divider={signer == publicKey}
+      >
         <ListItemText
           primary={
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <SendOutlined fontSize="small" onClick={() => setSendDialogOpen(true)} />
-              <div className={classes.balances}>
-                {balanceFormat.format(parseFloat(balance))}{" "}
-                {tokenSymbol ?? (mint && abbreviateAddress(mint))}
-              </div>
+            <div className={classes.balances}>
+              {balanceFormat.format(parseFloat(balance))}{" "}
+              {tokenSymbol ?? (mint && abbreviateAddress(mint))}
             </div>
           }
           secondary={
             <React.Fragment>
-              <div style={{ display: "flex", alignItems: "center" }}>
-                <FileCopyOutlined fontSize="small" />
-                <Typography
-                  className={classes.publicKey}
-                  component="span"
-                  variant="body2"
-                  color="textPrimary"
-                >
-                  {publicKey.toBase58()}
-                </Typography>
-              </div>
+              <Typography
+                className={classes.publicKey}
+                component="span"
+                variant="body2"
+                color="textPrimary"
+              >
+                {publicKey.toBase58()}
+              </Typography>
             </React.Fragment>
           }
           secondaryTypographyProps={{ className: classes.address }}
         />
-        {open ? <ExpandLess /> : <ExpandMore />}
+        <div onClick={() => setOpen((open) => !open)}>{open ? <ExpandLess /> : <ExpandMore />}</div>
       </ListItem>
       <Collapse in={open} timeout="auto" unmountOnExit>
         <div className={classes.itemDetails}>
@@ -237,26 +238,25 @@ const BalanceListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
             >
               Send
             </Button>
-          </div>
-          <Typography variant="body2" className={classes.address}>
-            Deposit Address: {publicKey.toBase58()}
-          </Typography>
-          <Typography variant="body2">Token Name: {tokenName ?? "Unknown"}</Typography>
-          <Typography variant="body2">Token Symbol: {tokenSymbol ?? "Unknown"}</Typography>
-          {mint ? (
-            <Typography variant="body2" className={classes.address}>
-              Token Address: {mint.toBase58()}
-            </Typography>
-          ) : null}
-          <Typography variant="body2">
             <Link
+              component="button"
               href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}
               target="_blank"
               rel="noopener"
             >
-              View on Solana Explorer
+              Solana Explorer
             </Link>
-          </Typography>
+          </div>
+          {/*<Typography variant="body2" className={classes.address}>*/}
+          {/*  Deposit Address: {publicKey.toBase58()}*/}
+          {/*</Typography>*/}
+          {/*<Typography variant="body2">Token Name: {tokenName ?? "Unknown"}</Typography>*/}
+          {/*<Typography variant="body2">Token Symbol: {tokenSymbol ?? "Unknown"}</Typography>*/}
+          {/*{mint ? (*/}
+          {/*  <Typography variant="body2" className={classes.address}>*/}
+          {/*    Token Address: {mint.toBase58()}*/}
+          {/*  </Typography>*/}
+          {/*) : null}*/}
           <TransactionList account={publicKey} />
         </div>
       </Collapse>

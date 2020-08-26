@@ -42,4 +42,4 @@ const AccountPageBase: React.FC = () => {
   }
 }
 
-export const AccountPage = withLayout(AccountPageBase)
+export const AccountsPage = withLayout(AccountPageBase)

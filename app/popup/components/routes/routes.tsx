@@ -3,7 +3,7 @@ import { RouteComponentProps, RouteProps, withRouter } from "react-router"
 import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
-import { AccountPage } from "../../pages/account-page"
+import { AccountsPage } from "../../pages/accounts-page"
 import { LockWalletPage } from "../../pages/lock-wallet-page"
 import { TokensPage } from "../../pages/tokens"
 
@@ -13,7 +13,7 @@ const RoutesBase: React.FC = () => {
   } = {
     [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
     [Paths.tokens]: TokensPage,
-    [Paths.account]: AccountPage,
+    [Paths.accounts]: AccountsPage,
     [Paths.lockWallet]: LockWalletPage,
   }
 
@@ -29,7 +29,7 @@ const RoutesBase: React.FC = () => {
           />
         )
       })}
-      <Route component={AccountPage} />
+      <Route component={AccountsPage} />
     </Switch>
   )
 }

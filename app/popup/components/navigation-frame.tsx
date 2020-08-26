@@ -23,7 +23,7 @@ import { Link as RouterLink } from "react-router-dom"
 import { Paths } from "./routes/paths"
 import { AuthorizedWebsitesPage } from "../pages/authorized-websites"
 import { TokensPage } from "../pages/tokens"
-import { AccountPage } from "../pages/account-page"
+import { AccountsPage } from "../pages/accounts-page"
 import { LockWalletPage } from "../pages/lock-wallet-page"
 
 const useStyles = makeStyles((theme) => ({
@@ -94,11 +94,11 @@ export const NavigationFrame: React.FC = ({ children }) => {
 }
 
 const MenuSelector: React.FC = () => {
-  const menuItems:{
+  const menuItems: {
     title: string
     path: string
   }[] = [
-    { title: "Account details", path: Paths.account },
+    { title: "Account details", path: Paths.accounts },
     { title: "Authorized websites", path: Paths.authorizedWebsites },
     { title: "Known Tokens", path: Paths.tokens },
     { title: "Lock wallet", path: Paths.lockWallet },
@@ -125,10 +125,12 @@ const MenuSelector: React.FC = () => {
         }}
         getContentAnchorEl={null}
       >
-        { menuItems.map( (item, idx) => {
-          return (<MenuItem key={`menu-${idx}`} component={RouterLink} to={item.path}>
-            <Typography>{item.title}</Typography>
-          </MenuItem>)
+        {menuItems.map((item, idx) => {
+          return (
+            <MenuItem key={`menu-${idx}`} component={RouterLink} to={item.path}>
+              <Typography>{item.title}</Typography>
+            </MenuItem>
+          )
         })}
       </Menu>
     </>

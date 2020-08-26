@@ -32,7 +32,7 @@ const LockWalletPageBase: React.FC<LockWalletPageProps> = () => {
         </Typography>
       </CardContent>
       <CardActions style={{ justifyContent: "flex-end" }}>
-        <Button color="primary" component={RouterLink} to={Paths.account}>
+        <Button color="primary" component={RouterLink} to={Paths.accounts}>
           Unlock
         </Button>
       </CardActions>
