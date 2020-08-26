@@ -1,5 +1,5 @@
 import { Store } from "./store"
-import { createLogger } from "../core/utils"
+import { createLogger, getMintData } from "../core/utils"
 import { Buffer } from "buffer"
 import bs58 from "bs58"
 import nacl from "tweetnacl"
@@ -22,9 +22,8 @@ import {
 import { Web3Connection } from "../core/connection"
 import { ExtensionManager } from "./lib/extension-manager"
 import { TOKEN_PROGRAM_ID } from "../popup/components/dialogs/send-spl-dialog"
-// @ts-ignore
+// @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
-
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
 
@@ -158,7 +157,12 @@ export class PopupController {
           }
           break
         case "popup_addToken":
-          this.addToken(req)
+          try {
+            await this.addToken(req)
+          } catch (err) {
+            log("popup_addToken failed with error: %s", err)
+            res.error = err
+          }
           break
         case "popup_removeToken":
           log(`remove token for req %O`, req)
@@ -202,13 +206,22 @@ export class PopupController {
   }
 
 
-  addToken(req: any) {
+  async addToken(req: any) {
     log(`adding token for req %O`, req)
     const { token } = req.params
 
-
-
-    this.store.addToken(token)
+    try {
+      log("Retrieving mint data: %s", token.mintAddress)
+      const mintData = await getMintData(this.connection.conn, new PublicKey(token.mintAddress))
+      this.store.addToken({
+        mintAddress: token.mintAddress,
+        name: token.name,
+        symbol: token.symbol,
+        decimals: mintData.decimals
+      })
+    }catch (e) {
+      throw new Error(`Could not add token: ${e}`)
+    }
   }
 
   async approveRequestAccounts(req: any) {

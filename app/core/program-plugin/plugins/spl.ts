@@ -16,12 +16,6 @@ export const ACCOUNT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(48),
 ])
 
-export const MINT_LAYOUT = BufferLayout.struct([
-  BufferLayout.blob(36),
-  BufferLayout.u8("decimals"),
-  BufferLayout.blob(3),
-])
-
 const SPL_LAYOUT = BufferLayout.union(BufferLayout.u8("instruction"))
 SPL_LAYOUT.addVariant(
   0,
