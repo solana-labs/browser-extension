@@ -6,6 +6,7 @@ export const Paths = {
   welcome: "/welcome",
   authorizedWebsites: "/authorized-websites",
   tokens: "/tokens",
+  accountDetail: "/accounts/:accountAddress/:signerAddress",
   accounts: "/accounts",
   lockWallet: "/lock-wallet",
 }
@@ -17,4 +18,5 @@ export const Links = {
   authorizedWebsites: compile(Paths.authorizedWebsites),
   tokens: compile(Paths.tokens),
   accounts: compile(Paths.accounts),
+  accountDetail: compile(Paths.accountDetail),
 }

@@ -61,11 +61,13 @@ export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<B
 
 export const useBalanceInfo = (
   publicKey: PublicKey,
-  accountInfo: AccountInfo<Buffer>
+  accountInfo: AccountInfo<Buffer> | null
 ): BalanceInfo | null => {
-  const { mint, owner, amount } = accountInfo?.owner.equals(TOKEN_PROGRAM_ID)
-    ? parseTokenAccountData(accountInfo.data)
-    : { mint: null, owner: null, amount: BigInt(0) }
+  const { mint, owner, amount } =
+    accountInfo && TOKEN_PROGRAM_ID.equals(accountInfo.owner)
+      ? parseTokenAccountData(accountInfo.data)
+      : { mint: null, owner: null, amount: BigInt(0) }
+
   const [mintInfo, mintInfoLoaded] = useAccountInfo(mint)
   let { name, symbol } = useTokenName(mint)
 
@@ -79,18 +81,18 @@ export const useBalanceInfo = (
       tokenName: name,
       tokenSymbol: symbol,
       initialized: true,
-      lamports: BigInt(accountInfo?.lamports ?? 0),
+      lamports: BigInt(accountInfo.lamports ?? 0),
     }
   } else if (accountInfo && !mint) {
     return {
-      amount: BigInt(accountInfo?.lamports ?? 0),
+      amount: BigInt(accountInfo.lamports ?? 0),
       decimals: 9,
       mint: undefined,
       owner: publicKey,
       tokenName: "",
       tokenSymbol: "SOL",
       initialized: false,
-      lamports: BigInt(accountInfo?.lamports ?? 0),
+      lamports: BigInt(accountInfo.lamports ?? 0),
     }
   } else {
     return null

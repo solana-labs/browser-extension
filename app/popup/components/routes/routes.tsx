@@ -11,6 +11,7 @@ import { CreateWalletPage } from "../../pages/create-wallet-page"
 import { LoginPage } from "../../pages/login-page"
 import { WalletPage } from "../../pages/wallet-page"
 import { TestPage } from "../../pages/test-page"
+import { AccountDetail } from "../../pages/account-detail"
 
 const RoutesBase: React.FC = () => {
   const { popupState } = useBackground()
@@ -21,7 +22,8 @@ const RoutesBase: React.FC = () => {
   } = {
     [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
     [Paths.tokens]: TokensPage,
-    [Paths.accounts]: WalletPage
+    [Paths.accounts]: WalletPage,
+    [Paths.accountDetail]: AccountDetail,
   }
   const secureRoute = (key: string, props: RouteProps) => {
     const Component = props.component as React.ComponentType<any>
@@ -35,9 +37,11 @@ const RoutesBase: React.FC = () => {
         render={(props: RouteComponentProps): React.ReactNode => {
           // If the user is not authenticated, redirect to signup
           if (popupState?.walletState !== "unlocked") {
-            const redirectTo = (popupState?.walletState === "locked" ? Paths.login : Paths.welcome)
+            const redirectTo = popupState?.walletState === "locked" ? Paths.login : Paths.welcome
             return (
-              <TestPage from={`attempt to load secure route: ${rest.path} - ${popupState?.walletState} `}/>
+              <TestPage
+                from={`attempt to load secure route: ${rest.path} - ${popupState?.walletState} `}
+              />
               // <Redirect
               //   to={{
               //     pathname: redirectTo,
@@ -65,7 +69,9 @@ const RoutesBase: React.FC = () => {
         render={(props: RouteComponentProps) => {
           if (popupState?.walletState === "unlocked") {
             return (
-              <TestPage from={`attempt to load unsecure route: ${rest.path} - ${popupState?.walletState}`}/>
+              <TestPage
+                from={`attempt to load unsecure route: ${rest.path} - ${popupState?.walletState}`}
+              />
               // <Redirect
               //   to={{
               //     pathname: Paths.accounts,
@@ -89,23 +95,21 @@ const RoutesBase: React.FC = () => {
         key={key}
         {...rest}
         render={(props: RouteComponentProps) => {
-
           if (!popupState) {
-            return <LoadingIndicator/>
+            return <LoadingIndicator />
           }
           switch (popupState.walletState) {
             case "locked":
-              return <Redirect to={{ pathname: Paths.login }}/>
+              return <Redirect to={{ pathname: Paths.login }} />
             case "uninitialized":
-              return <Redirect to={{ pathname: Paths.welcome }}/>
+              return <Redirect to={{ pathname: Paths.welcome }} />
             case "unlocked":
-              return <Redirect to={{ pathname: Paths.accounts }}/>
+              return <Redirect to={{ pathname: Paths.accounts }} />
           }
         }}
       />
     )
   }
-
 
   return (
     <>
@@ -115,43 +119,34 @@ const RoutesBase: React.FC = () => {
       </div>
       <Switch>
         {Object.keys(routes).map((path) => {
-          return (
-            secureRoute(`authenticated-route${path.replace("/", "-")}`, {
-              exact: true,
-              path: path,
-              component: routes[path]
-            })
-          )
+          return secureRoute(`authenticated-route${path.replace("/", "-")}`, {
+            exact: true,
+            path: path,
+            component: routes[path],
+          })
         })}
 
         {/* unsecure-only routes */}
-        {
-          unsecureRoute(`restore-route`, {
-            exact: true,
-            path: Paths.restore,
-            component: RestoreWalletPage
-          })
-        }
-        {
-          unsecureRoute(`welcome-route`, {
-            exact: true,
-            path: Paths.welcome,
-            component: CreateWalletPage
-          })
-        }
-        {
-          unsecureRoute(`login-route`, {
-            exact: true,
-            path: Paths.login,
-            component: LoginPage
-          })
-        }
+        {unsecureRoute(`restore-route`, {
+          exact: true,
+          path: Paths.restore,
+          component: RestoreWalletPage,
+        })}
+        {unsecureRoute(`welcome-route`, {
+          exact: true,
+          path: Paths.welcome,
+          component: CreateWalletPage,
+        })}
+        {unsecureRoute(`login-route`, {
+          exact: true,
+          path: Paths.login,
+          component: LoginPage,
+        })}
 
         {defaultRoute(`default-route`, {})}
       </Switch>
     </>
   )
 }
-
 
 export const Routes = withRouter(RoutesBase)

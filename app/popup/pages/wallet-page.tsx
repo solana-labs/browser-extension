@@ -1,14 +1,13 @@
 import React from "react"
 import Container from "@material-ui/core/Container"
-import { BalancesList } from "../components/balances-list"
+import { AccountList } from "../components/account-list"
 import Grid from "@material-ui/core/Grid"
 import { DebugButtons } from "../components/debug-buttons"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { useBackground } from "../context/background"
 import { withLayout } from "../components/layout"
 
-
-export const WalletPageBase: React.FC =  () => {
+export const WalletPageBase: React.FC = () => {
   const { popupState } = useBackground()
   const isProdNetwork = popupState?.selectedNetwork.cluster === "mainnet-beta"
 
@@ -24,7 +23,7 @@ export const WalletPageBase: React.FC =  () => {
     <Container fixed maxWidth="md">
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <BalancesList account={popupState?.selectedAccount} />
+          <AccountList account={popupState?.selectedAccount} />
         </Grid>
         {isProdNetwork ? null : (
           <Grid item xs={12}>
