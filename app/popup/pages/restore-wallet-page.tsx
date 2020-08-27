@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useHistory } from "react-router-dom"
 import { mnemonicToSeed } from "../utils/wallet-seed"
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
@@ -13,13 +14,14 @@ import { withLayout } from "../components/layout"
 
 
 const RestoreWalletPageBase: React.FC = () => {
+  const history = useHistory()
 
-  const goBack = () => {
-
+  const handBackButton = () => {
+    history.goBack()
   }
   return (
     <Container maxWidth="sm">
-      <RestoreWalletForm goBack={goBack} />
+      <RestoreWalletForm goBack={handBackButton} />
     </Container>
   )
 }

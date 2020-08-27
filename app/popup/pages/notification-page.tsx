@@ -51,6 +51,14 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
 
   const notifications = popupState.actions
 
+  if (notifications.length == 0) {
+    return (
+      <div>
+        No Notifications to display
+      </div>
+    )
+  }
+
   const handleNotificationPage = (page: number) => {
     setCurrentNotificationIndex(page)
   }

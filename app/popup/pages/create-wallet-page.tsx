@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react"
+import { useHistory } from "react-router-dom"
 import { generateMnemonicAndSeed } from "../utils/wallet-seed"
 import Container from "@material-ui/core/Container"
 import { LoadingIndicator } from "../components/loading-indicator"
@@ -15,17 +16,20 @@ import Link from "@material-ui/core/Link"
 import { MnemonicAndSeed } from "../types"
 import { useBackground } from "../context/background"
 import { withLayout } from "../components/layout"
+import { Links } from "../components/routes/paths"
 
 const CreateWalletPageBase: React.FC = () => {
-  const goToRestore = () => {
-
+  const history = useHistory()
+  const handleRestoreClick = () => {
+    history.push(Links.restore())
   }
+
   return (
     <Container maxWidth="sm">
       <>
         <CreateWalletForm />
         <br />
-        <Link style={{ cursor: "pointer" }} onClick={() => goToRestore()}>
+        <Link style={{ cursor: "pointer" }} onClick={handleRestoreClick}>
           Restore existing wallet
         </Link>
       </>

@@ -1,11 +1,9 @@
-import { Route, Switch, useLocation } from "react-router-dom"
-import { Redirect, RouteComponentProps, RouteProps, withRouter } from "react-router"
+import { Route, Switch } from "react-router-dom"
+import { Redirect, RouteComponentProps, RouteProps } from "react-router"
 import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
 import { TokensPage } from "../../pages/tokens"
-import { useBackground } from "../../context/background"
-import { LoadingIndicator } from "../loading-indicator"
 import { RestoreWalletPage } from "../../pages/restore-wallet-page"
 import { CreateWalletPage } from "../../pages/create-wallet-page"
 import { SplashScreenPage } from "../../pages/splash-screen-page"
@@ -15,6 +13,7 @@ import { AccountDetail } from "../../pages/account-detail"
 import { TransactionDetail } from "../../pages/transaction-detail"
 import { LoginPage } from "../../pages/login-page"
 import { PopupState } from "../../../core/types"
+import { useBackground } from "../../context/background"
 
 const routes: {
   [path: string]: React.ComponentType<any>
@@ -24,9 +23,8 @@ const routes: {
   [Paths.accounts]: WalletPage,
   [Paths.notifications]: NotificationPage,
   [Paths.accountDetail]: AccountDetail,
-  [Paths.transactionDetail]: TransactionDetail,
+  [Paths.transactionDetail]: TransactionDetail
 }
-
 
 
 const secureRoute = (key: string, props: RouteProps, popupState: PopupState) => {
@@ -46,7 +44,7 @@ const secureRoute = (key: string, props: RouteProps, popupState: PopupState) => 
             <Redirect
               to={{
                 pathname: redirectTo,
-                state: { from: props.location },
+                state: { from: props.location }
               }}
             />
           )
@@ -95,15 +93,17 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
       {...rest}
       render={(props: RouteComponentProps) => {
         if (!popupState) {
-          return <LoadingIndicator />
+          // return <LoadingIndicator/>
+          return <NotificationPage opener={"asdf"}/>
         }
         switch (popupState.walletState) {
           case "locked":
-            return <Redirect to={{ pathname: Paths.login }} />
+            return <Redirect to={{ pathname: Paths.login }}/>
           case "uninitialized":
-            return <Redirect to={{ pathname: Paths.welcome }} />
+            return <Redirect to={{ pathname: Paths.welcome }}/>
           case "unlocked":
-            return <Redirect to={{ pathname: Paths.accounts }} />
+            console.log("YOU ARE unlocked")
+            return <Redirect to={{ pathname: Paths.accounts }}/>
         }
       }}
     />
@@ -112,10 +112,9 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
 
 const RoutesBase: React.FC = () => {
   const { popupState } = useBackground()
-  const location = useLocation()
 
   if (!popupState) {
-    return <SplashScreenPage />
+    return <SplashScreenPage/>
   }
 
   return (
@@ -129,7 +128,7 @@ const RoutesBase: React.FC = () => {
           return secureRoute(`authenticated-route${path.replace("/", "-")}`, {
             exact: true,
             path: path,
-            component: routes[path],
+            component: routes[path]
           }, popupState)
         })}
 
@@ -137,17 +136,17 @@ const RoutesBase: React.FC = () => {
         {unsecureRoute(`restore-route`, {
           exact: true,
           path: Paths.restore,
-          component: RestoreWalletPage,
+          component: RestoreWalletPage
         }, popupState)}
         {unsecureRoute(`welcome-route`, {
           exact: true,
           path: Paths.welcome,
-          component: CreateWalletPage,
+          component: CreateWalletPage
         }, popupState)}
         {unsecureRoute(`login-route`, {
           exact: true,
           path: Paths.login,
-          component: LoginPage,
+          component: LoginPage
         }, popupState)}
         {defaultRoute(`default-route`, {}, popupState)}
       </Switch>

@@ -200,7 +200,7 @@ export default class SolanaController {
       engine,
       tabId
     }
-    log("Added a new connection for origin: %s with id: %s", origin, id)
+    log("Added connection with id %s for origin: %s and tabId: %s", id, origin, tabId)
     return id
   }
 
@@ -219,7 +219,7 @@ export default class SolanaController {
       delete this.connections[origin]
     }
 
-    if (conn) {
+    if (conn && origin !== "popup") {
       log(
         "TabId %s for origin %s disconnected removing pending transaction and request accounts",
         conn.tabId,
