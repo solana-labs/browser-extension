@@ -5,14 +5,13 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import DialogContent from "@material-ui/core/DialogContent"
 import TextField from "@material-ui/core/TextField"
 import { DialogForm } from "./dialog-form"
-import { useAsyncData } from "../../utils/fetch-loop"
-import { useCallAsync, useSendTransaction } from "../../utils/notifications"
+import { useCallAsync } from "../../utils/notifications"
 import { DialogProps } from "@material-ui/core"
 import { useBackground } from "../../context/background"
 
 const feeFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 6,
-  maximumFractionDigits: 6,
+  maximumFractionDigits: 6
 })
 
 export type Props = Omit<DialogProps, "onClose"> & {
@@ -28,10 +27,10 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
   let [tokenSymbol, setTokenSymbol] = useState("")
   let [sending, setSending] = useState(false)
 
-  const canSend = ():boolean => {
+  const canSend = (): boolean => {
     return (mintAddress !== "" &&
       tokenName !== "" &&
-        tokenSymbol !== "")
+      tokenSymbol !== "")
   }
 
   const onSubmit = () => {
@@ -40,15 +39,15 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
         token: {
           mintAddress: mintAddress,
           name: tokenName,
-          symbol: tokenSymbol,
-        },
+          symbol: tokenSymbol
+        }
       }),
       {
         progress: { message: "Adding token..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        },
+        }
       }
     )
   }

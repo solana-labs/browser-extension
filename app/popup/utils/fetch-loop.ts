@@ -1,16 +1,24 @@
 import assert from "assert"
 import { useEffect, useReducer } from "react"
+import { createLogger } from "../../core/utils"
 
+const log = createLogger("sol:fl")
 const pageLoadTime: Date = new Date()
 const globalCache = new Map()
 
+
+type FetchLoopCacheKey = {
+  key: any
+  description: string
+}
+
 class FetchLoopListener {
-  public cacheKey: any
+  public cacheKey: FetchLoopCacheKey
   public fn: () => void
   public refreshInterval: number
   public callback: () => void
 
-  constructor(cacheKey: any, fn: () => void, refreshInterval: number, callback: () => void) {
+  constructor(cacheKey: FetchLoopCacheKey, fn: () => void, refreshInterval: number, callback: () => void) {
     this.cacheKey = cacheKey
     this.fn = fn
     this.refreshInterval = refreshInterval
@@ -117,21 +125,25 @@ class FetchLoops {
   loops = new Map<string, FetchLoopInternal>()
 
   addListener(listener: FetchLoopListener) {
-    if (!this.loops.has(listener.cacheKey)) {
-      this.loops.set(listener.cacheKey, new FetchLoopInternal(listener.cacheKey, listener.fn))
+    if (!this.loops.has(listener.cacheKey.key)) {
+      log("Adding new fetch loop with cachekey: %s", listener.cacheKey.description)
+      this.loops.set(listener.cacheKey.key, new FetchLoopInternal(listener.cacheKey.key, listener.fn))
+    } else {
+      log("Fetch loop with cachekey: %s already present", listener.cacheKey.description)
     }
-    this.loops.get(listener.cacheKey)?.addListener(listener)
+    log("Adding listent to cachekey: %s", listener.cacheKey.description)
+    this.loops.get(listener.cacheKey.key)?.addListener(listener)
   }
 
   removeListener(listener: FetchLoopListener) {
-    let loop = this.loops.get(listener.cacheKey)
+    let loop = this.loops.get(listener.cacheKey.key)
     if (!loop) {
       return
     }
 
     loop.removeListener(listener)
     if (loop.stopped) {
-      this.loops.delete(listener.cacheKey)
+      this.loops.delete(listener.cacheKey.key)
     }
   }
 
@@ -154,27 +166,34 @@ const globalLoops = new FetchLoops()
 
 export const useAsyncData = <T>(
   asyncFn: () => Promise<T>,
-  cacheKey: any,
+  cacheKey: FetchLoopCacheKey,
   { refreshInterval = 60000 } = {}
 ): [T, boolean] => {
-  const [, rerender] = useReducer((i: number) => i + 1, 0)
+
+  const [, rerender] = useReducer((i: number) => {
+    return i + 1
+  }, 0)
 
   useEffect(() => {
-    if (!cacheKey) {
+    log("useAsyncData useEffect reloading... not sure why for %s", cacheKey.description)
+    if (!cacheKey.key) {
       return () => {}
     }
     const listener = new FetchLoopListener(cacheKey, asyncFn, refreshInterval, rerender)
+    log("Attempting to add register listener: %s", cacheKey.description )
     globalLoops.addListener(listener)
-    return () => globalLoops.removeListener(listener)
+    return () => {
+      globalLoops.removeListener(listener)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cacheKey, refreshInterval])
+  }, [cacheKey.key, refreshInterval])
 
   if (!cacheKey) {
     return [null!, false]
   }
 
-  const loaded = globalCache.has(cacheKey)
-  const data = loaded ? globalCache.get(cacheKey) : undefined
+  const loaded = globalCache.has(cacheKey.key)
+  const data = loaded ? globalCache.get(cacheKey.key) : undefined
   return [data, loaded]
 }
 
