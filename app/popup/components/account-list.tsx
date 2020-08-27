@@ -51,6 +51,7 @@ interface AccountListProp {
 }
 
 export const AccountList: React.FC<AccountListProp> = ({ account }) => {
+  console.log("rendering AccountList")
   const classes = useStyles()
   const { popupState } = useBackground()
 

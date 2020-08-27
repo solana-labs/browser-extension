@@ -1,5 +1,5 @@
-import { Route, Switch } from "react-router-dom"
-import { Redirect, RouteComponentProps, RouteProps } from "react-router"
+import { Route, Router, Switch } from "react-router-dom"
+import { Redirect, RouteComponentProps, RouteProps, useLocation, withRouter} from "react-router"
 import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
@@ -56,7 +56,6 @@ const secureRoute = (key: string, props: RouteProps, popupState: PopupState) => 
   )
 }
 
-
 const unsecureRoute = (key: string, props: RouteProps, popupState: PopupState) => {
   const Component = props.component as React.ComponentType<any>
   const rest = Object.assign({}, props)
@@ -111,6 +110,8 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
 }
 
 const RoutesBase: React.FC = () => {
+
+  const  location = useLocation()
   const { popupState } = useBackground()
 
   if (!popupState) {

@@ -135,20 +135,21 @@ export const useAccountInfo = (
 export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
   const { connection } = useConnection()
   const cacheKey = tuple(connection, publicKey.toBase58(), "tokenAccountsByOwner")
+
+
   const [fetchedAccounts, loaded] = useAsyncData<
     Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>
-  >(async () => {
+  >(() => {
     log("getting get token account by owner %s", publicKey.toBase58())
-    try {
-      const resp = await connection.getTokenAccountsByOwner(publicKey, {
-        programId: TOKEN_PROGRAM_ID,
-      })
-      log("received tokens by owner %s %O", publicKey.toBase58(), resp.value)
-      return resp.value
-    } catch (e) {
-      log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), e)
+    return connection.getTokenAccountsByOwner(publicKey, {
+      programId: TOKEN_PROGRAM_ID,
+    }).then(data => {
+      log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
+      return data.value
+    }).catch(err => {
+      log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
       return []
-    }
+    })
   }, cacheKey)
 
   if (!loaded) {

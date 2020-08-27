@@ -1,4 +1,4 @@
-import React, { Suspense } from "react"
+import React, { Suspense, useMemo } from "react"
 import CssBaseline from "@material-ui/core/CssBaseline"
 import useMediaQuery from "@material-ui/core/useMediaQuery"
 import {
@@ -9,17 +9,23 @@ import {
 import { ConnectionProvider } from "../context/connection"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { SnackbarProvider } from "notistack"
-import { BackgroundProvider } from "../context/background"
+import { BackgroundProvider, useBackground } from "../context/background"
 import { Router } from "react-router-dom"
 import { history } from "../utils/history"
 import { Routes } from "../components/routes/routes"
 import { SplashScreenPage } from "./splash-screen-page"
 
+const useStyles = makeStyles({
+  success: { backgroundColor: "#25c2a0" },
+  error: { backgroundColor: "#B45BDC" },
+  warning: { backgroundColor: "#fa62fc" },
+  info: { backgroundColor: "#43b5c5" },
+})
+
 export const App: React.FC = () => {
   console.log("App rendering")
-  // TODO: add toggle for dark mode
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
-  const theme = React.useMemo(
+  const theme = useMemo(
     () =>
       createMuiTheme({
         palette: {
@@ -52,20 +58,12 @@ export const App: React.FC = () => {
       }),
     [prefersDarkMode]
   )
-  const useStyles = makeStyles({
-    success: { backgroundColor: "#25c2a0" },
-    error: { backgroundColor: "#B45BDC" },
-    warning: { backgroundColor: "#fa62fc" },
-    info: { backgroundColor: "#43b5c5" },
-  })
-
   const classes = useStyles()
 
   // Disallow rendering inside an iframe to prevent clickjacking.
   if (window.self !== window.top) {
     return null
   }
-
 
   return (
     <Suspense fallback={<LoadingIndicator />}>
