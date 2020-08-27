@@ -3,15 +3,16 @@ import { ProgramPlugin } from "./types"
 import { createLogger } from "../utils"
 import { SplPlugin } from "./plugins/spl"
 import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
-import { Web3Connection } from "../connection"
-import { Store } from "../../background/store"
 import { SolanaPlugin } from "./plugins/system"
 
 const log = createLogger("sol:decoder")
 
 interface ProgramPluginManagerOpt {
   getConnection: () => Connection
-  getSPLToken: (publicKey: PublicKey) => Promise<Token | undefined>
+  getSPLToken: (
+    publicKey: PublicKey,
+    connection: Connection
+  ) => Promise<Token | undefined>
 }
 
 export class ProgramPluginManager {
@@ -24,43 +25,42 @@ export class ProgramPluginManager {
     this._setupPlugins()
   }
 
-  renderTransactionItemMarkdown = async(transaction: Transaction):Promise<Markdown[]> => {
-    const rd =  (idx: number, instruction: TransactionInstruction): Markdown => {
+  renderTransactionItemMarkdown = async (transaction: Transaction): Promise<Markdown[]> => {
+    const rd = (idx: number, instruction: TransactionInstruction): Markdown => {
       return {
-        type: 'markdown',
+        type: "markdown",
         content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
       }
     }
 
-    const ri =  (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction): Markdown => {
+    const ri = (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction): Markdown => {
       return plugin.getMarkdown(decodedInstruction)
     }
 
     return this.render<Markdown>(transaction, rd, ri)
   }
 
-  renderRicardian = async(transaction: Transaction):Promise<Ricardian[]> => {
-    const rd =  (idx: number, instruction: TransactionInstruction): Ricardian => {
+  renderRicardian = async (transaction: Transaction): Promise<Ricardian[]> => {
+    const rd = (idx: number, instruction: TransactionInstruction): Ricardian => {
       return {
-        type: 'ricardian',
+        type: "ricardian",
         content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
       }
     }
 
-    const ri =  (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction): Ricardian => {
+    const ri = (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction): Ricardian => {
       return plugin.getRicardian(decodedInstruction)
     }
 
     return this.render<Ricardian>(transaction, rd, ri)
   }
 
-
-  render = async<T extends (Markdown | Ricardian)>(
+  render = async <T extends Markdown | Ricardian>(
     transaction: Transaction,
     renderUndecodedInsutrction: (idx: number, instruction: TransactionInstruction) => T,
-    renderInstruction: (plugin: ProgramPlugin, decodedInstruction : DecodedInstruction) => T
+    renderInstruction: (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction) => T
   ): Promise<T[]> => {
-    const decodeInstructionFunc = async(
+    const decodeInstructionFunc = async (
       idx: number,
       instruction: TransactionInstruction
     ): Promise<T> => {
@@ -86,7 +86,7 @@ export class ProgramPluginManager {
       try {
         decodedInstruction = await plugin.decorate(decodedInstruction, {
           getConnection: this.opts.getConnection,
-          getSPLToken: this.opts.getSPLToken
+          getSPLToken: this.opts.getSPLToken,
         })
       } catch (error) {
         log("An error occurred when decorating instruction for program [%s] %o", programId, error)
@@ -103,13 +103,18 @@ export class ProgramPluginManager {
 
     // Promise.all rejects as soon as one promise rejects, so we must make sure that `decodeInstruction` never fail
     return Promise.all(
-      transaction.instructions.map((instruction, index) => decodeInstructionFunc(index, instruction))
+      transaction.instructions.map((instruction, index) =>
+        decodeInstructionFunc(index, instruction)
+      )
     )
   }
 
   _setupPlugins = (): void => {
     log("registering plugins")
-    this._registerProgramPlugin(new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o"), new SplPlugin())
+    this._registerProgramPlugin(
+      new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o"),
+      new SplPlugin()
+    )
     this._registerProgramPlugin(SystemProgram.programId, new SolanaPlugin())
     // this._registerProgramPlugin(DEX_PROGRAM_ID, new SerumDecoder())
   }

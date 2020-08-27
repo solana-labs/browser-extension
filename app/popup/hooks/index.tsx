@@ -9,7 +9,6 @@ import { BalanceInfo, OwnedAccount } from "../types"
 import { tuple } from "immutable-tuple"
 import { useBackground } from "../context/background"
 import { Buffer } from "buffer"
-
 const log = require("debug")("sol:hooks")
 
 export const useSolanaExplorerUrlSuffix = (): string => {
@@ -167,13 +166,13 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
 export const useTokenName = (
   mintPubKey: PublicKey | null
 ): { name: string | undefined; symbol: string | undefined } => {
-  const { popupState } = useBackground()
+  const { getToken } = useBackground()
 
   if (!mintPubKey) {
     return { name: undefined, symbol: undefined }
   }
 
-  let match = popupState?.tokens.find((token) => token.mintAddress === mintPubKey.toBase58())
+  let match = getToken(mintPubKey.toBase58())
   if (match) {
     return { name: match.name, symbol: match.symbol }
   }

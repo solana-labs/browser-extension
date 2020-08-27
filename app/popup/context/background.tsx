@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import pump from "pump"
 import { createObjectMultiplex, getEnvironmentType } from "../../core/utils"
-import { Network, Notification, PopupActions, PopupState } from "../../core/types"
+import { Network, Notification, PopupActions, PopupState, Token } from "../../core/types"
 import RpcEngine from "json-rpc-engine"
 import { MUX_CONTROLLER_SUBSTREAM } from "../../core/types"
 
@@ -24,6 +24,7 @@ interface RPCResp<T> {
 interface BackgroundContextType {
   isNotification: boolean
   popupState: PopupState | undefined
+  getToken: (mintAddress: string) => (Token | undefined)
   request: (method: PopupActions, params: any) => Promise<RPCResp<PopupState>>
   changeNetwork: (network: Network) => void
   changeAccount: (account: string) => void
@@ -85,6 +86,13 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     })
   }
 
+  const getToken : BackgroundContextType["getToken"] = (mintAddress: string): (Token | undefined)  => {
+    if (!state) {
+      return undefined
+    }
+    return state.tokens[mintAddress]
+  }
+
   useEffect(() => {
     setupStreams()
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -142,6 +150,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
       value={{
         request,
         isNotification,
+        getToken: getToken,
         popupState: state,
         changeNetwork,
         changeAccount,
@@ -158,7 +167,7 @@ export function usePopupState() : PopupState {
     throw new Error("Background not found, usePopupState must be used within the BackgroundProvider")
   }
   if (!context.popupState) {
-    throw new Error("No popup state, use popupState() should only be called from a secure page")
+    throw new Error("No popup state, use popupState() should only be called after the routes")
   }
 
   return context.popupState

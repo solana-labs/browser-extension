@@ -43,13 +43,16 @@ export type VersionedData = {
   data: StoredData
 }
 
+export type MintAddressTokens = { [mintAddress: string]: Token }
+export type NetworkTokens = { [network: string]: MintAddressTokens }
+
 export type StoredData = {
   secretBox: SecretBox | undefined
   accountCount: number
   selectedNetwork: Network
   selectedAccount: string
   authorizedOrigins: string[]
-  tokens: { [network: string]: { [mintAddress: string]: Token } }
+  tokens: NetworkTokens
 }
 
 export type WalletState = "locked" | "unlocked" | "uninitialized"
@@ -62,7 +65,7 @@ export type PopupState = {
   availableNetworks: Network[]
   authorizedOrigins: string[]
   actions: OrderedAction[]
-  tokens: Token[]
+  tokens: MintAddressTokens
 }
 
 
@@ -133,17 +136,17 @@ export type PendingSignTransaction = {
 export type Ricardian = {
   type: "ricardian"
   content: string
-};
+}
 
 export type Markdown = {
   type: "markdown"
   content: string
-};
+}
 
 export type DecodedInstruction = {
   instruction: TransactionInstruction
   instructionType: string
-  properties: {[key: string]: any}
+  properties: { [key: string]: any }
 }
 
 export type Token = {

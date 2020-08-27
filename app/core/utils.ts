@@ -1,7 +1,7 @@
 import {
   ENVIRONMENT_TYPE_BACKGROUND,
   ENVIRONMENT_TYPE_NOTIFICATION,
-  ENVIRONMENT_TYPE_POPUP, Token
+  ENVIRONMENT_TYPE_POPUP, Network, Token
 } from "./types"
 import { memoize } from "lodash"
 import { CompiledInstruction, Connection, Message, PublicKey } from "@solana/web3.js"
@@ -118,5 +118,31 @@ export const getMintData = async(connection: Connection, publicKey: PublicKey): 
   return {
     mintAddress: publicKey.toBase58(),
     decimals: decimals,
+  }
+}
+
+export const getSPLToken = async (
+  publicKey: PublicKey,
+  connection: Connection,
+  getToken: (address: string) => Token | undefined
+): Promise<Token | undefined> => {
+  log("Retrieving SPL token at mint address %s", publicKey.toBase58())
+  const token = getToken(publicKey.toBase58())
+  if (token) {
+    return token
+  }
+
+  log("SPL token at mint address %s not in cache... retrieving mint data", publicKey.toBase58())
+  try {
+    const mintData = await getMintData(connection, publicKey)
+    return {
+      mintAddress: mintData.mintAddress,
+      name: "",
+      symbol: "",
+      decimals: mintData.decimals
+    }
+  } catch (e) {
+    log("Could not retrieve 'mint' account %s information: %s", publicKey.toBase58(), e)
+    return undefined
   }
 }

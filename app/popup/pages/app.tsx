@@ -4,26 +4,25 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import {
   makeStyles,
   ThemeProvider,
-  unstable_createMuiStrictModeTheme as createMuiTheme,
+  unstable_createMuiStrictModeTheme as createMuiTheme
 } from "@material-ui/core/styles"
 import { ConnectionProvider } from "../context/connection"
 import { LoadingIndicator } from "../components/loading-indicator"
 import { SnackbarProvider } from "notistack"
-import { BackgroundProvider, useBackground } from "../context/background"
+import { BackgroundProvider } from "../context/background"
 import { Router } from "react-router-dom"
 import { history } from "../utils/history"
 import { Routes } from "../components/routes/routes"
-import { SplashScreenPage } from "./splash-screen-page"
+import { ProgramPluginsManagerProvider } from "../context/plugins"
 
 const useStyles = makeStyles({
   success: { backgroundColor: "#25c2a0" },
   error: { backgroundColor: "#B45BDC" },
   warning: { backgroundColor: "#fa62fc" },
-  info: { backgroundColor: "#43b5c5" },
+  info: { backgroundColor: "#43b5c5" }
 })
 
 export const App: React.FC = () => {
-  console.log("App rendering")
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
   const theme = useMemo(
     () =>
@@ -32,29 +31,29 @@ export const App: React.FC = () => {
           type: prefersDarkMode ? "dark" : "light",
           primary: {
             main: "#25c2a0",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           secondary: {
             main: "#86b8b6",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           success: {
             main: "#25c2a0",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           info: {
             main: "#43b5c5",
-            contrastText: "#fff",
+            contrastText: "#fff"
           },
           error: {
             main: "#fa62fc",
-            contrastText: "#fff",
-          },
+            contrastText: "#fff"
+          }
         },
         typography: {
-          fontSize: 13,
+          fontSize: 13
         },
-        spacing: 6,
+        spacing: 6
       }),
     [prefersDarkMode]
   )
@@ -66,25 +65,27 @@ export const App: React.FC = () => {
   }
 
   return (
-    <Suspense fallback={<LoadingIndicator />}>
+    <Suspense fallback={<LoadingIndicator/>}>
       <ThemeProvider theme={theme}>
-        <CssBaseline />
+        <CssBaseline/>
         <BackgroundProvider>
           <ConnectionProvider>
-            <SnackbarProvider
-              maxSnack={5}
-              autoHideDuration={8000}
-              classes={{
-                variantSuccess: classes.success,
-                variantError: classes.error,
-                variantWarning: classes.warning,
-                variantInfo: classes.info,
-              }}
-            >
-              <Router history={history}>
-                <Routes />
-              </Router>
-            </SnackbarProvider>
+            <ProgramPluginsManagerProvider>
+              <SnackbarProvider
+                maxSnack={5}
+                autoHideDuration={8000}
+                classes={{
+                  variantSuccess: classes.success,
+                  variantError: classes.error,
+                  variantWarning: classes.warning,
+                  variantInfo: classes.info
+                }}
+              >
+                <Router history={history}>
+                  <Routes/>
+                </Router>
+              </SnackbarProvider>
+            </ProgramPluginsManagerProvider>
           </ConnectionProvider>
         </BackgroundProvider>
       </ThemeProvider>

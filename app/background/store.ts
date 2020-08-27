@@ -4,8 +4,9 @@ import { randomBytes, secretbox } from "tweetnacl"
 import bs58 from "bs58"
 import { pbkdf2 } from "crypto"
 import {
-  DEFAULT_NETWORK,
+  DEFAULT_NETWORK, MintAddressTokens,
   Network,
+  NetworkTokens,
   PendingRequestAccounts,
   PendingSignTransaction,
   RequestAccountsResp,
@@ -16,25 +17,7 @@ import {
   WalletState
 } from "../core/types"
 
-const shortid = require("shortid")
 const log = createLogger("sol:bg:store")
-
-type StorePendingRequestAccount = {
-  request: PendingRequestAccounts
-  resolve: (resp: RequestAccountsResp) => void
-  reject: any
-}
-
-type StorePendingTransaction = {
-  transaction: PendingSignTransaction
-  resolve: (resp: SignTransactionResp) => void
-  reject: any
-}
-
-type NotificationKey = {
-  origin: string
-  tabId: string
-}
 
 export class Store {
   public popIsOpen: boolean
@@ -47,7 +30,7 @@ export class Store {
   public selectedNetwork: Network
   public selectedAccount: string
   public authorizedOrigins: string[]
-  public tokens: { [network: string]: { [mintAddress: string]: Token } }
+  public tokens: NetworkTokens
 
   constructor(initialStore: StoredData) {
     const {
@@ -71,7 +54,7 @@ export class Store {
     }
     this.authorizedOrigins = authorizedOrigins || []
     console.log("setting up tokens: ", tokens)
-    this.tokens = tokens ?? {}
+    this.tokens = tokens || {}
   }
 
   isLocked(): boolean {
@@ -311,24 +294,16 @@ export class Store {
     return true
   }
 
+  getTokens(network: Network): MintAddressTokens {
+    return this.tokens[network.endpoint]
+  }
+
   getToken(network: Network, accountAddress: string): Token | undefined {
     const networkTokens = this.tokens[network.endpoint]
     if (networkTokens) {
       return networkTokens[accountAddress]
     }
     return undefined
-  }
-
-  getSelectedNetworkTokens(): Token[] {
-    const network = this.selectedNetwork
-    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
-    const networkMints = this.tokens[network.endpoint]
-    if (!networkMints) {
-      return []
-    }
-    return Object.keys(networkMints).map((key) => {
-      return networkMints[key]
-    })
   }
 }
 

@@ -1,19 +1,19 @@
 import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js"
-import { Web3Connection } from "../connection"
-import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
+import { DecodedInstruction, Markdown, Network, Ricardian, Token } from "../types"
 
-export interface PluginContext  {
+export interface PluginContext {
   getConnection: () => Connection
-  getSPLToken: (publicKey: PublicKey) => Promise<(Token | undefined)>
+  getSPLToken: (
+    publicKey: PublicKey,
+    connection: Connection
+  ) => Promise<Token | undefined>
 }
 
 export interface ProgramPlugin {
   // Decode the given instruction into its details elements. If the decoder is unable to decode the
   // given instruction either due to a malformed message or to an unexpected error when querying some
   // state, it should throw an `Error`.
-  decode(
-    instruction: TransactionInstruction,
-  ): DecodedInstruction
+  decode(instruction: TransactionInstruction): DecodedInstruction
 
   // Enhances a decoded instruction. You may wish to perform third party calls to get more information
   // regarding the transaction, for example you may want to fetch the mint information.
@@ -25,4 +25,3 @@ export interface ProgramPlugin {
   getMarkdown(decodedInstruction: DecodedInstruction): Markdown
   getRicardian(decodedInstruction: DecodedInstruction): Ricardian
 }
-
