@@ -52,22 +52,50 @@ export type StoredData = {
   tokens: { [network: string]: { [mintAddress: string]: Token } }
 }
 
-export type WalletState = {
-  state: "locked" | "unlocked" | "uninitialized"
-}
+export type WalletState = "locked" | "unlocked" | "uninitialized"
 
 export type PopupState = {
-  walletState: "locked" | "unlocked" | "uninitialized"
+  walletState: WalletState
   accounts: string[]
   selectedAccount: string
   selectedNetwork: Network
   availableNetworks: Network[]
-  pendingTransactions: PendingSignTransaction[]
-  pendingRequestAccounts: PendingRequestAccounts[]
   authorizedOrigins: string[]
+  actions: OrderedAction[]
   tokens: Token[]
 }
 
+
+export type ActionKey = {
+  tabId: string,
+  origin: string,
+  uuid: string,
+}
+
+export type OrderedAction = { key: ActionKey, action: Action }
+export type Action  = ActionSignTransaction | ActionRequestAccounts
+
+export type ActionRequestAccounts = BaseAction<RequestAccountsResp> & {
+  type: "request_accounts"
+  // action payload
+  tabId: string
+  origin: string
+}
+
+export type ActionSignTransaction  = BaseAction<SignTransactionResp> & {
+  type: "sign_transaction"
+  // action payload
+  message: string
+  signers: string[]
+  details?: Markdown[]
+  tabId: string
+}
+
+export type BaseAction<T> = {
+  resolve: (resp: T) => void
+  reject: any
+
+}
 export type WallActions =
   | "wallet_requestPermissions"
   | "wallet_signTransaction"
@@ -162,5 +190,7 @@ export type NotificationPopupStateChanged = {
 
 export type NotificationStateChanged = {
   type: "stateChanged"
-  data: WalletState
+  data: {
+    state: WalletState
+  }
 }

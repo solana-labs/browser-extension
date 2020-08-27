@@ -5,11 +5,12 @@ import bs58 from "bs58"
 import nacl from "tweetnacl"
 import invariant from "assert"
 import {
+  ActionRequestAccounts, ActionSignTransaction,
   AVAILABLE_NETWORKS,
   Network,
   Notification,
   PopupActions,
-  SignatureResult,
+  SignatureResult
 } from "../core/types"
 import {
   Account,
@@ -24,11 +25,15 @@ import { ExtensionManager } from "./lib/extension-manager"
 import { TOKEN_PROGRAM_ID } from "../popup/components/dialogs/send-spl-dialog"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
+import { ActionManager } from "./lib/action-manager"
+import { PopupStateResolver } from "./lib/popup-state-resolver"
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
 
 export interface PopupControllerOpt {
   store: Store
+  actionManager: ActionManager
+  popupState: PopupStateResolver
   connection: Web3Connection
   notifyAllDomains: ((payload: Notification) => Promise<void>) | null
   extensionManager: ExtensionManager
@@ -36,14 +41,18 @@ export interface PopupControllerOpt {
 
 export class PopupController {
   private store: Store
+  private actionManager: ActionManager
   private _notifyAllDomains: ((payload: Notification) => Promise<void>) | null
   private connection: Web3Connection
   private extensionManager: ExtensionManager
+  private popupState: PopupStateResolver
 
   constructor(opts: PopupControllerOpt) {
     log("popup controller constructor")
-    const { store, notifyAllDomains, connection, extensionManager } = opts
+    const { store, notifyAllDomains, connection, extensionManager, actionManager, popupState } = opts
     this.store = store
+    this.actionManager = actionManager
+    this.popupState = popupState
     this.connection = connection
     this._notifyAllDomains = notifyAllDomains
     this.extensionManager = extensionManager
@@ -200,11 +209,10 @@ export class PopupController {
       // if any of the above popup commands did not error
       // out make sure to return the state, the popup expects it!
       if (!res.error) {
-        res.result = this.store.getState()
+        res.result = this.popupState.get()
       }
     })
   }
-
 
   async addToken(req: any) {
     log(`adding token for req %O`, req)
@@ -224,34 +232,6 @@ export class PopupController {
     }
   }
 
-  async approveRequestAccounts(req: any) {
-    log("Approving request request account: %O", req)
-
-    const { tabId, origin } = req.params
-    if (!tabId) {
-      log(
-        "Unable to determine request accounts permission for tabId %s and origin %s:",
-        tabId,
-        origin
-      )
-      return
-    }
-    const tabs = this.store.getPendingRequestAccountsForOrigin(origin)
-
-    if (!tabs) {
-      log("Request Account with origin %s and tabId %s not found", origin, tabId)
-      return
-    }
-    this.store.addAuthorizedOrigin(origin)
-    Object.keys(tabs).forEach((tabId) => {
-      tabs[tabId].resolve({
-        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
-      })
-    })
-
-    this.store.removePendingRequestAccountsForOrigin(origin)
-  }
-
   async deleteAuthorizedWebsite(req: any) {
     log("deleting authorized website: %O", req)
 
@@ -260,40 +240,61 @@ export class PopupController {
     this.store.removeAuthorizedOrigin(origin)
   }
 
-  async declineRequestAccounts(req: any) {
-    log("Declining request accounts for %O", req)
-    const { origin, tabId } = req.params
+  async approveRequestAccounts(req: any) {
+    log("Approving request request account: %O", req)
 
-    const request = this.store.getPendingRequestAccounts(origin, tabId)
-    if (!request) {
-      log("Permissions request with origin %s and tabId %s not found", origin, tabId)
+    const { actionKey } = req.params
+
+    const actions = this.actionManager.getActionsWithOriginAndType<ActionRequestAccounts>(actionKey.origin,"request_accounts")
+    if (actions.size === 0) {
+      log(
+        "Unable to find request accounts actions for origin %s:",
+        origin
+      )
       return
     }
 
-    request.reject("access to accounts deny")
-    this.store.removePendingRequestAccounts(origin, tabId)
+    actions.forEach((action, key)=> {
+      action.resolve({
+        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
+      })
+      this.actionManager.deleteAction(key)
+    })
+  }
+
+  async declineRequestAccounts(req: any) {
+    log("Declining request accounts for %O", req)
+    const { actionKey } = req.params
+
+    const action = this.actionManager.getAction<ActionRequestAccounts>(actionKey)
+    if (!action) {
+      log("Action request accounts with key %O not found", actionKey)
+      return
+    }
+    action.reject("access to accounts deny")
+    this.actionManager.deleteAction(actionKey)
   }
 
   async signTransaction(req: any) {
     log("Signing transaction request for %O", req)
-    const { tabId } = req.params
+    const { actionKey } = req.params
 
-    const pendingTransaction = this.store.pendingTransactions.get(tabId)
-    if (!pendingTransaction) {
-      log("Unable to determine request transaction to be signed for tabId: %s", tabId)
+    const pendingTransactionAction = this.actionManager.getAction<ActionSignTransaction>(actionKey)
+    if (!pendingTransactionAction) {
+      log("Unable to find sign transaction actions: %O", actionKey)
       return
     }
 
     if (!this.store.wallet) {
-      log("Unable sign tranasction with out a wallet for tabId %s", tabId)
+      log("Unable sign transaction with out a wallet for actionKey %O", actionKey)
       return
     }
     const wallet = this.store.wallet
 
-    const m = new Buffer(bs58.decode(pendingTransaction.transaction.message))
+    const m = new Buffer(bs58.decode(pendingTransactionAction.message))
 
     const signatureResults: SignatureResult[] = []
-    pendingTransaction.transaction.signers.forEach((signerKey) => {
+    pendingTransactionAction.signers.forEach((signerKey) => {
       log("Search for signer account: %s", signerKey)
       const account = wallet.findAccount(signerKey)
       if (!account) {
@@ -304,22 +305,22 @@ export class PopupController {
       signatureResults.push({ publicKey: signerKey, signature: bs58.encode(signature) })
     })
 
-    pendingTransaction.resolve({ signatureResults: signatureResults })
-    this.store.removePendingTransaction(tabId)
+    pendingTransactionAction.resolve({ signatureResults: signatureResults })
+    this.actionManager.deleteAction(actionKey)
   }
 
   async declineTransaction(req: any) {
     log("Declining transaction request for %O", req)
-    const { tabId } = req.params
+    const { actionKey } = req.params
 
-    const pendingTransaction = this.store.pendingTransactions.get(tabId)
-    if (!pendingTransaction) {
-      log("Unable to determine request transaction to be declined for tabId: %s", tabId)
+    const pendingTransactionAction = this.actionManager.getAction<ActionSignTransaction>(actionKey)
+    if (!pendingTransactionAction) {
+      log("Unable to find sign transaction actions: %O", actionKey)
       return
     }
 
-    pendingTransaction.reject("Transaction declined")
-    this.store.removePendingTransaction(tabId)
+    pendingTransactionAction.reject("Transaction declined")
+    this.actionManager.deleteAction(actionKey)
   }
 
   changeNetwork(req: any) {

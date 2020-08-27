@@ -59,32 +59,6 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
 
   log("rendering balance list: %o", ownedAccounts)
 
-  const [pendingSignTransaction, setPendingSignTransaction] = useState<PendingSignTransaction>()
-  const [pendingRequestAccounts, setPendingRequestAccount] = useState<PendingRequestAccounts>()
-
-  const popupPendingTransactions = popupState?.pendingTransactions
-  const popupPendingRequestAccounts = popupState?.pendingRequestAccounts
-
-  useEffect(() => {
-    if (!popupPendingTransactions) {
-      setPendingSignTransaction(undefined)
-      return
-    }
-    if (popupPendingTransactions.length > 0) {
-      setPendingSignTransaction(popupPendingTransactions[0])
-    }
-  }, [popupPendingTransactions])
-
-  useEffect(() => {
-    if (!popupPendingRequestAccounts) {
-      setPendingRequestAccount(undefined)
-      return
-    }
-    if (popupPendingRequestAccounts.length > 0) {
-      setPendingRequestAccount(popupPendingRequestAccounts[0])
-    }
-  }, [popupPendingRequestAccounts])
-
   return (
     <Paper>
       <AppBar position="static" color="default" elevation={1}>
@@ -120,20 +94,6 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
           />
         ))}
       </List>
-      {pendingSignTransaction && (
-        <AuthorizeTransactionDialog
-          open={true}
-          onClose={() => setPendingSignTransaction(undefined)}
-          transaction={pendingSignTransaction}
-        />
-      )}
-      {pendingRequestAccounts && (
-        <AuthorizeRequestAccountsDialog
-          open={true}
-          onClose={() => setPendingRequestAccount(undefined)}
-          pendingRequestAccounts={pendingRequestAccounts}
-        />
-      )}
     </Paper>
   )
 }

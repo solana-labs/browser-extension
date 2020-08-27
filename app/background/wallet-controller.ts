@@ -10,6 +10,8 @@ import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { ProgramPluginManager } from "../core/program-plugin"
+import { ActionManager } from "./lib/action-manager"
+import { PopupStateResolver } from "./lib/popup-state-resolver"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -17,6 +19,7 @@ const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware
 interface WalletControllerOpt {
   store: Store
   pluginManager: ProgramPluginManager
+  actionManager: ActionManager
   openPopup: () => Promise<void>
 }
 
@@ -27,13 +30,15 @@ interface MiddlewareOpts {
 
 export class WalletController {
   private store: Store
+  private actionManager: ActionManager
   private openPopup: any
   private pluginManager: ProgramPluginManager
 
   constructor(opts: WalletControllerOpt) {
     log("wallet controller constructor")
-    const { store, openPopup, pluginManager } = opts
+    const { store, openPopup, pluginManager, actionManager } = opts
     this.store = store
+    this.actionManager = actionManager
     this.openPopup = openPopup
     this.pluginManager = pluginManager
   }
@@ -96,14 +101,20 @@ export class WalletController {
     log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
 
     //todo: popup only if user never agree to request account for this origin
-    if (this.store.isOriginAuthorized(origin) && this.store.getState().walletState === "unlocked") {
+    if (this.store.isOriginAuthorized(origin) && this.store.getWalletState() === "unlocked") {
       return { accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] }
     }
 
     //origin need authorization
     this._showPopup()
     return new Promise<RequestAccountsResp>((resolve, reject) => {
-      this.store.addPendingRequestAccount(tabId, origin, resolve, reject)
+      this.actionManager.addAction(origin, tabId, {
+        type: "request_accounts",
+        resolve: resolve,
+        reject: reject,
+        tabId: tabId,
+        origin: origin,
+      })
     })
   }
 
@@ -137,7 +148,15 @@ export class WalletController {
     this._showPopup()
 
     return new Promise<SignTransactionResp>((resolve, reject) => {
-      this.store.addPendingTransaction(tabId, message, signer, resolve, reject, markdowns)
+      this.actionManager.addAction(origin, tabId, {
+        type: "sign_transaction",
+        resolve: resolve,
+        reject: reject,
+        tabId: tabId,
+        message: message,
+        signers: signer,
+        details: markdowns,
+      })
     })
   }
 

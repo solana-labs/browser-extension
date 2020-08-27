@@ -4,16 +4,13 @@ import { AccountList } from "../components/account-list"
 import Grid from "@material-ui/core/Grid"
 import { DebugButtons } from "../components/debug-buttons"
 import { LoadingIndicator } from "../components/loading-indicator"
-import { useBackground } from "../context/background"
+import { useBackground, usePopupState } from "../context/background"
 import { withLayout } from "../components/layout"
 
-export const WalletPageBase: React.FC = () => {
-  const { popupState } = useBackground()
-  const isProdNetwork = popupState?.selectedNetwork.cluster === "mainnet-beta"
 
-  if (!popupState) {
-    return <LoadingIndicator />
-  }
+export const WalletPageBase: React.FC =  () => {
+  const popupState = usePopupState()
+  const isProdNetwork = (popupState.selectedNetwork.cluster === "mainnet-beta")
 
   if (!popupState?.selectedAccount) {
     return <LoadingIndicator />

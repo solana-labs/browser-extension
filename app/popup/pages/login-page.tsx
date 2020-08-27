@@ -16,14 +16,21 @@ import { withLayout } from "../components/layout"
 import { Links, Paths } from "../components/routes/paths"
 
 const LoginPageBase: React.FC = () => {
+  const { isNotification } = useBackground()
   const history = useHistory()
   const goToRestore = () => {
     history.push(Links.restore())
   }
 
   const handleSuccess = () => {
-    history.push(Links.accounts())
+    console.log("Is notification: ", isNotification)
+    if (isNotification) {
+      history.push(Links.notifications())
+    } else {
+      history.push(Links.accounts())
+    }
   }
+
   return (
     <Container maxWidth="sm">
       <>

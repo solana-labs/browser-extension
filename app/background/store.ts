@@ -4,20 +4,19 @@ import { randomBytes, secretbox } from "tweetnacl"
 import bs58 from "bs58"
 import { pbkdf2 } from "crypto"
 import {
-  AVAILABLE_NETWORKS,
   DEFAULT_NETWORK,
-  Markdown,
   Network,
   PendingRequestAccounts,
   PendingSignTransaction,
-  PopupState,
   RequestAccountsResp,
   SecretBox,
   SignTransactionResp,
   StoredData,
-  Token
+  Token,
+  WalletState
 } from "../core/types"
 
+const shortid = require("shortid")
 const log = createLogger("sol:bg:store")
 
 type StorePendingRequestAccount = {
@@ -32,11 +31,14 @@ type StorePendingTransaction = {
   reject: any
 }
 
+type NotificationKey = {
+  origin: string
+  tabId: string
+}
+
 export class Store {
   public popIsOpen: boolean
 
-  public pendingRequestAccounts: Map<string, { [tabId: string]: StorePendingRequestAccount }>
-  public pendingTransactions: Map<string, StorePendingTransaction>
   public wallet: Wallet | null
   private initialAccountCount: number
 
@@ -60,9 +62,6 @@ export class Store {
 
     // We should always have at-least 1 account at all time
     this.initialAccountCount = accountCount ?? 1
-    this.pendingRequestAccounts = new Map()
-
-    this.pendingTransactions = new Map()
     this.selectedNetwork = selectedNetwork || DEFAULT_NETWORK
     this.selectedAccount = selectedAccount
     this.wallet = null
@@ -89,57 +88,33 @@ export class Store {
     return false
   }
 
-  getState(): PopupState {
-    let state: PopupState = {
-      walletState: "uninitialized",
-      accounts: [],
-      selectedNetwork: this.selectedNetwork,
-      availableNetworks: AVAILABLE_NETWORKS,
-      selectedAccount: this.selectedAccount,
-      pendingTransactions: [],
-      pendingRequestAccounts: [],
-      authorizedOrigins: [],
-      tokens: this._getTokens(this.selectedNetwork)
+  getWalletState = (): WalletState => {
+    if (this.hasSecretBox()) {
+      return "locked"
+    } else if (this.hasWallet()) {
+      return "unlocked"
+    } else {
+      return "uninitialized"
     }
-    log("popup state: %O", state)
-    if (this.secretBox) {
-      state.walletState = "locked"
-    }
-    if (this.wallet) {
-      state.walletState = "unlocked"
-      state.accounts = this.wallet.getPublicKeysAsBs58()
-      state.authorizedOrigins = this.authorizedOrigins
-    }
-
-    this.pendingTransactions.forEach((value, key, map) => {
-      state.pendingTransactions = [
-        ...state.pendingTransactions,
-        {
-          tabId: key,
-          message: value.transaction.message,
-          details: value.transaction.details
-        } as PendingSignTransaction
-      ]
-    })
-
-    this.pendingRequestAccounts.forEach((originRequest, origin, map) => {
-      Object.keys(originRequest).forEach(function(tabId) {
-        state.pendingRequestAccounts = [
-          ...state.pendingRequestAccounts,
-          {
-            tabId: tabId,
-            origin: origin
-          } as PendingRequestAccounts
-        ]
-      })
-    })
-
-    return state
   }
 
   lockSecretBox() {
     this.wallet = null
     this.selectedAccount = ""
+  }
+
+  hasSecretBox() {
+    if (this.secretBox) {
+      return true
+    }
+    return false
+  }
+
+  hasWallet() {
+    if (this.wallet) {
+      return true
+    }
+    return false
   }
 
   unlockSecretBox(password: string) {
@@ -210,109 +185,6 @@ export class Store {
       })
   }
 
-  getPendingRequestAccountsForOrigin(
-    origin: string
-  ): { [tabId: string]: StorePendingRequestAccount } | undefined {
-    return this.pendingRequestAccounts.get(origin)
-  }
-
-  getPendingRequestAccounts(origin: string, tabId: string): StorePendingRequestAccount | undefined {
-    log("Retrieving pending request accounts for origin %s and tabId %s", origin, tabId)
-    const originTabs = this.pendingRequestAccounts.get(origin)
-    if (!originTabs) {
-      return undefined
-    }
-    return originTabs[tabId]
-  }
-
-  addPendingRequestAccount(
-    tabId: string,
-    origin: string,
-    resolve: StorePendingRequestAccount["resolve"],
-    reject: StorePendingRequestAccount["reject"]
-  ) {
-    log("adding pending request account with origin [%s] and tab [%s]", origin, tabId)
-    const pendingRequestAccount: StorePendingRequestAccount = {
-      request: { origin, tabId },
-      resolve,
-      reject
-    }
-
-    let originTabs = this.pendingRequestAccounts.get(origin)
-
-    if (!originTabs) {
-      log("First tab %s from origin %s, creating an origin map", tabId, origin)
-      originTabs = {}
-      originTabs[tabId] = pendingRequestAccount
-    } else if (Object.keys(originTabs).includes(tabId)) {
-      throw new Error(
-        `Pending request account with id '${tabId}' and origin '${origin}' already exists.`
-      )
-    } else {
-      log("Adding tab %s to origin %s map", tabId, origin)
-      originTabs[tabId] = pendingRequestAccount
-    }
-    log(
-      "Updating requesting accounts for origin  %s and tabId %s, new count %s",
-      tabId,
-      origin,
-      Object.keys(originTabs).length
-    )
-    this.pendingRequestAccounts.set(origin, originTabs)
-  }
-
-  removePendingRequestAccountsForOrigin(origin: string) {
-    log("Removing pending request accounts for origin %s ", origin)
-    this.pendingRequestAccounts.delete(origin)
-  }
-
-  removePendingRequestAccounts(origin: string, tabId: string) {
-    log("Removing pending request accounts for origin %s and tabId %s", origin, tabId)
-    const originTabs = this.pendingRequestAccounts.get(origin)
-    if (!originTabs) {
-      return
-    }
-    log("Deleting request account for origin %s at tabId %s", origin, tabId)
-    delete originTabs[tabId]
-    if (Object.keys(originTabs).length === 0) {
-      log("No more request account tabs for origin %s cleaning up", origin)
-      this.pendingRequestAccounts.delete(origin)
-    }
-  }
-
-  addPendingTransaction(
-    tabId: string,
-    message: string,
-    signers: string[],
-    resolve: any,
-    reject: any,
-    details?: Markdown[]
-  ) {
-    if (this.pendingTransactions.has(tabId)) {
-      throw new Error(`Pending transaction from tabID '${tabId}' already exists.`)
-    }
-
-    log("Adding pending transaction from tabId %s", tabId)
-    this.pendingTransactions.set(tabId, {
-      transaction: {
-        message,
-        signers,
-        tabId,
-        details
-      },
-      resolve,
-      reject
-    })
-  }
-
-  removePendingTransaction(tabId: string) {
-    const result = this.pendingTransactions.get(tabId)
-    if (!result) {
-      return
-    }
-    this.pendingTransactions.delete(tabId)
-  }
-
   addAuthorizedOrigin(origin: string) {
     this.authorizedOrigins = [...this.authorizedOrigins, origin]
     log("Authorized this origin %s", origin)
@@ -334,17 +206,6 @@ export class Store {
 
     log("origin need to be authorize", origin)
     return false
-  }
-
-  _getTokens(network: Network): Token[] {
-    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
-    const networkMints = this.tokens[network.endpoint]
-    if (!networkMints) {
-      return []
-    }
-    return Object.keys(networkMints).map((key) => {
-      return networkMints[key]
-    })
   }
 
   addToken(token: Token): boolean {
@@ -456,6 +317,18 @@ export class Store {
       return networkTokens[accountAddress]
     }
     return undefined
+  }
+
+  getSelectedNetworkTokens(): Token[] {
+    const network = this.selectedNetwork
+    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
+    const networkMints = this.tokens[network.endpoint]
+    if (!networkMints) {
+      return []
+    }
+    return Object.keys(networkMints).map((key) => {
+      return networkMints[key]
+    })
   }
 }
 

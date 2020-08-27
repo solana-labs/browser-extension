@@ -13,8 +13,10 @@ import { BackgroundProvider } from "../context/background"
 import { Router } from "react-router-dom"
 import { history } from "../utils/history"
 import { Routes } from "../components/routes/routes"
+import { SplashScreenPage } from "./splash-screen-page"
 
 export const App: React.FC = () => {
+  console.log("App rendering")
   // TODO: add toggle for dark mode
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
   const theme = React.useMemo(
@@ -63,6 +65,7 @@ export const App: React.FC = () => {
   if (window.self !== window.top) {
     return null
   }
+
 
   return (
     <Suspense fallback={<LoadingIndicator />}>

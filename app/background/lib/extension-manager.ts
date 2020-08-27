@@ -43,7 +43,7 @@ export class ExtensionManager {
     }
     // create new notification popup
     const popupWindow = await this.platform.openWindow({
-      url: "index.html",
+      url: "index.html#notification",
       type: "popup",
       width: NOTIFICATION_WIDTH,
       height: NOTIFICATION_HEIGHT,

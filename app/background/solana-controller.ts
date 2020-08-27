@@ -8,12 +8,20 @@ import { PopupController } from "./popup-controller"
 import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex, getMintData } from "../core/utils"
-import { ENVIRONMENT_TYPE_POPUP, Notification, StoredData, Token } from "../core/types"
+import {
+  ENVIRONMENT_TYPE_POPUP,
+  MUX_CONTROLLER_SUBSTREAM,
+  MUX_PROVIDER_SUBSTREAM,
+  Notification,
+  StoredData,
+  Token
+} from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
-import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 import { ProgramPluginManager } from "../core/program-plugin"
 import { Web3Connection } from "../core/connection"
 import { Connection, PublicKey } from "@solana/web3.js"
+import { ActionManager } from "./lib/action-manager"
+import { PopupStateResolver } from "./lib/popup-state-resolver"
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -37,6 +45,8 @@ export default class SolanaController {
   private walletController: WalletController
   private popupController: PopupController
   private extensionManager: ExtensionManager
+  private actionManager: ActionManager
+  private popupState: PopupStateResolver
   private persistData: (data: StoredData) => Promise<boolean>
   private connection: Web3Connection
 
@@ -50,6 +60,8 @@ export default class SolanaController {
     this.store = store
     this.connection = connection
     this.extensionManager = new ExtensionManager()
+    this.actionManager = new ActionManager()
+    this.popupState = new PopupStateResolver(this.store, this.actionManager)
 
     const pluginManager = new ProgramPluginManager({
       getConnection: this.getWeb3Connection.bind(this),
@@ -59,13 +71,16 @@ export default class SolanaController {
     this.walletController = new WalletController({
       store,
       pluginManager,
-      openPopup: this.triggerUi.bind(this),
+      actionManager: this.actionManager,
+      openPopup: this.triggerUi.bind(this)
     })
     this.popupController = new PopupController({
       store,
       connection,
+      popupState: this.popupState,
+      actionManager: this.actionManager,
       notifyAllDomains: this.notifyAllConnections.bind(this),
-      extensionManager: this.extensionManager,
+      extensionManager: this.extensionManager
     })
     this.connections = {}
     this.persistData = persistData
@@ -183,7 +198,7 @@ export default class SolanaController {
     const id = nanoid()
     this.connections[origin][id] = {
       engine,
-      tabId,
+      tabId
     }
     log("Added a new connection for origin: %s with id: %s", origin, id)
     return id
@@ -210,8 +225,7 @@ export default class SolanaController {
         conn.tabId,
         origin
       )
-      this.store.removePendingTransaction(conn.tabId)
-      this.store.removePendingRequestAccounts(origin, conn.tabId)
+      this.actionManager.deleteActionWithOriginAndTabId(origin, conn.tabId)
     }
   }
 
@@ -245,7 +259,7 @@ export default class SolanaController {
 
   async getSPLToken(publicKey: PublicKey): Promise<(Token | undefined)> {
     log("Retrieving SPL token at mint address %s", publicKey.toBase58())
-    const token = this.store.getToken(this.connection.network,publicKey.toBase58())
+    const token = this.store.getToken(this.connection.network, publicKey.toBase58())
     if (token) {
       return token
     }
@@ -257,9 +271,9 @@ export default class SolanaController {
         mintAddress: mintData.mintAddress,
         name: "",
         symbol: "",
-        decimals: mintData.decimals,
+        decimals: mintData.decimals
       }
-    }catch (e) {
+    } catch (e) {
       log(
         "Could not retrieve 'mint' account %s information: %s",
         publicKey.toBase58(),
@@ -279,7 +293,7 @@ export default class SolanaController {
       log("notifying popup")
       this.notifyConnections(ENVIRONMENT_TYPE_POPUP, {
         type: "popupStateChanged",
-        data: this.store.getState(),
+        data: this.popupState.get()
       })
     }
     await this.extensionManager.showPopup(notify)
@@ -305,9 +319,10 @@ export default class SolanaController {
       tokens: this.store.tokens
     } as StoredData)
   }
+
   monitor() {
     const that = this
-    setTimeout(function () {
+    setTimeout(function() {
       log("bg: dumping connections")
       Object.keys(that.connections).forEach((origin) => {
         Object.keys(that.connections[origin]).forEach((connId) => {

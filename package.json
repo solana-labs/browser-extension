@@ -35,7 +35,9 @@
     "react-markdown": "^4.3.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.1",
-    "tweetnacl": "^1.0.3"
+    "shortid": "^2.2.15",
+    "tweetnacl": "^1.0.3",
+    "uuid": "^8.3.0"
   },
   "scripts": {
     "clean": "rm -rf build/ dist/",
@@ -73,6 +75,7 @@
     "@types/react-router-dom": "^5.1.5",
     "@types/redux-logger": "^3.0.8",
     "@types/theme-ui": "^0.3.6",
+    "@types/uuid": "^8.3.0",
     "babel-plugin-emotion": "^10.0.33",
     "mini-css-extract-plugin": "^0.9.0",
     "prettier": "^2.0.5",

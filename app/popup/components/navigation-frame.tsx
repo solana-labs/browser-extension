@@ -44,11 +44,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-export const NavigationFrame: React.FC = ({ children }) => {
+export const NavigationFrame: React.FC = () => {
   const classes = useStyles()
   const history = useHistory()
   const callAsync = useCallAsync()
-  const { request, popupState, changeNetwork, changeAccount } = useBackground()
+  const { request, popupState, changeNetwork, changeAccount, isNotification } = useBackground()
   const account = popupState?.selectedAccount || ""
 
   const handleSelectAccount = (account: string) => {
@@ -79,25 +79,25 @@ export const NavigationFrame: React.FC = ({ children }) => {
           <Typography variant="h5" className={classes.title} component="h1">
             Solana Wallet
           </Typography>
-          {popupState && popupState.walletState === "unlocked" && (
+          {!isNotification && popupState && popupState.walletState === "unlocked" && (
             <NetworkSelector
               availableNetworks={popupState.availableNetworks}
               selectedNetwork={popupState.selectedNetwork}
               changeNetwork={changeNetwork}
             />
           )}
-          <WalletSelector
+          { !isNotification && <WalletSelector
             accounts={popupState?.accounts || []}
             addAccount={handleCreateAccount}
             selectedAccount={account || ""}
             selectAccount={handleSelectAccount}
-          />
-          {popupState && popupState.walletState === "unlocked" && (
+          />}
+
+          {!isNotification && popupState && popupState.walletState === "unlocked" && (
             <MenuSelector onLogout={handleLogout} />
           )}
         </Toolbar>
       </AppBar>
-      <main className={classes.content}>{children}</main>
     </>
   )
 }
