@@ -10,7 +10,6 @@ const ConnectionContext = React.createContext<ConnectionContextType>(null!)
 
 export function ConnectionProvider(props: React.PropsWithChildren<{}>) {
   const { popupState } = useBackground()
-
   const endpoint = popupState?.selectedNetwork.endpoint ?? ""
   const connection = useMemo<Connection>(() => new Connection(endpoint, "single"), [endpoint])
 

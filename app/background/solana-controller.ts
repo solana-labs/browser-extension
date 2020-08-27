@@ -1,4 +1,4 @@
-import { Store } from "./store"
+import { Store, TokenProvider } from "./store"
 import pump from "pump"
 import createLoggerMiddleware from "./lib/createLoggerMiddleware"
 import createOriginMiddleware from "./lib/createOriginMiddleware"
@@ -8,7 +8,7 @@ import { PopupController } from "./popup-controller"
 import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex, getMintData } from "../core/utils"
-import { ENVIRONMENT_TYPE_POPUP, Notification, StoredData, Token } from "../core/types"
+import { ENVIRONMENT_TYPE_POPUP, Network, Notification, StoredData, Token } from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
 import { MUX_CONTROLLER_SUBSTREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
 import { ProgramPluginManager } from "../core/program-plugin"
@@ -46,14 +46,15 @@ export default class SolanaController {
     const store = new Store(storedData)
     const connection = new Web3Connection(store.selectedNetwork)
 
-
     this.store = store
     this.connection = connection
     this.extensionManager = new ExtensionManager()
 
     const pluginManager = new ProgramPluginManager({
       getConnection: this.getWeb3Connection.bind(this),
-      getSPLToken: this.getSPLToken.bind(this)
+      getNetwork: this.getNetwork.bind(this),
+      getSPLToken: getSPLToken,
+      tokenProvider: this.store.tokenProvider,
     })
 
     this.walletController = new WalletController({
@@ -243,35 +244,11 @@ export default class SolanaController {
     })
   }
 
-  async getSPLToken(publicKey: PublicKey): Promise<(Token | undefined)> {
-    log("Retrieving SPL token at mint address %s", publicKey.toBase58())
-    const token = this.store.getToken(this.connection.network,publicKey.toBase58())
-    if (token) {
-      return token
-    }
-
-    log("SPL token at mint address %s not in cache... retrieving mint data", publicKey.toBase58())
-    try {
-      const mintData = await getMintData(this.connection.conn, publicKey)
-      return {
-        mintAddress: mintData.mintAddress,
-        name: "",
-        symbol: "",
-        decimals: mintData.decimals,
-      }
-    }catch (e) {
-      log(
-        "Could not retrieve 'mint' account %s information: %s",
-        publicKey.toBase58(),
-        e
-      )
-      return undefined
-    }
-
-  }
-
   getWeb3Connection(): Connection {
     return this.connection.conn
+  }
+  getNetwork(): Network {
+    return this.connection.network
   }
 
   async triggerUi() {
@@ -302,7 +279,7 @@ export default class SolanaController {
       selectedNetwork: this.store.selectedNetwork,
       selectedAccount: this.store.selectedAccount,
       authorizedOrigins: this.store.authorizedOrigins,
-      tokens: this.store.tokens
+      tokens: this.store.tokens,
     } as StoredData)
   }
   monitor() {
@@ -318,6 +295,32 @@ export default class SolanaController {
   }
 }
 
+export const getSPLToken = async (
+  publicKey: PublicKey,
+  connection: Connection,
+  network: Network,
+  tokenProvider: TokenProvider
+): Promise<Token | undefined> => {
+  log("Retrieving SPL token at mint address %s", publicKey.toBase58())
+  const token = tokenProvider.getToken(network, publicKey.toBase58())
+  if (token) {
+    return token
+  }
+
+  log("SPL token at mint address %s not in cache... retrieving mint data", publicKey.toBase58())
+  try {
+    const mintData = await getMintData(connection, publicKey)
+    return {
+      mintAddress: mintData.mintAddress,
+      name: "",
+      symbol: "",
+      decimals: mintData.decimals,
+    }
+  } catch (e) {
+    log("Could not retrieve 'mint' account %s information: %s", publicKey.toBase58(), e)
+    return undefined
+  }
+}
 /**
  * Sets up stream multiplexing for the given stream
  * @param {any} connectionStream - the stream to mux

@@ -7,7 +7,9 @@ import {
   AVAILABLE_NETWORKS,
   DEFAULT_NETWORK,
   Markdown,
+  MindAddressTokens,
   Network,
+  NetworkTokens,
   PendingRequestAccounts,
   PendingSignTransaction,
   PopupState,
@@ -15,7 +17,7 @@ import {
   SecretBox,
   SignTransactionResp,
   StoredData,
-  Token
+  Token,
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -45,7 +47,8 @@ export class Store {
   public selectedNetwork: Network
   public selectedAccount: string
   public authorizedOrigins: string[]
-  public tokens: { [network: string]: { [mintAddress: string]: Token } }
+  public tokens: NetworkTokens
+  public tokenProvider: TokenProvider
 
   constructor(initialStore: StoredData) {
     const {
@@ -54,7 +57,7 @@ export class Store {
       selectedNetwork,
       selectedAccount,
       authorizedOrigins,
-      tokens
+      tokens,
     } = initialStore
     this.popIsOpen = false
 
@@ -72,7 +75,8 @@ export class Store {
     }
     this.authorizedOrigins = authorizedOrigins || []
     console.log("setting up tokens: ", tokens)
-    this.tokens = tokens ?? {}
+    this.tokens = tokens || {}
+    this.tokenProvider = new TokenProvider(this.tokens)
   }
 
   isLocked(): boolean {
@@ -99,7 +103,7 @@ export class Store {
       pendingTransactions: [],
       pendingRequestAccounts: [],
       authorizedOrigins: [],
-      tokens: this._getTokens(this.selectedNetwork)
+      tokensProvider: this.tokenProvider,
     }
     log("popup state: %O", state)
     if (this.secretBox) {
@@ -117,19 +121,19 @@ export class Store {
         {
           tabId: key,
           message: value.transaction.message,
-          details: value.transaction.details
-        } as PendingSignTransaction
+          details: value.transaction.details,
+        } as PendingSignTransaction,
       ]
     })
 
     this.pendingRequestAccounts.forEach((originRequest, origin, map) => {
-      Object.keys(originRequest).forEach(function(tabId) {
+      Object.keys(originRequest).forEach(function (tabId) {
         state.pendingRequestAccounts = [
           ...state.pendingRequestAccounts,
           {
             tabId: tabId,
-            origin: origin
-          } as PendingRequestAccounts
+            origin: origin,
+          } as PendingRequestAccounts,
         ]
       })
     })
@@ -157,7 +161,7 @@ export class Store {
       nonce: encodedNonce,
       salt: encodedSalt,
       iterations,
-      digest
+      digest,
     } = this.secretBox
 
     const encrypted = bs58.decode(encodedEncrypted)
@@ -199,7 +203,7 @@ export class Store {
           kdf,
           salt: bs58.encode(salt),
           iterations,
-          digest
+          digest,
         } as SecretBox
         this.wallet = Wallet.NewWallet(seed, 1)
         this.selectedAccount = this.wallet.accounts[0].publicKey.toBase58()
@@ -235,7 +239,7 @@ export class Store {
     const pendingRequestAccount: StorePendingRequestAccount = {
       request: { origin, tabId },
       resolve,
-      reject
+      reject,
     }
 
     let originTabs = this.pendingRequestAccounts.get(origin)
@@ -298,10 +302,10 @@ export class Store {
         message,
         signers,
         tabId,
-        details
+        details,
       },
       resolve,
-      reject
+      reject,
     })
   }
 
@@ -319,7 +323,7 @@ export class Store {
   }
 
   removeAuthorizedOrigin(originToRemove: string) {
-    this.authorizedOrigins = this.authorizedOrigins.filter(function(origin) {
+    this.authorizedOrigins = this.authorizedOrigins.filter(function (origin) {
       return origin !== originToRemove
     })
   }
@@ -334,17 +338,6 @@ export class Store {
 
     log("origin need to be authorize", origin)
     return false
-  }
-
-  _getTokens(network: Network): Token[] {
-    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
-    const networkMints = this.tokens[network.endpoint]
-    if (!networkMints) {
-      return []
-    }
-    return Object.keys(networkMints).map((key) => {
-      return networkMints[key]
-    })
   }
 
   addToken(token: Token): boolean {
@@ -376,6 +369,7 @@ export class Store {
     }
 
     networkTokens[token.mintAddress] = token
+    this.tokenProvider.tokens = this.tokens
     return true
   }
 
@@ -447,15 +441,8 @@ export class Store {
     }
 
     delete networkTokens[publicKey]
+    this.tokenProvider.tokens = this.tokens
     return true
-  }
-
-  getToken(network: Network, accountAddress: string): Token | undefined {
-    const networkTokens = this.tokens[network.endpoint]
-    if (networkTokens) {
-      return networkTokens[accountAddress]
-    }
-    return undefined
   }
 }
 
@@ -470,4 +457,30 @@ const deriveEncryptionKey = async (
       err ? reject(err) : resolve(key)
     )
   )
+}
+
+export class TokenProvider {
+  public tokens: NetworkTokens
+
+  constructor(tokens: NetworkTokens) {
+    this.tokens = tokens
+  }
+
+  getNetworkTokens(network: Network): MindAddressTokens {
+    log("getting tokens for %s, from : %O", network.endpoint, this.tokens)
+    const networkTokens = this.tokens[network.endpoint]
+    if (!networkTokens) {
+      return {}
+    }
+
+    return networkTokens
+  }
+
+  getToken(network: Network, mintAddress: string): Token | undefined {
+    const networkTokens = this.tokens[network.endpoint]
+    if (networkTokens) {
+      return networkTokens[mintAddress]
+    }
+    return undefined
+  }
 }

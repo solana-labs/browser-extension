@@ -31,10 +31,8 @@ SPL_LAYOUT.addVariant(3, BufferLayout.struct([BufferLayout.nu64("amount")]), "tr
 SPL_LAYOUT.addVariant(7, BufferLayout.struct([BufferLayout.nu64("amount")]), "mintTo")
 SPL_LAYOUT.addVariant(8, BufferLayout.struct([BufferLayout.nu64("amount")]), "burn")
 
-export class SplPlugin implements ProgramPlugin{
-
-  constructor() {
-  }
+export class SplPlugin implements ProgramPlugin {
+  constructor() {}
 
   decode(instruction: TransactionInstruction): DecodedInstruction {
     log("Decoding spl transaction")
@@ -57,19 +55,22 @@ export class SplPlugin implements ProgramPlugin{
             from: instruction.keys[0].pubkey.toBase58(),
             to: instruction.keys[1].pubkey.toBase58(),
             owner: instruction.keys[2].pubkey.toBase58(),
-          }
-        }}
+          },
+        }
+    }
 
     throw new DecoderError(`SPL instruction of type ${instructionType} is not supported`)
   }
 
-  async decorate(decodedInstruction: DecodedInstruction, context: PluginContext): Promise<DecodedInstruction> {
+  async decorate(
+    decodedInstruction: DecodedInstruction,
+    context: PluginContext
+  ): Promise<DecodedInstruction> {
     const { instruction } = decodedInstruction
     const conn = context.getConnection()
 
     switch (decodedInstruction.instructionType) {
       case "transfer":
-
         const fromPubKey = instruction.keys[0].pubkey
         const fromAccount = await conn.getAccountInfo(fromPubKey)
         if (!fromAccount) {
@@ -82,7 +83,12 @@ export class SplPlugin implements ProgramPlugin{
 
         const mintPubKey = this._getMintAccount(fromAccount.data)
         // check in local cache for mint information
-        let mint = context.getSPLToken(mintPubKey)
+        let mint = context.getSPLToken(
+          mintPubKey,
+          context.getConnection(),
+          context.getNetwork(),
+          context.tokenProvider
+        )
         if (!mint) {
           throw new Error(`Could not retrieve 'mint' account ${mintPubKey.toBase58()}`)
         }
@@ -95,18 +101,24 @@ export class SplPlugin implements ProgramPlugin{
     return decodedInstruction
   }
 
-
   getMarkdown(decodedInstruction: DecodedInstruction): Markdown {
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
         return {
           type: "markdown",
-          content: `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}</p>`
+          content: `<p>Transfer of '${this._formatAmount(
+            decodedInstruction.properties.amount,
+            mintDecimals
+          )} ${decodedInstruction.properties.mint.symbol}' from ${
+            decodedInstruction.properties.from
+          } to ${decodedInstruction.properties.to}</p>`,
         }
     }
 
-    throw new Error(`Markdown render does not support instruction of type ${decodedInstruction.instructionType}`)
+    throw new Error(
+      `Markdown render does not support instruction of type ${decodedInstruction.instructionType}`
+    )
   }
 
   getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
@@ -115,21 +127,26 @@ export class SplPlugin implements ProgramPlugin{
         const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
         return {
           type: "ricardian",
-          content: `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, mintDecimals)} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+          content: `Transfer of '${this._formatAmount(
+            decodedInstruction.properties.amount,
+            mintDecimals
+          )} ${decodedInstruction.properties.mint.symbol}' from ${
+            decodedInstruction.properties.from
+          } to ${decodedInstruction.properties.to}`,
         }
     }
 
-    throw new Error(`Ricardian render does not support instruction of type ${decodedInstruction.instructionType} is not supported`)
+    throw new Error(
+      `Ricardian render does not support instruction of type ${decodedInstruction.instructionType} is not supported`
+    )
   }
 
   _formatAmount(amount: number, decimal: number): string {
     return `${amount / Math.pow(10, decimal)}`
   }
 
-
   _getMintAccount(data: Buffer): PublicKey {
     let { mint } = ACCOUNT_LAYOUT.decode(data)
     return new PublicKey(mint)
   }
-
 }

@@ -9,6 +9,7 @@ import { BalanceInfo, OwnedAccount } from "../types"
 import { tuple } from "immutable-tuple"
 import { useBackground } from "../context/background"
 import { Buffer } from "buffer"
+import { useTokensProvider } from "../context/token"
 
 const log = require("debug")("sol:hooks")
 
@@ -167,12 +168,19 @@ export const useTokenName = (
   mintPubKey: PublicKey | null
 ): { name: string | undefined; symbol: string | undefined } => {
   const { popupState } = useBackground()
+  const tokensProvider = useTokensProvider()
 
   if (!mintPubKey) {
     return { name: undefined, symbol: undefined }
   }
 
-  let match = popupState?.tokens.find((token) => token.mintAddress === mintPubKey.toBase58())
+  if (!popupState || !tokensProvider) {
+    return { name: undefined, symbol: undefined }
+  }
+
+  log("about to utilise token provider: %O", popupState.tokensProvider)
+  let match = tokensProvider.getToken(popupState.selectedNetwork, mintPubKey.toBase58())
+
   if (match) {
     return { name: match.name, symbol: match.symbol }
   }

@@ -13,6 +13,8 @@ import { BackgroundProvider } from "../context/background"
 import { Router } from "react-router-dom"
 import { history } from "../utils/history"
 import { Routes } from "../components/routes/routes"
+import { ProgramPluginsManagerProvider } from "../context/plugins"
+import { TokensProviderProvider } from "../context/token"
 
 export const App: React.FC = () => {
   // TODO: add toggle for dark mode
@@ -70,20 +72,24 @@ export const App: React.FC = () => {
         <CssBaseline />
         <BackgroundProvider>
           <ConnectionProvider>
-            <SnackbarProvider
-              maxSnack={5}
-              autoHideDuration={8000}
-              classes={{
-                variantSuccess: classes.success,
-                variantError: classes.error,
-                variantWarning: classes.warning,
-                variantInfo: classes.info,
-              }}
-            >
-              <Router history={history}>
-                <Routes />
-              </Router>
-            </SnackbarProvider>
+            <TokensProviderProvider>
+              <ProgramPluginsManagerProvider>
+                <SnackbarProvider
+                  maxSnack={5}
+                  autoHideDuration={8000}
+                  classes={{
+                    variantSuccess: classes.success,
+                    variantError: classes.error,
+                    variantWarning: classes.warning,
+                    variantInfo: classes.info,
+                  }}
+                >
+                  <Router history={history}>
+                    <Routes />
+                  </Router>
+                </SnackbarProvider>
+              </ProgramPluginsManagerProvider>
+            </TokensProviderProvider>
           </ConnectionProvider>
         </BackgroundProvider>
       </ThemeProvider>

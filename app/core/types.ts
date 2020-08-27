@@ -1,4 +1,5 @@
 import { clusterApiUrl, Cluster, TransactionInstruction } from "@solana/web3.js"
+import { TokenProvider } from "../background/store"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -43,13 +44,16 @@ export type VersionedData = {
   data: StoredData
 }
 
+export type MindAddressTokens = { [mintAddress: string]: Token }
+export type NetworkTokens = { [network: string]: MindAddressTokens }
+
 export type StoredData = {
   secretBox: SecretBox | undefined
   accountCount: number
   selectedNetwork: Network
   selectedAccount: string
   authorizedOrigins: string[]
-  tokens: { [network: string]: { [mintAddress: string]: Token } }
+  tokens: NetworkTokens
 }
 
 export type WalletState = {
@@ -65,7 +69,7 @@ export type PopupState = {
   pendingTransactions: PendingSignTransaction[]
   pendingRequestAccounts: PendingRequestAccounts[]
   authorizedOrigins: string[]
-  tokens: Token[]
+  tokensProvider: TokenProvider
 }
 
 export type WallActions =
@@ -105,17 +109,17 @@ export type PendingSignTransaction = {
 export type Ricardian = {
   type: "ricardian"
   content: string
-};
+}
 
 export type Markdown = {
   type: "markdown"
   content: string
-};
+}
 
 export type DecodedInstruction = {
   instruction: TransactionInstruction
   instructionType: string
-  properties: {[key: string]: any}
+  properties: { [key: string]: any }
 }
 
 export type Token = {
