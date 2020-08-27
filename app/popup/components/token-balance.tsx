@@ -13,19 +13,33 @@ interface TokenBalanceProp {
 
 const balanceFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 4,
-  maximumFractionDigits: 4,
+  maximumFractionDigits: 10,
   useGrouping: true,
 })
+
+export const amountToSolDecimalString = (amount: number | bigint) => {
+  return amountToDecimalString(amount, 10)
+}
+
+export const amountToDecimalString = (amount: number | bigint, decimals: number) => {
+  let stringAmount = ""
+  if (typeof amount == "number") {
+    stringAmount = "" + amount / Math.pow(10, decimals)
+  } else {
+    stringAmount = "" + amount / BigInt(Math.pow(10, decimals))
+  }
+  return balanceFormat.format(parseFloat(stringAmount))
+}
 
 export const TokenBalance: React.FC<TokenBalanceProp> = ({ publicKey, balanceInfo }) => {
   if (!balanceInfo) {
     return <LoadingIndicator delay={0} />
   }
   let { amount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
-  let balance = "" + amount / BigInt(Math.pow(10, decimals)) //todo: get decimal from know token
+
   return (
     <div>
-      {balanceFormat.format(parseFloat(balance))} {tokenSymbol ?? (mint && abbreviateAddress(mint))}
+      {amountToDecimalString(amount, decimals)} {tokenSymbol ?? (mint && abbreviateAddress(mint))}
     </div>
   )
 }

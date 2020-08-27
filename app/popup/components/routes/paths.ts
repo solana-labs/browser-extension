@@ -9,6 +9,7 @@ export const Paths = {
   accountDetail: "/accounts/:accountAddress/:signerAddress",
   accounts: "/accounts",
   lockWallet: "/lock-wallet",
+  transactionDetail: "/transaction/:transactionID/:accountAddress/:signerAddress",
 }
 
 export const Links = {
@@ -19,4 +20,5 @@ export const Links = {
   tokens: compile(Paths.tokens),
   accounts: compile(Paths.accounts),
   accountDetail: compile(Paths.accountDetail),
+  transactionDetail: compile(Paths.transactionDetail),
 }

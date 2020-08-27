@@ -12,6 +12,7 @@ import { LoginPage } from "../../pages/login-page"
 import { WalletPage } from "../../pages/wallet-page"
 import { TestPage } from "../../pages/test-page"
 import { AccountDetail } from "../../pages/account-detail"
+import { TransactionDetail } from "../../pages/transaction-detail"
 
 const RoutesBase: React.FC = () => {
   const { popupState } = useBackground()
@@ -24,6 +25,7 @@ const RoutesBase: React.FC = () => {
     [Paths.tokens]: TokensPage,
     [Paths.accounts]: WalletPage,
     [Paths.accountDetail]: AccountDetail,
+    [Paths.transactionDetail]: TransactionDetail,
   }
   const secureRoute = (key: string, props: RouteProps) => {
     const Component = props.component as React.ComponentType<any>

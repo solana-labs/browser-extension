@@ -98,7 +98,7 @@ const AccountDetailBase: React.FC = () => {
               </Toolbar>
             </AppBar>
             <div className={classes.itemDetails}>
-              <Typography align="center" className={classes.accountAddress}>
+              <Typography align="center" className={classes.accountAddress} noWrap={true}>
                 {accountAddress}
               </Typography>
 
@@ -139,7 +139,7 @@ const AccountDetailBase: React.FC = () => {
             <Typography variant="h6" align="center">
               Transaction list
             </Typography>
-            <TransactionList accountKey={publicKey} />
+            <TransactionList accountKey={publicKey} signerKey={signerKey} />
 
             {balanceInfo && signerKey == publicKey && (
               <SendSolDialog

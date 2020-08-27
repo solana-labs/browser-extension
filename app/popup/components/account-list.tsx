@@ -150,7 +150,6 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
   const balanceInfo = useBalanceInfo(publicKey, accountInfo)
 
   const accountDetail = (account: PublicKey, signer: PublicKey) => {
-    log("about to push account detail for account: ", account.toBase58())
     history.push(
       Links.accountDetail({ accountAddress: account.toBase58(), signerAddress: signer.toBase58() })
     )
