@@ -91,17 +91,13 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
       key={key}
       {...rest}
       render={(props: RouteComponentProps) => {
-        if (!popupState) {
-          // return <LoadingIndicator/>
-          return <NotificationPage opener={"asdf"}/>
-        }
         switch (popupState.walletState) {
           case "locked":
             return <Redirect to={{ pathname: Paths.login }}/>
           case "uninitialized":
             return <Redirect to={{ pathname: Paths.welcome }}/>
           case "unlocked":
-            console.log("YOU ARE unlocked")
+
             return <Redirect to={{ pathname: Paths.accounts }}/>
         }
       }}

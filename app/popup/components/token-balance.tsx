@@ -5,6 +5,7 @@ import { abbreviateAddress } from "../utils/utils"
 import { makeStyles } from "@material-ui/core/styles"
 import { LoadingIndicator } from "./loading-indicator"
 import { BalanceInfo } from "../types"
+import { formatAmount } from "../utils/format"
 
 interface TokenBalanceProp {
   publicKey: PublicKey
@@ -17,20 +18,6 @@ const balanceFormat = new Intl.NumberFormat(undefined, {
   useGrouping: true,
 })
 
-export const amountToSolDecimalString = (amount: number | bigint) => {
-  return amountToDecimalString(amount, 10)
-}
-
-export const amountToDecimalString = (amount: number | bigint, decimals: number) => {
-  let stringAmount = ""
-  if (typeof amount == "number") {
-    stringAmount = "" + amount / Math.pow(10, decimals)
-  } else {
-    stringAmount = "" + amount / BigInt(Math.pow(10, decimals))
-  }
-  return balanceFormat.format(parseFloat(stringAmount))
-}
-
 export const TokenBalance: React.FC<TokenBalanceProp> = ({ publicKey, balanceInfo }) => {
   if (!balanceInfo) {
     return <LoadingIndicator delay={0} />
@@ -39,7 +26,7 @@ export const TokenBalance: React.FC<TokenBalanceProp> = ({ publicKey, balanceInf
 
   return (
     <div>
-      {amountToDecimalString(amount, decimals)} {tokenSymbol ?? (mint && abbreviateAddress(mint))}
+      {formatAmount(amount, decimals)} {tokenSymbol ?? (mint && abbreviateAddress(mint))}
     </div>
   )
 }

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { useSolanaExplorerUrlSuffix } from "../hooks"
 import Paper from "@material-ui/core/Paper"
-import { ConfirmedTransaction, TransactionInstruction } from "@solana/web3.js"
+import { ConfirmedTransaction } from "@solana/web3.js"
 import { Typography } from "@material-ui/core"
 import { withLayout } from "../components/layout"
 import { useParams } from "react-router"
-import { ArrowBackIos, MoreVert } from "@material-ui/icons"
+import { ArrowBackIos } from "@material-ui/icons"
 import { useHistory } from "react-router-dom"
 import { Links } from "../components/routes/paths"
 import { makeStyles } from "@material-ui/core/styles"
@@ -16,13 +16,13 @@ import Container from "@material-ui/core/Container"
 import Grid from "@material-ui/core/Grid"
 import { useConnection } from "../context/connection"
 import { createLogger } from "../../core/utils"
-import { amountToSolDecimalString, TokenBalance } from "../components/token-balance"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import List from "@material-ui/core/List"
 import { useProgramPluginManager } from "../context/plugins"
 import { Markdown } from "../../core/types"
 import ReactMarkdown from "react-markdown"
+import { formatSolAmount } from "../utils/format"
 
 const log = createLogger("sol:trxDetail")
 
@@ -116,7 +116,7 @@ const TransactionDetailBase: React.FC = () => {
 
             {trx?.meta && (
               <div className={classes.itemDetails}>
-                <Typography>Fee: {amountToSolDecimalString(trx.meta.fee)}</Typography>
+                <Typography>Fee: {formatSolAmount(trx.meta.fee)}</Typography>
                 {/*<Typography>*/}
                 {/*  Balance Pre/ Post: {amountToSolDecimalString(confirmedTransaction.meta.preBalances)}*/}
                 {/*</Typography>*/}
