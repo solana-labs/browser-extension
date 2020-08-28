@@ -3,7 +3,7 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import { useAllAccountsForPublicKey, useBalanceInfo } from "../hooks"
+import { useAllAccountsForPublicKey, useBalanceInfo, useTokenAccountsByOwner } from "../hooks"
 import { Typography } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
@@ -18,29 +18,30 @@ import { MoreVert } from "@material-ui/icons"
 import { Links } from "./routes/paths"
 import { useHistory } from "react-router-dom"
 import { TokenBalance } from "./token-balance"
+import { LoadingIndicator } from "./loading-indicator"
 
 const log = createLogger("sol:balancelist")
 
 const useStyles = makeStyles((theme) => ({
   address: {
     textOverflow: "ellipsis",
-    overflowX: "hidden"
+    overflowX: "hidden",
   },
   publicKey: {
     // marginLeft: theme.spacing(1),
   },
   network: {
-    marginLeft: theme.spacing(2)
+    marginLeft: theme.spacing(2),
   },
   externalAccount: {
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
   },
   derivedAccount: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
   },
   detailButton: {
-    margin: theme.spacing(1)
-  }
+    margin: theme.spacing(1),
+  },
 }))
 
 interface AccountListProp {
@@ -52,7 +53,8 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
   const { popupState } = useBackground()
 
   const publicKey = new PublicKey(account)
-  const ownedAccounts = useAllAccountsForPublicKey(publicKey)
+  const externallyOwnedAccounts = useAllAccountsForPublicKey(publicKey)
+  const otherAccounts = useTokenAccountsByOwner(publicKey)
 
   return (
     <Paper>
@@ -74,21 +76,38 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
               }}
               style={{ marginRight: -12 }}
             >
-              <RefreshIcon/>
+              <RefreshIcon />
             </IconButton>
           </Tooltip>
         </Toolbar>
       </AppBar>
-      <List disablePadding>
-        {ownedAccounts.map((ownedAccount) => (
-          <AccountListItem
-            key={ownedAccount.publicKey.toBase58()}
-            publicKey={ownedAccount.publicKey}
-            signer={ownedAccounts[0].publicKey}
-            accountInfo={ownedAccount.accountInfo}
-          />
-        ))}
-      </List>
+
+      {externallyOwnedAccounts.length == 0 && <LoadingIndicator />}
+      {externallyOwnedAccounts.length > 0 && (
+        <List disablePadding>
+          {externallyOwnedAccounts.map((account) => (
+            <AccountListItem
+              key={account.publicKey.toBase58()}
+              publicKey={account.publicKey}
+              signer={account.publicKey}
+              accountInfo={account.accountInfo}
+            />
+          ))}
+        </List>
+      )}
+      {externallyOwnedAccounts.length == 0 && <LoadingIndicator />}
+      {externallyOwnedAccounts.length > 0 && (
+        <List disablePadding>
+          {externallyOwnedAccounts.map((ownedAccount) => (
+            <AccountListItem
+              key={ownedAccount.publicKey.toBase58()}
+              publicKey={ownedAccount.publicKey}
+              signer={externallyOwnedAccounts[0].publicKey}
+              accountInfo={ownedAccount.accountInfo}
+            />
+          ))}
+        </List>
+      )}
     </Paper>
   )
 }
@@ -117,7 +136,7 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
         divider={signer == publicKey}
       >
         <ListItemText
-          primary={<TokenBalance publicKey={publicKey} balanceInfo={balanceInfo}/>}
+          primary={<TokenBalance publicKey={publicKey} balanceInfo={balanceInfo} />}
           secondary={
             <React.Fragment>
               <Typography
@@ -138,7 +157,7 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
           className={classes.detailButton}
           onClick={() => accountDetail(publicKey, signer)}
         >
-          <MoreVert/>
+          <MoreVert />
         </IconButton>
       </ListItem>
     </>

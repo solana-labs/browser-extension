@@ -27,15 +27,14 @@ export const refreshAccountsPublicKeys = (publicKey: PublicKey) => {
 
 export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
   const [externalAccountInfo, externalAccountInfoLoaded] = useAccountInfo(publicKey)
-  const storagedAcountInfo = useTokenAccountsByOwner(publicKey)
 
   let out: OwnedAccount<Buffer>[] = []
   if (externalAccountInfoLoaded && externalAccountInfo) {
     out = [
       {
         publicKey: publicKey,
-        accountInfo: externalAccountInfo
-      } as OwnedAccount<Buffer>
+        accountInfo: externalAccountInfo,
+      } as OwnedAccount<Buffer>,
     ]
   } else if (externalAccountInfoLoaded && !externalAccountInfo) {
     // lets create a place holder account
@@ -45,16 +44,11 @@ export const useAllAccountsForPublicKey = (publicKey: PublicKey): OwnedAccount<B
         accountInfo: {
           executable: false,
           owner: publicKey,
-          lamports: 0
-        }
-      } as OwnedAccount<Buffer>
+          lamports: 0,
+        },
+      } as OwnedAccount<Buffer>,
     ]
   }
-
-  if (storagedAcountInfo.length > 0) {
-    out = [...out, ...storagedAcountInfo]
-  }
-
   return out
 }
 
@@ -80,7 +74,7 @@ export const useBalanceInfo = (
       tokenName: name,
       tokenSymbol: symbol,
       initialized: true,
-      lamports: BigInt(accountInfo.lamports ?? 0)
+      lamports: BigInt(accountInfo.lamports ?? 0),
     }
   } else if (accountInfo && !mint) {
     return {
@@ -91,7 +85,7 @@ export const useBalanceInfo = (
       tokenName: "",
       tokenSymbol: "SOL",
       initialized: false,
-      lamports: BigInt(accountInfo.lamports ?? 0)
+      lamports: BigInt(accountInfo.lamports ?? 0),
     }
   } else {
     return null
@@ -104,25 +98,27 @@ export const useAccountInfo = (
   const { connection } = useConnection()
   const cacheKey = tuple(connection, "accountInfo", publicKey?.toBase58())
 
-  const [accountInfo, loaded] = useAsyncData<AccountInfo<Buffer> | null>(async () => {
-    if (!publicKey) {
-      return null
-    }
-    log("getting account info: %s", publicKey?.toBase58())
-    try {
-      const resp = connection.getAccountInfo(publicKey)
-      log("received account information by owner %s: %O", publicKey.toBase58(), resp)
-      return resp
-    } catch (e) {
-      log("error retrieving accounts information %s: %s", publicKey.toBase58(), e)
-      return null
-    }
-  }, { key: cacheKey, description: `accountInfo:${publicKey?.toBase58()}` })
+  const [accountInfo, loaded] = useAsyncData<AccountInfo<Buffer> | null>(
+    async () => {
+      if (!publicKey) {
+        return null
+      }
+      log("getting account info: %s", publicKey?.toBase58())
+      try {
+        const resp = connection.getAccountInfo(publicKey)
+        log("received account information by owner %s: %O", publicKey.toBase58(), resp)
+        return resp
+      } catch (e) {
+        log("error retrieving accounts information %s: %s", publicKey.toBase58(), e)
+        return null
+      }
+    },
+    { key: cacheKey, description: `accountInfo:${publicKey?.toBase58()}` }
+  )
 
   useEffect(() => {
     if (!publicKey) {
-      return () => {
-      }
+      return () => {}
     }
     const id = connection.onAccountChange(publicKey, () => refreshCache(cacheKey))
     return () => connection.removeAccountChangeListener(id)
@@ -136,19 +132,26 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
   const { connection } = useConnection()
   const cacheKey = tuple(connection, "ownedAccount", publicKey.toBase58())
 
-
-  const [fetchedAccounts, loaded] = useAsyncData<Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>>(() => {
-    log("getting get token account by owner %s", publicKey.toBase58())
-    return connection.getTokenAccountsByOwner(publicKey, {
-      programId: TOKEN_PROGRAM_ID
-    }).then(data => {
-      log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
-      return data.value
-    }).catch(err => {
-      log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
-      return []
-    })
-  }, { key: cacheKey, description: `ownedAccount:${publicKey.toBase58()}` })
+  const [fetchedAccounts, loaded] = useAsyncData<
+    Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>
+  >(
+    () => {
+      log("getting get token account by owner %s", publicKey.toBase58())
+      return connection
+        .getTokenAccountsByOwner(publicKey, {
+          programId: TOKEN_PROGRAM_ID,
+        })
+        .then((data) => {
+          log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
+          return data.value
+        })
+        .catch((err) => {
+          log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
+          return []
+        })
+    },
+    { key: cacheKey, description: `ownedAccount:${publicKey.toBase58()}` }
+  )
 
   if (!loaded) {
     return []
@@ -156,7 +159,7 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
   return fetchedAccounts.map((a) => {
     return {
       publicKey: a.pubkey,
-      accountInfo: a.account
+      accountInfo: a.account,
     } as OwnedAccount<Buffer>
   })
 }
