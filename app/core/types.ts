@@ -17,8 +17,8 @@ export const DEFAULT_NETWORK: Network = {
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", cluster: "mainnet-beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet") },
-  { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") },
-  // { title: "Break", cluster: "testnet", endpoint: "https://break-api.testnet.solana.com" },
+  // { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") },
+  { title: "Break", cluster: "testnet", endpoint: "https://break-api.testnet.solana.com" },
 ]
 export type RequestAccountsResp = {
   accounts: string[]
@@ -68,15 +68,14 @@ export type PopupState = {
   tokens: MintAddressTokens
 }
 
-
 export type ActionKey = {
-  tabId: string,
-  origin: string,
-  uuid: string,
+  tabId: string
+  origin: string
+  uuid: string
 }
 
-export type OrderedAction = { key: ActionKey, action: Action }
-export type Action  = ActionSignTransaction | ActionRequestAccounts
+export type OrderedAction = { key: ActionKey; action: Action }
+export type Action = ActionSignTransaction | ActionRequestAccounts
 
 export type ActionRequestAccounts = BaseAction<RequestAccountsResp> & {
   type: "request_accounts"
@@ -85,7 +84,7 @@ export type ActionRequestAccounts = BaseAction<RequestAccountsResp> & {
   origin: string
 }
 
-export type ActionSignTransaction  = BaseAction<SignTransactionResp> & {
+export type ActionSignTransaction = BaseAction<SignTransactionResp> & {
   type: "sign_transaction"
   // action payload
   message: string
@@ -97,7 +96,6 @@ export type ActionSignTransaction  = BaseAction<SignTransactionResp> & {
 export type BaseAction<T> = {
   resolve: (resp: T) => void
   reject: any
-
 }
 export type WallActions =
   | "wallet_requestPermissions"

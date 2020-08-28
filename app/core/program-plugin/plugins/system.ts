@@ -3,16 +3,17 @@ import { createLogger } from "../../utils"
 import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { DecoderError } from "../common"
 import { PluginContext, ProgramPlugin } from "../types"
+import { amountToSolDecimalString } from "../../../popup/components/token-balance"
 const log = createLogger("sol:decoder:sol")
 
 export class SolanaPlugin implements ProgramPlugin {
-
   decode(instruction: TransactionInstruction): DecodedInstruction {
     log("Decoding solana system program transaction")
     const instructionType = SystemInstruction.decodeInstructionType(instruction)
     switch (instructionType) {
       case "Transfer":
         let params = SystemInstruction.decodeTransfer(instruction)
+        log("Decoded Transfer: %s", instructionType)
         return {
           instruction: instruction,
           instructionType: instructionType,
@@ -20,7 +21,7 @@ export class SolanaPlugin implements ProgramPlugin {
             from: params.fromPubkey.toBase58(),
             to: params.toPubkey.toBase58(),
             amount: params.lamports,
-          }
+          },
         }
       case "Create":
         let crParam = SystemInstruction.decodeCreateAccount(instruction)
@@ -34,14 +35,17 @@ export class SolanaPlugin implements ProgramPlugin {
             lamports: crParam.lamports,
             space: crParam.space,
             programId: crParam.programId.toBase58(),
-          }
+          },
         }
     }
 
     throw new DecoderError(`System instruction of type ${instructionType} is not supported`)
   }
 
-  async decorate(decodedInstruction: DecodedInstruction, context: PluginContext): Promise<DecodedInstruction> {
+  async decorate(
+    decodedInstruction: DecodedInstruction,
+    context: PluginContext
+  ): Promise<DecodedInstruction> {
     log(`System instruction of type %s is not decorated`, decodedInstruction.instructionType)
     return decodedInstruction
   }
@@ -50,18 +54,23 @@ export class SolanaPlugin implements ProgramPlugin {
     let content: string | undefined = undefined
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        content = `<p>Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from **${decodedInstruction.properties.from}** to **${decodedInstruction.properties.to}**</p>`
+        const amount = amountToSolDecimalString(decodedInstruction.properties.amount)
+        content = `<p>Transfer: <b>${amount}</b> SOL <br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/>to <b><small>${decodedInstruction.properties.to}</small></b></p>`
+        break
       case "Create":
-        content = `<p>Create new account  **${decodedInstruction.properties.newAccount}** (creator **${decodedInstruction.properties.from}**)</p>`
+        content = `<p>Create account: <b>${decodedInstruction.properties.newAccount}</b><br/>Creator: <b>${decodedInstruction.properties.from}</b></p>`
+        break
     }
 
-    if(content) {
+    if (content) {
       return {
-        type: 'markdown',
-        content: content
+        type: "markdown",
+        content: content,
       }
     }
-    throw new Error(`Markdown render does not support instruction of type ${decodedInstruction.instructionType}`)
+    throw new Error(
+      `Markdown render does not support instruction of type ${decodedInstruction.instructionType}`
+    )
   }
 
   getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
@@ -69,25 +78,20 @@ export class SolanaPlugin implements ProgramPlugin {
 
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        content = `Transfer of '${this._formatAmount(decodedInstruction.properties.amount, 9)} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+        const amount = amountToSolDecimalString(decodedInstruction.properties.amount)
+        content = `Transfer of '${amount} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
       case "Create":
         content = `Create new account  ${decodedInstruction.properties.newAccount} (creator ${decodedInstruction.properties.from})</p>`
-
     }
 
-    if(content) {
+    if (content) {
       return {
-        type: 'ricardian',
-        content: content
+        type: "ricardian",
+        content: content,
       }
     }
-    throw new Error(`Ricardian render does not support instruction of type ${decodedInstruction.instructionType}`)
+    throw new Error(
+      `Ricardian render does not support instruction of type ${decodedInstruction.instructionType}`
+    )
   }
-
-  _formatAmount(amount: number, decimal: number): string {
-    return `${amount / Math.pow(10, decimal)}`
-  }
-
-
-
 }

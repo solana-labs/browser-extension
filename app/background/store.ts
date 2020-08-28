@@ -4,7 +4,8 @@ import { randomBytes, secretbox } from "tweetnacl"
 import bs58 from "bs58"
 import { pbkdf2 } from "crypto"
 import {
-  DEFAULT_NETWORK, MintAddressTokens,
+  DEFAULT_NETWORK,
+  MintAddressTokens,
   Network,
   NetworkTokens,
   PendingRequestAccounts,
@@ -14,7 +15,7 @@ import {
   SignTransactionResp,
   StoredData,
   Token,
-  WalletState
+  WalletState,
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -39,7 +40,7 @@ export class Store {
       selectedNetwork,
       selectedAccount,
       authorizedOrigins,
-      tokens
+      tokens,
     } = initialStore
     this.popIsOpen = false
 
@@ -115,7 +116,7 @@ export class Store {
       nonce: encodedNonce,
       salt: encodedSalt,
       iterations,
-      digest
+      digest,
     } = this.secretBox
 
     const encrypted = bs58.decode(encodedEncrypted)
@@ -157,7 +158,7 @@ export class Store {
           kdf,
           salt: bs58.encode(salt),
           iterations,
-          digest
+          digest,
         } as SecretBox
         this.wallet = Wallet.NewWallet(seed, 1)
         this.selectedAccount = this.wallet.accounts[0].publicKey.toBase58()
@@ -174,7 +175,7 @@ export class Store {
   }
 
   removeAuthorizedOrigin(originToRemove: string) {
-    this.authorizedOrigins = this.authorizedOrigins.filter(function(origin) {
+    this.authorizedOrigins = this.authorizedOrigins.filter(function (origin) {
       return origin !== originToRemove
     })
   }
@@ -295,11 +296,13 @@ export class Store {
   }
 
   getTokens(network: Network): MintAddressTokens {
-    return this.tokens[network.endpoint]
+    log("getTokens with network: %O, tokens: %O", network, this.tokens)
+    return this.tokens[network.endpoint] || {}
   }
 
   getToken(network: Network, accountAddress: string): Token | undefined {
     const networkTokens = this.tokens[network.endpoint]
+    log("token for network: %O, %O", network)
     if (networkTokens) {
       return networkTokens[accountAddress]
     }

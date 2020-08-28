@@ -20,6 +20,9 @@ import { amountToSolDecimalString, TokenBalance } from "../components/token-bala
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import List from "@material-ui/core/List"
+import { useProgramPluginManager } from "../context/plugins"
+import { Markdown } from "../../core/types"
+import ReactMarkdown from "react-markdown"
 
 const log = createLogger("sol:trxDetail")
 
@@ -46,7 +49,9 @@ const TransactionDetailBase: React.FC = () => {
   const classes = useStyles()
   let { transactionID, accountAddress, signerAddress } = useParams()
   const { connection } = useConnection()
+  const programPluginManager = useProgramPluginManager()
   const [trx, setConfirmedTransaction] = useState<ConfirmedTransaction>()
+  const [instructionMarkdowns, setInstructionMardowns] = useState<Markdown[]>([])
 
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const history = useHistory()
@@ -60,6 +65,21 @@ const TransactionDetailBase: React.FC = () => {
       }
     })
   }, [])
+
+  useEffect(() => {
+    if (!trx || !programPluginManager) {
+      return
+    }
+
+    log("rendering transaction instruction mark down")
+    programPluginManager
+      .renderTransactionItemMarkdown(trx.transaction)
+      .then((markDowns) => {
+        log("get rendered transaction instruction mark down: %O", markDowns)
+        setInstructionMardowns(markDowns)
+      })
+      .catch(log)
+  }, [trx, programPluginManager])
 
   const goBack = () => {
     history.push(
@@ -106,12 +126,10 @@ const TransactionDetailBase: React.FC = () => {
               Instruction
             </Typography>
             <List disablePadding>
-              {trx?.transaction.instructions.map((instruction, index) => (
-                <InstructionListItem
-                  key={instruction.programId.toBase58() + index}
-                  instruction={instruction}
-                />
-              ))}
+              {instructionMarkdowns.length > 0 &&
+                instructionMarkdowns.map((instructionMarkdown, index) => (
+                  <InstructionListItem key={index} instructionMarkdown={instructionMarkdown} />
+                ))}
             </List>
           </Paper>
         </Grid>
@@ -121,13 +139,13 @@ const TransactionDetailBase: React.FC = () => {
 }
 
 interface InstructionListItemProps {
-  instruction: TransactionInstruction
+  instructionMarkdown: Markdown
 }
-const InstructionListItem: React.FC<InstructionListItemProps> = ({ instruction }) => {
+const InstructionListItem: React.FC<InstructionListItemProps> = ({ instructionMarkdown }) => {
   return (
     <ListItem divider={true}>
       <ListItemText
-        primary={"Program id: " + instruction.programId.toBase58()}
+        primary={<ReactMarkdown source={instructionMarkdown.content} escapeHtml={false} />}
         // secondary={
         //   <React.Fragment>
         //     <Typography

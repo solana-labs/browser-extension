@@ -1,18 +1,22 @@
-import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js"
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js"
 import { ProgramPlugin } from "./types"
 import { createLogger } from "../utils"
 import { SplPlugin } from "./plugins/spl"
 import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
 import { SolanaPlugin } from "./plugins/system"
+import base58 from "bs58"
 
 const log = createLogger("sol:decoder")
 
 interface ProgramPluginManagerOpt {
   getConnection: () => Connection
-  getSPLToken: (
-    publicKey: PublicKey,
-    connection: Connection
-  ) => Promise<Token | undefined>
+  getSPLToken: (publicKey: PublicKey, connection: Connection) => Promise<Token | undefined>
 }
 
 export class ProgramPluginManager {
@@ -26,10 +30,19 @@ export class ProgramPluginManager {
   }
 
   renderTransactionItemMarkdown = async (transaction: Transaction): Promise<Markdown[]> => {
-    const rd = (idx: number, instruction: TransactionInstruction): Markdown => {
+    const re = (idx: number, instruction: TransactionInstruction): Markdown => {
+      const data = base58.encode(instruction.data)
       return {
         type: "markdown",
-        content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
+        content: `<p>Failed to decode instruction<br/>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`,
+      }
+    }
+
+    const rd = (idx: number, instruction: TransactionInstruction): Markdown => {
+      const data = base58.encode(instruction.data)
+      return {
+        type: "markdown",
+        content: `<p>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`,
       }
     }
 
@@ -37,14 +50,22 @@ export class ProgramPluginManager {
       return plugin.getMarkdown(decodedInstruction)
     }
 
-    return this.render<Markdown>(transaction, rd, ri)
+    return this.render<Markdown>(transaction, rd, ri, re)
   }
 
   renderRicardian = async (transaction: Transaction): Promise<Ricardian[]> => {
-    const rd = (idx: number, instruction: TransactionInstruction): Ricardian => {
+    const re = (idx: number, instruction: TransactionInstruction): Ricardian => {
+      const data = base58.encode(instruction.data)
       return {
         type: "ricardian",
-        content: `Unknown instruction #${idx + 1} for program ${instruction.programId}`
+        content: `Failed to decode: Program id: ${instruction.programId} data: ${data}`,
+      }
+    }
+    const rd = (idx: number, instruction: TransactionInstruction): Ricardian => {
+      const data = base58.encode(instruction.data)
+      return {
+        type: "ricardian",
+        content: `Program id: ${instruction.programId} data: ${data}`,
       }
     }
 
@@ -52,13 +73,14 @@ export class ProgramPluginManager {
       return plugin.getRicardian(decodedInstruction)
     }
 
-    return this.render<Ricardian>(transaction, rd, ri)
+    return this.render<Ricardian>(transaction, rd, ri, re)
   }
 
   render = async <T extends Markdown | Ricardian>(
     transaction: Transaction,
     renderUndecodedInsutrction: (idx: number, instruction: TransactionInstruction) => T,
-    renderInstruction: (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction) => T
+    renderInstruction: (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction) => T,
+    renderError: (idx: number, instruction: TransactionInstruction) => T
   ): Promise<T[]> => {
     const decodeInstructionFunc = async (
       idx: number,
@@ -78,8 +100,12 @@ export class ProgramPluginManager {
       try {
         decodedInstruction = plugin.decode(instruction)
       } catch (error) {
-        log("An error occurred when decoding instruction for program [%s] %o", programId, error)
-        return renderUndecodedInsutrction(idx, instruction)
+        log(
+          "An error occurred when decoding instruction for program [%s] %o",
+          programId.toBase58(),
+          error
+        )
+        return renderError(idx, instruction)
       }
 
       log("Decorating transaction instruction for program [%s]", programId)
@@ -90,14 +116,14 @@ export class ProgramPluginManager {
         })
       } catch (error) {
         log("An error occurred when decorating instruction for program [%s] %o", programId, error)
-        return renderUndecodedInsutrction(idx, instruction)
+        return renderError(idx, instruction)
       }
 
       try {
         return renderInstruction(plugin, decodedInstruction)
       } catch (error) {
         log("An error occurred when renderin instruction: %o", error)
-        return renderUndecodedInsutrction(idx, instruction)
+        return renderError(idx, instruction)
       }
     }
 

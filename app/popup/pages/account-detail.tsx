@@ -50,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
 const AccountDetailBase: React.FC = () => {
   const classes = useStyles()
   let { accountAddress, signerAddress } = useParams()
-  const [balanceInfo, setBalanceInfo] = useState<BalanceInfo | null>(null)
   const [sendDialogOpen, setSendDialogOpen] = useState(false)
 
   const publicKey = new PublicKey(accountAddress)
@@ -60,10 +59,7 @@ const AccountDetailBase: React.FC = () => {
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const history = useHistory()
 
-  const bi = useBalanceInfo(publicKey, accountInfo)
-  if (!balanceInfo && bi) {
-    setBalanceInfo(bi)
-  }
+  const balanceInfo = useBalanceInfo(publicKey, accountInfo)
 
   const goBack = () => {
     history.push(Paths.accounts)

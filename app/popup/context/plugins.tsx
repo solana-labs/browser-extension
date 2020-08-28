@@ -18,7 +18,11 @@ export function ProgramPluginsManagerProvider(props: React.PropsWithChildren<{}>
   const { getToken } = useBackground()
   const { connection } = useConnection()
 
-  const resolveSPLToken = (publicKey: PublicKey, connection: Connection): Promise<Token | undefined> => {
+  const resolveSPLToken = (
+    publicKey: PublicKey,
+    connection: Connection
+  ): Promise<Token | undefined> => {
+    log("resolving spl token with getToken: %O", getToken)
     return getSPLToken(publicKey, connection, getToken)
   }
 
@@ -28,7 +32,7 @@ export function ProgramPluginsManagerProvider(props: React.PropsWithChildren<{}>
       getConnection: () => {
         return connection
       },
-      getSPLToken: resolveSPLToken
+      getSPLToken: resolveSPLToken,
     })
   }, [getToken])
 

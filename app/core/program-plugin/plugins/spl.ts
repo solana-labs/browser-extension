@@ -6,6 +6,10 @@ import { Buffer } from "buffer"
 import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { PluginContext, ProgramPlugin } from "../types"
 import { DecoderError } from "../common"
+import {
+  amountToDecimalString,
+  amountToSolDecimalString,
+} from "../../../popup/components/token-balance"
 
 const log = createLogger("sol:decoder:sol")
 
@@ -35,7 +39,7 @@ export class SplPlugin implements ProgramPlugin {
   constructor() {}
 
   decode(instruction: TransactionInstruction): DecodedInstruction {
-    log("Decoding spl transaction")
+    log("Decoding spl instrustion: %O", instruction)
     const decodedData = SPL_LAYOUT.decode(instruction.data)
     log("Decoded SPL Transaction: %O", decodedData)
     const instructionType = Object.keys(decodedData)[0]
@@ -83,10 +87,7 @@ export class SplPlugin implements ProgramPlugin {
 
         const mintPubKey = this._getMintAccount(fromAccount.data)
         // check in local cache for mint information
-        let mint = context.getSPLToken(
-          mintPubKey,
-          context.getConnection(),
-        )
+        let mint = await context.getSPLToken(mintPubKey, context.getConnection())
         if (!mint) {
           throw new Error(`Could not retrieve 'mint' account ${mintPubKey.toBase58()}`)
         }
@@ -102,18 +103,13 @@ export class SplPlugin implements ProgramPlugin {
   getMarkdown(decodedInstruction: DecodedInstruction): Markdown {
     switch (decodedInstruction.instructionType) {
       case "transfer":
-        const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
+        const mintDecimals = decodedInstruction.properties.mint.decimals
+        const amount = amountToDecimalString(decodedInstruction.properties.amount, mintDecimals)
         return {
           type: "markdown",
-          content: `<p>Transfer of '${this._formatAmount(
-            decodedInstruction.properties.amount,
-            mintDecimals
-          )} ${decodedInstruction.properties.mint.symbol}' from ${
-            decodedInstruction.properties.from
-          } to ${decodedInstruction.properties.to}</p>`,
+          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small</b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`,
         }
     }
-
     throw new Error(
       `Markdown render does not support instruction of type ${decodedInstruction.instructionType}`
     )
@@ -122,25 +118,18 @@ export class SplPlugin implements ProgramPlugin {
   getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
     switch (decodedInstruction.instructionType) {
       case "transfer":
-        const mintDecimals = decodedInstruction.properties.mint?.decimals || 9
+        const mintDecimals = decodedInstruction.properties.mint.decimals
+        const amount = amountToDecimalString(decodedInstruction.properties.amount, mintDecimals)
+
         return {
           type: "ricardian",
-          content: `Transfer of '${this._formatAmount(
-            decodedInstruction.properties.amount,
-            mintDecimals
-          )} ${decodedInstruction.properties.mint.symbol}' from ${
-            decodedInstruction.properties.from
-          } to ${decodedInstruction.properties.to}`,
+          content: `Transfer of '${amount} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`,
         }
     }
 
     throw new Error(
       `Ricardian render does not support instruction of type ${decodedInstruction.instructionType} is not supported`
     )
-  }
-
-  _formatAmount(amount: number, decimal: number): string {
-    return `${amount / Math.pow(10, decimal)}`
   }
 
   _getMintAccount(data: Buffer): PublicKey {

@@ -11,7 +11,7 @@ const log = require("debug")("sol:bgContext")
 
 let isNotification = false
 if (window.location.hash === "#notification") {
-  log('Enabling notification mode')
+  log("Enabling notification mode")
   isNotification = true
 }
 
@@ -24,7 +24,7 @@ interface RPCResp<T> {
 interface BackgroundContextType {
   isNotification: boolean
   popupState: PopupState | undefined
-  getToken: (mintAddress: string) => (Token | undefined)
+  getToken: (mintAddress: string) => Token | undefined
   request: (method: PopupActions, params: any) => Promise<RPCResp<PopupState>>
   changeNetwork: (network: Network) => void
   changeAccount: (account: string) => void
@@ -35,7 +35,6 @@ export const BackgroundContext = createContext<BackgroundContextType | null>(nul
 export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   let [engine, setEngine] = useState<any>()
   const [state, setState] = useState<PopupState>()
-
 
   const setupStreams = () => {
     const windowType = getEnvironmentType()
@@ -86,10 +85,11 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     })
   }
 
-  const getToken : BackgroundContextType["getToken"] = (mintAddress: string): (Token | undefined)  => {
+  const getToken: BackgroundContextType["getToken"] = (mintAddress: string): Token | undefined => {
     if (!state) {
       return undefined
     }
+    log("getToken from state tokens: %O", state.tokens)
     return state.tokens[mintAddress]
   }
 
@@ -161,10 +161,12 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   )
 }
 
-export function usePopupState() : PopupState {
+export function usePopupState(): PopupState {
   const context = useContext(BackgroundContext)
   if (!context) {
-    throw new Error("Background not found, usePopupState must be used within the BackgroundProvider")
+    throw new Error(
+      "Background not found, usePopupState must be used within the BackgroundProvider"
+    )
   }
   if (!context.popupState) {
     throw new Error("No popup state, use popupState() should only be called after the routes")
@@ -176,7 +178,9 @@ export function usePopupState() : PopupState {
 export function useBackground() {
   const context = useContext(BackgroundContext)
   if (!context) {
-    throw new Error("Background not found, useBackground must be used within the BackgroundProvider")
+    throw new Error(
+      "Background not found, useBackground must be used within the BackgroundProvider"
+    )
   }
   return context
 }
