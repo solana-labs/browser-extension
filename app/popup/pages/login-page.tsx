@@ -23,7 +23,6 @@ const LoginPageBase: React.FC = () => {
   }
 
   const handleSuccess = () => {
-    console.log("Is notification: ", isNotification)
     if (isNotification) {
       history.push(Links.notifications())
     } else {

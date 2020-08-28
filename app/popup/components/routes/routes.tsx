@@ -3,7 +3,7 @@ import { Redirect, RouteComponentProps, RouteProps, useLocation } from "react-ro
 import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
-import { TokensPage } from "../../pages/tokens"
+import { KnownTokensPage } from "../../pages/known-tokens-page"
 import { RestoreWalletPage } from "../../pages/restore-wallet-page"
 import { CreateWalletPage } from "../../pages/create-wallet-page"
 import { SplashScreenPage } from "../../pages/splash-screen-page"
@@ -19,7 +19,7 @@ const routes: {
   [path: string]: React.ComponentType<any>
 } = {
   [Paths.authorizedWebsites]: AuthorizedWebsitesPage,
-  [Paths.tokens]: TokensPage,
+  [Paths.tokens]: KnownTokensPage,
   [Paths.accounts]: WalletPage,
   [Paths.notifications]: NotificationPage,
   [Paths.accountDetail]: AccountDetail,
@@ -82,7 +82,7 @@ const unsecureRoute = (key: string, props: RouteProps, popupState: PopupState) =
   )
 }
 
-const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) => {
+const defaultRoute = (key: string, props: RouteProps, popupState: PopupState, isNotification: boolean) => {
   const rest = Object.assign({}, props)
   delete rest.component
 
@@ -97,8 +97,11 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
           case "uninitialized":
             return <Redirect to={{ pathname: Paths.welcome }}/>
           case "unlocked":
-
-            return <Redirect to={{ pathname: Paths.accounts }}/>
+            if (popupState.actions.length > 0) {
+              return <Redirect to={{ pathname: Paths.notifications }}/>
+            } else {
+              return <Redirect to={{ pathname: Paths.accounts }}/>
+            }
         }
       }}
     />
@@ -108,7 +111,7 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState) =>
 const RoutesBase: React.FC = () => {
 
   const location = useLocation()
-  const { popupState } = useBackground()
+  const { popupState, isNotification } = useBackground()
 
   if (!popupState) {
     return <SplashScreenPage/>
@@ -145,7 +148,7 @@ const RoutesBase: React.FC = () => {
           path: Paths.login,
           component: LoginPage
         }, popupState)}
-        {defaultRoute(`default-route`, {}, popupState)}
+        {defaultRoute(`default-route`, {}, popupState, isNotification)}
       </Switch>
     </>
   )

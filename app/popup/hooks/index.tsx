@@ -151,7 +151,6 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
   }, { key: cacheKey, description: `ownedAccount:${publicKey.toBase58()}` })
 
   if (!loaded) {
-    log("could not load token by owner %s", publicKey.toBase58())
     return []
   }
   return fetchedAccounts.map((a) => {

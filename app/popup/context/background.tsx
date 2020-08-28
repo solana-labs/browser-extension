@@ -88,7 +88,6 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
     if (!state) {
       return undefined
     }
-    log("getToken from state tokens: %O", state.tokens)
     return state.tokens[mintAddress]
   }
 
