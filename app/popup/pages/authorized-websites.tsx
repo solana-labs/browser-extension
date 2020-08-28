@@ -20,7 +20,7 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
   const callAsync = useCallAsync()
 
   if (!popupState) {
-    return <LoadingIndicator />
+    return <LoadingIndicator/>
   }
 
   const origins = popupState.authorizedOrigins || []
@@ -32,11 +32,11 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
     console.log("delete item:", origin)
     callAsync(
       request("popup_deleteAuthorizedWebsite", {
-        origin: origin,
+        origin: origin
       }),
       {
         progress: { message: "Deleting website..." },
-        success: { message: "Success!" },
+        success: { message: "Success!" }
       }
     )
   }
@@ -57,9 +57,9 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
               <List disablePadding>
                 {origins.map((origin: string) => (
                   <ListItem>
-                    <ListItemText primary={origin} />
+                    <ListItemText primary={origin}/>
                     <IconButton onClick={() => deleteWebsite(origin)}>
-                      <DeleteIcon />
+                      <DeleteIcon/>
                     </IconButton>
                   </ListItem>
                 ))}

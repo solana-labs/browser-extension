@@ -28,7 +28,7 @@ export class ActionManager {
   }
 
   getOrderedActions = (): OrderedAction[] => {
-    const out : OrderedAction[] = []
+    const out: OrderedAction[] = []
     this.actions.forEach((action, key) => {
       out.push({ key, action })
     })

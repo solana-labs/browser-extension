@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom"
 import Container from "@material-ui/core/Container"
 import Card from "@material-ui/core/Card"
 import CardContent from "@material-ui/core/CardContent"
@@ -13,7 +13,7 @@ import { useCallAsync } from "../utils/notifications"
 import Link from "@material-ui/core/Link"
 import { useBackground } from "../context/background"
 import { withLayout } from "../components/layout"
-import { Links, Paths } from "../components/routes/paths"
+import { Links } from "../components/routes/paths"
 
 const LoginPageBase: React.FC = () => {
   const { isNotification } = useBackground()
@@ -35,7 +35,7 @@ const LoginPageBase: React.FC = () => {
     <Container maxWidth="sm">
       <>
         <LoginForm onSuccess={handleSuccess}/>
-        <br />
+        <br/>
         <Link style={{ cursor: "pointer" }} onClick={goToRestore}>
           Restore existing wallet
         </Link>
@@ -44,7 +44,7 @@ const LoginPageBase: React.FC = () => {
   )
 }
 
-const LoginForm: React.FC<{onSuccess: () => void}> = ({ onSuccess }) => {
+const LoginForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
   const [password, setPassword] = useState("")
   const [stayLoggedIn, setStayLoggedIn] = useState(false)
   const callAsync = useCallAsync()
@@ -79,12 +79,12 @@ const LoginForm: React.FC<{onSuccess: () => void}> = ({ onSuccess }) => {
               if (event.key === "Enter") {
                 submit()
               }
-            },
+            }
           }}
         />
         <FormControlLabel
           control={
-            <Checkbox checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)} />
+            <Checkbox checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)}/>
           }
           label="Keep wallet unlocked"
         />

@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 import { Layout } from "./layout"
 
 
@@ -10,6 +10,6 @@ export function withLayout<T>(
       <Layout>
         <Component {...props} />
       </Layout>
-    );
-  };
+    )
+  }
 }

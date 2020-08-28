@@ -39,15 +39,15 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
         transfer: {
           fromPubkey: fromPublicKey.toBase58(),
           toPubkey: destinationAddress,
-          lamports: lamports,
-        },
+          lamports: lamports
+        }
       }),
       {
         progress: { message: "Transferring..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        },
+        }
       }
     )
   }
@@ -86,8 +86,8 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
               <InputAdornment position="end">{tokenSymbol}</InputAdornment>
             ) : null,
             inputProps: {
-              step: Math.pow(10, -decimals),
-            },
+              step: Math.pow(10, -decimals)
+            }
           }}
           value={transferAmountString}
           onChange={(e) => setTransferAmountString(e.target.value.trim())}

@@ -1,14 +1,11 @@
-import {
-  ENVIRONMENT_TYPE_BACKGROUND,
-  ENVIRONMENT_TYPE_NOTIFICATION,
-  ENVIRONMENT_TYPE_POPUP, Network, Token
-} from "./types"
+import { ENVIRONMENT_TYPE_BACKGROUND, ENVIRONMENT_TYPE_NOTIFICATION, ENVIRONMENT_TYPE_POPUP, Token } from "./types"
 import { memoize } from "lodash"
 import { CompiledInstruction, Connection, Message, PublicKey } from "@solana/web3.js"
 import * as shortvec from "./shortvec-encoding"
 import bs58 from "bs58"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
+
 const debug = require("debug")
 const ObjectMultiplex = require("obj-multiplex")
 export const createLogger = (module: string): any => {
@@ -92,11 +89,11 @@ export const decodeSerializedMessage = (buffer: Buffer): Message => {
     header: {
       numRequiredSignatures,
       numReadonlySignedAccounts,
-      numReadonlyUnsignedAccounts,
+      numReadonlyUnsignedAccounts
     },
     recentBlockhash: bs58.encode(Buffer.from(recentBlockhash)),
     accountKeys,
-    instructions,
+    instructions
   }
   return new Message(messageArgs)
 }
@@ -106,10 +103,10 @@ export const decodeSerializedMessage = (buffer: Buffer): Message => {
 const MINT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(36),
   BufferLayout.u8("decimals"),
-  BufferLayout.blob(3),
+  BufferLayout.blob(3)
 ])
 
-export const getMintData = async(connection: Connection, publicKey: PublicKey): Promise<{ decimals: number, mintAddress: string }> => {
+export const getMintData = async (connection: Connection, publicKey: PublicKey): Promise<{ decimals: number, mintAddress: string }> => {
   const mintAccount = await connection.getAccountInfo(publicKey)
   if (!mintAccount) {
     throw new Error(`could not get mint account info`)
@@ -117,7 +114,7 @@ export const getMintData = async(connection: Connection, publicKey: PublicKey): 
   const { decimals } = MINT_LAYOUT.decode(mintAccount.data)
   return {
     mintAddress: publicKey.toBase58(),
-    decimals: decimals,
+    decimals: decimals
   }
 }
 

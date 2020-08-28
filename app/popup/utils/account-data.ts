@@ -8,13 +8,13 @@ export const ACCOUNT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(32, "mint"),
   BufferLayout.blob(32, "owner"),
   BufferLayout.nu64("amount"),
-  BufferLayout.blob(48),
+  BufferLayout.blob(48)
 ])
 
 export const MINT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(36),
   BufferLayout.u8("decimals"),
-  BufferLayout.blob(3),
+  BufferLayout.blob(3)
 ])
 
 export const parseTokenAccountData = (
@@ -24,7 +24,7 @@ export const parseTokenAccountData = (
   return {
     mint: new PublicKey(mint),
     owner: new PublicKey(owner),
-    amount: BigInt(amount),
+    amount: BigInt(amount)
   }
 }
 

@@ -176,7 +176,8 @@ export const useAsyncData = <T>(
 
   useEffect(() => {
     if (!cacheKey.key) {
-      return () => {}
+      return () => {
+      }
     }
     const listener = new FetchLoopListener(cacheKey, asyncFn, refreshInterval, rerender)
     globalLoops.addListener(listener)

@@ -1,8 +1,14 @@
 import pump from "pump"
 import { createLogger, createObjectMultiplex } from "../core/utils"
-import { WallActions, Notification } from "../core/types"
+import {
+  CONTENT_MESSAGE_STREAM,
+  INPAGE_MESSAGE_STREAM,
+  MUX_PROVIDER_SUBSTREAM,
+  Notification,
+  WallActions
+} from "../core/types"
 import { EventEmitter } from "events"
-import { CONTENT_MESSAGE_STREAM, INPAGE_MESSAGE_STREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
+
 const LocalMessageDuplexStream = require("post-message-stream")
 const RpcEngine = require("json-rpc-engine")
 const createJsonRpcStream = require("json-rpc-middleware-stream")
@@ -22,7 +28,7 @@ class Provider extends EventEmitter {
   constructor(csStream: any) {
     super() // TODO: secure that, do we want to expose all the methods therein?
 
-    this._nextRequestId = 1;
+    this._nextRequestId = 1
 
     this._csStream = csStream
 
@@ -50,7 +56,7 @@ class Provider extends EventEmitter {
     this._rpcEngine = rpcEngine
 
     // json rpc notification listener
-    const that = this;
+    const that = this
     jsonRpcConnection.events.on("notification", (resp: Notification) => {
       log("Notification : %O", resp)
       log("Received notification [%s] : %O", resp.type, resp.data)
@@ -60,8 +66,8 @@ class Provider extends EventEmitter {
 
   request = (args: RequestArgs): Promise<any> => {
     const that = this
-    const requestId = this._nextRequestId;
-    ++this._nextRequestId;
+    const requestId = this._nextRequestId
+    ++this._nextRequestId
     log("inpage requesting %s with params: %O", args.method, args.params)
     return new Promise<any>(function(resolve, reject) {
       let req = { id: requestId, jsonrpc: "2.0", method: args.method }
@@ -90,7 +96,7 @@ class Provider extends EventEmitter {
 // setup background connection./app/background/background.ts
 const csStream = new LocalMessageDuplexStream({
   name: INPAGE_MESSAGE_STREAM,
-  target: CONTENT_MESSAGE_STREAM,
+  target: CONTENT_MESSAGE_STREAM
 })
 
 function initProvider() {
@@ -102,6 +108,6 @@ function initProvider() {
   window.dispatchEvent(new Event("solana#initialized"))
 }
 
-; (function() {
+;(function() {
   initProvider()
 })()

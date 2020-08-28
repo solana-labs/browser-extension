@@ -30,7 +30,7 @@ const TokensPageBase: React.FC = () => {
   const callAsync = useCallAsync()
 
   if (!popupState) {
-    return <LoadingIndicator />
+    return <LoadingIndicator/>
   }
 
   const tokens = popupState.tokens
@@ -40,11 +40,11 @@ const TokensPageBase: React.FC = () => {
   const deleteToken = (token: Token) => {
     callAsync(
       request("popup_removeToken", {
-        mintAddress: token.mintAddress,
+        mintAddress: token.mintAddress
       }),
       {
         progress: { message: "Deleting token..." },
-        success: { message: "Success!" },
+        success: { message: "Success!" }
       }
     )
   }
@@ -62,7 +62,7 @@ const TokensPageBase: React.FC = () => {
                   </Typography>
                   <Tooltip title="Add Token" arrow>
                     <IconButton onClick={() => setShowAddTokenDialog(true)}>
-                      <AddIcon />
+                      <AddIcon/>
                     </IconButton>
                   </Tooltip>
                 </Toolbar>
@@ -87,10 +87,10 @@ const TokensPageBase: React.FC = () => {
                       secondary={token.mintAddress}
                     />
                     <IconButton onClick={() => setEditToken(token)}>
-                      <EditIcon />
+                      <EditIcon/>
                     </IconButton>
                     <IconButton onClick={() => deleteToken(token)}>
-                      <DeleteIcon />
+                      <DeleteIcon/>
                     </IconButton>
                   </ListItem>
                 ))}
@@ -98,7 +98,7 @@ const TokensPageBase: React.FC = () => {
             </Paper>
           </Grid>
         </Grid>
-        <AddTokenDialog open={showAddTokenDialog} onClose={() => setShowAddTokenDialog(false)} />
+        <AddTokenDialog open={showAddTokenDialog} onClose={() => setShowAddTokenDialog(false)}/>
         {editToken && (
           <UpdateTokenDialog
             token={editToken}

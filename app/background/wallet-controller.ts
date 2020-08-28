@@ -1,17 +1,11 @@
 import { Store } from "./store"
 import { createLogger, decodeSerializedMessage } from "../core/utils"
-import {
-  RequestAccountsResp,
-  SignTransactionResp,
-  WallActions,
-  Markdown
-} from "../core/types"
+import { Markdown, RequestAccountsResp, SignTransactionResp, WallActions } from "../core/types"
 import bs58 from "bs58"
 import { Transaction } from "@solana/web3.js"
 import { Buffer } from "buffer"
 import { ProgramPluginManager } from "../core/program-plugin"
 import { ActionManager } from "./lib/action-manager"
-import { PopupStateResolver } from "./lib/popup-state-resolver"
 
 const log = createLogger("sol:walletCtr")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -113,7 +107,7 @@ export class WalletController {
         resolve: resolve,
         reject: reject,
         tabId: tabId,
-        origin: origin,
+        origin: origin
       })
     })
   }
@@ -121,7 +115,7 @@ export class WalletController {
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
     let {
       tabId,
-      params: { message, signer },
+      params: { message, signer }
     } = req
     let markdowns: Markdown[] = []
 
@@ -155,7 +149,7 @@ export class WalletController {
         tabId: tabId,
         message: message,
         signers: signer,
-        details: markdowns,
+        details: markdowns
       })
     })
   }

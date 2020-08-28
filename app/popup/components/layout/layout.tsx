@@ -7,8 +7,8 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
     paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-  },
+    paddingRight: theme.spacing(1)
+  }
 }))
 
 
@@ -16,7 +16,7 @@ export const Layout: React.FC = ({ children }) => {
   const classes = useStyles()
   return (
     <>
-      <NavigationFrame />
+      <NavigationFrame/>
       <main className={classes.content}>{children}</main>
     </>
   )

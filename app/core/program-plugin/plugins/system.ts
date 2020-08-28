@@ -4,6 +4,7 @@ import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { DecoderError } from "../common"
 import { PluginContext, ProgramPlugin } from "../types"
 import { formatSolAmount } from "../../../popup/utils/format"
+
 const log = createLogger("sol:decoder:sol")
 
 export class SolanaPlugin implements ProgramPlugin {

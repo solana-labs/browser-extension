@@ -1,7 +1,7 @@
 const balanceFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 4,
   maximumFractionDigits: 10,
-  useGrouping: true,
+  useGrouping: true
 })
 
 export const formatSolAmount = (amount: number | bigint) => {

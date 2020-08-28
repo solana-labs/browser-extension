@@ -1,6 +1,5 @@
-import React, { useEffect, useRef } from "react"
+import React from "react"
 import Container from "@material-ui/core/Container"
-import { withLayout } from "../components/layout"
 import { SolanaIcon } from "../components/solana-icon"
 import { makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
@@ -10,14 +9,14 @@ import Typography from "@material-ui/core/Typography"
 const useStyles = makeStyles((theme) => ({
   bar: {
     backgroundColor: "black",
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.main
   },
   title: {
-    flexGrow: 1,
-  },
+    flexGrow: 1
+  }
 }))
 
-const SplashScreenPageBase: React.FC = ({ children}) => {
+const SplashScreenPageBase: React.FC = ({ children }) => {
   const classes = useStyles()
 
   return (
@@ -29,8 +28,8 @@ const SplashScreenPageBase: React.FC = ({ children}) => {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Container maxWidth="sm" style={{textAlign: "center"}}>
-        <SolanaIcon  size={"50px"} />
+      <Container maxWidth="sm" style={{ textAlign: "center" }}>
+        <SolanaIcon size={"50px"}/>
       </Container>
     </>
   )

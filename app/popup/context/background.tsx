@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import pump from "pump"
 import { createObjectMultiplex, getEnvironmentType } from "../../core/utils"
-import { Network, Notification, PopupActions, PopupState, Token } from "../../core/types"
+import { MUX_CONTROLLER_SUBSTREAM, Network, Notification, PopupActions, PopupState, Token } from "../../core/types"
 import RpcEngine from "json-rpc-engine"
-import { MUX_CONTROLLER_SUBSTREAM } from "../../core/types"
 
 const PortStream = require("extension-port-stream")
 const createJsonRpcStream = require("json-rpc-middleware-stream")
@@ -99,13 +98,13 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }, [])
 
   const request: BackgroundContextType["request"] = (method: PopupActions, params: any) => {
-    return new Promise<RPCResp<PopupState>>(function (resolve, reject) {
+    return new Promise<RPCResp<PopupState>>(function(resolve, reject) {
       let request = { id: 1, jsonrpc: "2.0", method: method }
       if (params) {
         request = Object.assign(request, { params: params })
       }
       log("performing rpc request: %O", request)
-      engine.handle(request, function (err: any, response: any) {
+      engine.handle(request, function(err: any, response: any) {
         if (err) {
           reject(err)
         } else {
@@ -153,7 +152,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
         getToken: getToken,
         popupState: state,
         changeNetwork,
-        changeAccount,
+        changeAccount
       }}
     >
       {props.children}

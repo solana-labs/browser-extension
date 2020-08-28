@@ -30,19 +30,19 @@ const useStyles = makeStyles((theme) => ({
   itemDetails: {
     marginLeft: theme.spacing(3),
     marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(3),
+    marginBottom: theme.spacing(3)
   },
   accountAddress: {
     marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
+    marginBottom: theme.spacing(3)
   },
 
   buttonContainer: {
     display: "flex",
     justifyContent: "space-evenly",
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
-  },
+    marginBottom: theme.spacing(1)
+  }
 }))
 
 const TransactionDetailBase: React.FC = () => {
@@ -95,7 +95,7 @@ const TransactionDetailBase: React.FC = () => {
             <AppBar position="static" color="default" elevation={1}>
               <Toolbar>
                 <IconButton onClick={goBack}>
-                  <ArrowBackIos />
+                  <ArrowBackIos/>
                 </IconButton>
                 <Typography variant="h6" component="h2" style={{ flexGrow: 1 }}>
                   Transaction Detail
@@ -127,9 +127,9 @@ const TransactionDetailBase: React.FC = () => {
             </Typography>
             <List disablePadding>
               {instructionMarkdowns.length > 0 &&
-                instructionMarkdowns.map((instructionMarkdown, index) => (
-                  <InstructionListItem key={index} instructionMarkdown={instructionMarkdown} />
-                ))}
+              instructionMarkdowns.map((instructionMarkdown, index) => (
+                <InstructionListItem key={index} instructionMarkdown={instructionMarkdown}/>
+              ))}
             </List>
           </Paper>
         </Grid>
@@ -141,11 +141,12 @@ const TransactionDetailBase: React.FC = () => {
 interface InstructionListItemProps {
   instructionMarkdown: Markdown
 }
+
 const InstructionListItem: React.FC<InstructionListItemProps> = ({ instructionMarkdown }) => {
   return (
     <ListItem divider={true}>
       <ListItemText
-        primary={<ReactMarkdown source={instructionMarkdown.content} escapeHtml={false} />}
+        primary={<ReactMarkdown source={instructionMarkdown.content} escapeHtml={false}/>}
         // secondary={
         //   <React.Fragment>
         //     <Typography
