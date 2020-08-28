@@ -27,21 +27,21 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
     paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    paddingRight: theme.spacing(1)
   },
   bar: {
     backgroundColor: "black",
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.main
   },
   title: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   button: {
-    marginLeft: theme.spacing(1),
+    marginLeft: theme.spacing(1)
   },
   menuItemIcon: {
-    minWidth: 32,
-  },
+    minWidth: 32
+  }
 }))
 
 export const NavigationFrame: React.FC = () => {
@@ -58,7 +58,7 @@ export const NavigationFrame: React.FC = () => {
   const handleCreateAccount = () => {
     callAsync(request("popup_addWalletAccount", {}), {
       progress: { message: "Creating a new account" },
-      success: { message: "Account created!" },
+      success: { message: "Account created!" }
     })
   }
 
@@ -68,7 +68,7 @@ export const NavigationFrame: React.FC = () => {
       success: { message: "Wallet locked" },
       onSuccess: (result) => {
         history.push(Links.login())
-      },
+      }
     })
   }
 
@@ -86,7 +86,7 @@ export const NavigationFrame: React.FC = () => {
               changeNetwork={changeNetwork}
             />
           )}
-          { !isNotification && <WalletSelector
+          {!isNotification && <WalletSelector
             accounts={popupState?.accounts || []}
             addAccount={handleCreateAccount}
             selectedAccount={account || ""}
@@ -94,7 +94,7 @@ export const NavigationFrame: React.FC = () => {
           />}
 
           {!isNotification && popupState && popupState.walletState === "unlocked" && (
-            <MenuSelector onLogout={handleLogout} />
+            <MenuSelector onLogout={handleLogout}/>
           )}
         </Toolbar>
       </AppBar>
@@ -109,7 +109,7 @@ const MenuSelector: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
   }[] = [
     { title: "Account details", path: Links.accounts() },
     { title: "Authorized websites", path: Links.authorizedWebsites() },
-    { title: "Known Tokens", path: Links.tokens() },
+    { title: "Known Tokens", path: Links.tokens() }
   ]
   const [anchorEl, setAnchorEl] = useState<any>()
 
@@ -118,7 +118,7 @@ const MenuSelector: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
       <Hidden smUp>
         <Tooltip title="More options" arrow>
           <IconButton color="inherit" onClick={(e) => setAnchorEl(e.target)}>
-            <MenuIcon />
+            <MenuIcon/>
           </IconButton>
         </Tooltip>
       </Hidden>
@@ -129,7 +129,7 @@ const MenuSelector: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right",
+          horizontal: "right"
         }}
         getContentAnchorEl={null}
       >
@@ -155,10 +155,10 @@ interface NetworkSelectorProps {
 }
 
 const NetworkSelector: React.FC<NetworkSelectorProps> = ({
-  availableNetworks,
-  selectedNetwork,
-  changeNetwork,
-}) => {
+                                                           availableNetworks,
+                                                           selectedNetwork,
+                                                           changeNetwork
+                                                         }) => {
   const [anchorEl, setAnchorEl] = useState<any>()
   const classes = useStyles()
   return (
@@ -171,7 +171,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
       <Hidden smUp>
         <Tooltip title="Select Network" arrow>
           <IconButton color="inherit" onClick={(e) => setAnchorEl(e.target)}>
-            <SolanaIcon />
+            <SolanaIcon/>
           </IconButton>
         </Tooltip>
       </Hidden>
@@ -181,7 +181,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right",
+          horizontal: "right"
         }}
         getContentAnchorEl={null}
       >
@@ -196,7 +196,7 @@ const NetworkSelector: React.FC<NetworkSelectorProps> = ({
           >
             <ListItemIcon className={classes.menuItemIcon}>
               {network.endpoint === selectedNetwork.endpoint ? (
-                <CheckIcon fontSize="small" />
+                <CheckIcon fontSize="small"/>
               ) : null}
             </ListItemIcon>
             {network.endpoint}
@@ -215,11 +215,11 @@ interface WalletSelectorProps {
 }
 
 const WalletSelector: React.FC<WalletSelectorProps> = ({
-  accounts,
-  selectedAccount,
-  addAccount,
-  selectAccount,
-}) => {
+                                                         accounts,
+                                                         selectedAccount,
+                                                         addAccount,
+                                                         selectAccount
+                                                       }) => {
   const [anchorEl, setAnchorEl] = useState<any>()
   const classes = useStyles()
 
@@ -237,7 +237,7 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
       <Hidden smUp>
         <Tooltip title="Select Account" arrow>
           <IconButton color="inherit" onClick={(e) => setAnchorEl(e.target)}>
-            <AccountIcon />
+            <AccountIcon/>
           </IconButton>
         </Tooltip>
       </Hidden>
@@ -247,7 +247,7 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
         onClose={() => setAnchorEl(null)}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "right",
+          horizontal: "right"
         }}
         getContentAnchorEl={null}
       >
@@ -261,12 +261,12 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
             selected={selectedAccount === account}
           >
             <ListItemIcon className={classes.menuItemIcon}>
-              {selectedAccount === account ? <CheckIcon fontSize="small" /> : null}
+              {selectedAccount === account ? <CheckIcon fontSize="small"/> : null}
             </ListItemIcon>
             {account}
           </MenuItem>
         ))}
-        <Divider />
+        <Divider/>
         <MenuItem
           onClick={() => {
             setAnchorEl(null)
@@ -274,7 +274,7 @@ const WalletSelector: React.FC<WalletSelectorProps> = ({
           }}
         >
           <ListItemIcon className={classes.menuItemIcon}>
-            <AddIcon fontSize="small" />
+            <AddIcon fontSize="small"/>
           </ListItemIcon>
           Create Account
         </MenuItem>

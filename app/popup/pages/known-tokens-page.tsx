@@ -22,7 +22,7 @@ import Tooltip from "@material-ui/core/Tooltip"
 import { AddTokenDialog } from "../components/dialogs/add-token-dialog"
 import { UpdateTokenDialog } from "../components/dialogs/update-token-dialog"
 
-const TokensPageBase: React.FC = () => {
+const KnownTokensPageBase: React.FC = () => {
   const { popupState, request } = useBackground()
   const [showAddTokenDialog, setShowAddTokenDialog] = useState(false)
   const [editToken, setEditToken] = useState<Token>()
@@ -30,7 +30,7 @@ const TokensPageBase: React.FC = () => {
   const callAsync = useCallAsync()
 
   if (!popupState) {
-    return <LoadingIndicator />
+    return <LoadingIndicator/>
   }
 
   const tokens = popupState.tokens
@@ -40,11 +40,11 @@ const TokensPageBase: React.FC = () => {
   const deleteToken = (token: Token) => {
     callAsync(
       request("popup_removeToken", {
-        mintAddress: token.mintAddress,
+        mintAddress: token.mintAddress
       }),
       {
         progress: { message: "Deleting token..." },
-        success: { message: "Success!" },
+        success: { message: "Success!" }
       }
     )
   }
@@ -58,11 +58,11 @@ const TokensPageBase: React.FC = () => {
               <AppBar position="static" color="default" elevation={1}>
                 <Toolbar>
                   <Typography variant="h6" style={{ flexGrow: 1 }} component="h2">
-                    Known tokens
+                    Known Tokens
                   </Typography>
                   <Tooltip title="Add Token" arrow>
                     <IconButton onClick={() => setShowAddTokenDialog(true)}>
-                      <AddIcon />
+                      <AddIcon/>
                     </IconButton>
                   </Tooltip>
                 </Toolbar>
@@ -87,10 +87,10 @@ const TokensPageBase: React.FC = () => {
                       secondary={token.mintAddress}
                     />
                     <IconButton onClick={() => setEditToken(token)}>
-                      <EditIcon />
+                      <EditIcon/>
                     </IconButton>
                     <IconButton onClick={() => deleteToken(token)}>
-                      <DeleteIcon />
+                      <DeleteIcon/>
                     </IconButton>
                   </ListItem>
                 ))}
@@ -98,7 +98,7 @@ const TokensPageBase: React.FC = () => {
             </Paper>
           </Grid>
         </Grid>
-        <AddTokenDialog open={showAddTokenDialog} onClose={() => setShowAddTokenDialog(false)} />
+        <AddTokenDialog open={showAddTokenDialog} onClose={() => setShowAddTokenDialog(false)}/>
         {editToken && (
           <UpdateTokenDialog
             token={editToken}
@@ -111,4 +111,4 @@ const TokensPageBase: React.FC = () => {
   )
 }
 
-export const TokensPage = withLayout(TokensPageBase)
+export const KnownTokensPage = withLayout(KnownTokensPageBase)

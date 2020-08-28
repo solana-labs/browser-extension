@@ -1,13 +1,9 @@
 import SolanaController from "./solana-controller"
 import { createLogger, isInternalProcess } from "../core/utils"
-import {
-  ENVIRONMENT_TYPE_NOTIFICATION,
-  ENVIRONMENT_TYPE_POPUP,
-  StoredData,
-  VersionedData,
-} from "../core/types"
+import { ENVIRONMENT_TYPE_NOTIFICATION, ENVIRONMENT_TYPE_POPUP, StoredData, VersionedData } from "../core/types"
 import LocalStore from "./lib/local-store"
 import initialState from "./first-time-state"
+
 const PortStream = require("extension-port-stream")
 const endOfStream = require("end-of-stream")
 const log = createLogger("sol:bg")
@@ -95,7 +91,7 @@ function setupController(versionedData: VersionedData) {
 
   const solanaController = new SolanaController({
     storedData: versionedData.data,
-    persistData: persistData,
+    persistData: persistData
   })
 
   function connectRemote(remotePort: chrome.runtime.Port) {
@@ -129,7 +125,7 @@ function setupController(versionedData: VersionedData) {
           processName: remotePort.name,
           tabId: tabId,
           url: url,
-          origin: origin,
+          origin: origin
         })}`
       )
       remotePort.onMessage.addListener((msg) => {

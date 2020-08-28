@@ -16,8 +16,8 @@ const log = createLogger("sol:trxlist")
 
 const useStyles = makeStyles((theme) => ({
   detailButton: {
-    margin: theme.spacing(1),
-  },
+    margin: theme.spacing(1)
+  }
 }))
 
 interface TransactionListProp {
@@ -64,10 +64,10 @@ interface TransactionListItemProps {
 }
 
 const TransactionListItem: React.FC<TransactionListItemProps> = ({
-  confirmedSignatureInfo,
-  accountKey,
-  signerKey,
-}) => {
+                                                                   confirmedSignatureInfo,
+                                                                   accountKey,
+                                                                   signerKey
+                                                                 }) => {
   const classes = useStyles()
   const history = useHistory()
 
@@ -80,7 +80,7 @@ const TransactionListItem: React.FC<TransactionListItemProps> = ({
       Links.transactionDetail({
         transactionID,
         accountAddress: accountKey.toBase58(),
-        signerAddress: signerKey.toBase58(),
+        signerAddress: signerKey.toBase58()
       })
     )
   }
@@ -102,7 +102,7 @@ const TransactionListItem: React.FC<TransactionListItemProps> = ({
           className={classes.detailButton}
           onClick={() => transactionDetail(confirmedSignatureInfo.signature, accountKey, signerKey)}
         >
-          <MoreVert />
+          <MoreVert/>
         </IconButton>
       </ListItem>
     </>

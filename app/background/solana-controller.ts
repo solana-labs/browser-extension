@@ -7,7 +7,7 @@ import { WalletController } from "./wallet-controller"
 import { PopupController } from "./popup-controller"
 import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
-import { createLogger, createObjectMultiplex, getMintData, getSPLToken } from "../core/utils"
+import { createLogger, createObjectMultiplex, getSPLToken } from "../core/utils"
 import {
   ENVIRONMENT_TYPE_POPUP,
   MUX_CONTROLLER_SUBSTREAM,
@@ -66,7 +66,7 @@ export default class SolanaController {
 
     const pluginManager = new ProgramPluginManager({
       getConnection: this.getWeb3Connection.bind(this),
-      getSPLToken: this.resolveSPLToken.bind(this),
+      getSPLToken: this.resolveSPLToken.bind(this)
     })
 
     this.walletController = new WalletController({
@@ -262,7 +262,7 @@ export default class SolanaController {
     return this.connection.conn
   }
 
-  resolveSPLToken(publicKey: PublicKey, connection: Connection):Promise<Token | undefined>  {
+  resolveSPLToken(publicKey: PublicKey, connection: Connection): Promise<Token | undefined> {
     return getSPLToken(publicKey, connection, this.getToken.bind(this).bind(this))
   }
 

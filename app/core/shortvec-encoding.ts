@@ -1,7 +1,7 @@
 export const decodeLength = (bytes: Array<number>): number => {
   let len = 0
   let size = 0
-  for (;;) {
+  for (; ;) {
     let elem = bytes.shift()
     // @ts-ignore
     len |= (elem & 0x7f) << (size * 7)
@@ -16,7 +16,7 @@ export const decodeLength = (bytes: Array<number>): number => {
 
 export const encodeLength = (bytes: Array<number>, len: number): void => {
   let rem_len = len
-  for (;;) {
+  for (; ;) {
     let elem = rem_len & 0x7f
     rem_len >>= 7
     if (rem_len === 0) {

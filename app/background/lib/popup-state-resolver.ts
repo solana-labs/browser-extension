@@ -1,4 +1,4 @@
-import { AVAILABLE_NETWORKS, PopupState, WalletState } from "../../core/types"
+import { AVAILABLE_NETWORKS, PopupState } from "../../core/types"
 import { createLogger } from "../../core/utils"
 import { ActionManager } from "./action-manager"
 import { Store } from "../store"

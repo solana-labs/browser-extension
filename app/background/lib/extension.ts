@@ -24,6 +24,7 @@ export default class ExtensionPlatform {
       })
     })
   }
+
   focusWindow(windowId: number) {
     return new Promise((resolve, reject) => {
       chrome.windows.update(windowId, { focused: true }, () => {

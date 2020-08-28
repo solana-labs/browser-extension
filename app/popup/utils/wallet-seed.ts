@@ -62,7 +62,7 @@ export const storeMnemonicAndSeed = async (
         kdf,
         salt: bs58.encode(salt),
         iterations,
-        digest,
+        digest
       })
     )
     localStorage.removeItem("unlocked")
@@ -86,7 +86,7 @@ export const loadMnemonicAndSeed = async (password: string, stayLoggedIn: boolea
     nonce: encodedNonce,
     salt: encodedSalt,
     iterations,
-    digest,
+    digest
   } = JSON.parse(lockedData)
   const encrypted = bs58.decode(encodedEncrypted)
   const nonce = bs58.decode(encodedNonce)

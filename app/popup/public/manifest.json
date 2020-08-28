@@ -1,7 +1,6 @@
 {
   "short_name": "Solana Wallet",
   "name": "Solana Wallet",
-
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",

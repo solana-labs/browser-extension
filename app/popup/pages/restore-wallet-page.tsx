@@ -21,7 +21,7 @@ const RestoreWalletPageBase: React.FC = () => {
   }
   return (
     <Container maxWidth="sm">
-      <RestoreWalletForm goBack={handBackButton} />
+      <RestoreWalletForm goBack={handBackButton}/>
     </Container>
   )
 }

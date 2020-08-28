@@ -1,6 +1,6 @@
-import { checkForError } from "../../core/utils"
-import { createLogger } from "../../core/utils"
+import { checkForError, createLogger } from "../../core/utils"
 import { VersionedData } from "../../core/types"
+
 const log = createLogger("sol:store")
 
 export default class LocalStore {

@@ -6,10 +6,7 @@ import { Buffer } from "buffer"
 import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { PluginContext, ProgramPlugin } from "../types"
 import { DecoderError } from "../common"
-import {
-  amountToDecimalString,
-  amountToSolDecimalString,
-} from "../../../popup/components/token-balance"
+import { formatAmount } from "../../../popup/utils/format"
 
 const log = createLogger("sol:decoder:sol")
 
@@ -17,7 +14,7 @@ export const ACCOUNT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(32, "mint"),
   BufferLayout.blob(32, "owner"),
   BufferLayout.nu64("amount"),
-  BufferLayout.blob(48),
+  BufferLayout.blob(48)
 ])
 
 const SPL_LAYOUT = BufferLayout.union(BufferLayout.u8("instruction"))
@@ -26,7 +23,7 @@ SPL_LAYOUT.addVariant(
   BufferLayout.struct([
     // TODO: does this need to be aligned?
     BufferLayout.nu64("amount"),
-    BufferLayout.u8("decimals"),
+    BufferLayout.u8("decimals")
   ]),
   "initializeMint"
 )
@@ -36,7 +33,8 @@ SPL_LAYOUT.addVariant(7, BufferLayout.struct([BufferLayout.nu64("amount")]), "mi
 SPL_LAYOUT.addVariant(8, BufferLayout.struct([BufferLayout.nu64("amount")]), "burn")
 
 export class SplPlugin implements ProgramPlugin {
-  constructor() {}
+  constructor() {
+  }
 
   decode(instruction: TransactionInstruction): DecodedInstruction {
     log("Decoding spl instrustion: %O", instruction)
@@ -58,8 +56,8 @@ export class SplPlugin implements ProgramPlugin {
             amount: decodedData.transfer.amount,
             from: instruction.keys[0].pubkey.toBase58(),
             to: instruction.keys[1].pubkey.toBase58(),
-            owner: instruction.keys[2].pubkey.toBase58(),
-          },
+            owner: instruction.keys[2].pubkey.toBase58()
+          }
         }
     }
 
@@ -104,10 +102,10 @@ export class SplPlugin implements ProgramPlugin {
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint.decimals
-        const amount = amountToDecimalString(decodedInstruction.properties.amount, mintDecimals)
+        const amount = formatAmount(decodedInstruction.properties.amount, mintDecimals)
         return {
           type: "markdown",
-          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`,
+          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`
         }
     }
     throw new Error(
@@ -119,11 +117,11 @@ export class SplPlugin implements ProgramPlugin {
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint.decimals
-        const amount = amountToDecimalString(decodedInstruction.properties.amount, mintDecimals)
+        const amount = formatAmount(decodedInstruction.properties.amount, mintDecimals)
 
         return {
           type: "ricardian",
-          content: `Transfer of '${amount} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`,
+          content: `Transfer of '${amount} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
         }
     }
 

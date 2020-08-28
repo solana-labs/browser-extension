@@ -3,7 +3,7 @@ import { useConnection } from "../context/connection"
 import { useSolanaExplorerUrlSuffix } from "../hooks"
 import Button from "@material-ui/core/Button"
 import { TransactionSignature } from "@solana/web3.js"
-import { useSnackbar, OptionsObject } from "notistack"
+import { OptionsObject, useSnackbar } from "notistack"
 
 interface SendTransactionOpts {
   onSuccess?: (signature: TransactionSignature) => void
@@ -27,7 +27,7 @@ export const useSendTransaction = (): [SendTransaction, boolean] => {
     const { onSuccess, onError } = opts
     let id = enqueueSnackbar("Sending transaction...", {
       variant: "info",
-      persist: true,
+      persist: true
     })
     setSending(true)
     try {
@@ -36,7 +36,7 @@ export const useSendTransaction = (): [SendTransaction, boolean] => {
       id = enqueueSnackbar("Confirming transaction...", {
         variant: "info",
         persist: true,
-        action: <ViewTransactionOnExplorerButton signature={signature} />,
+        action: <ViewTransactionOnExplorerButton signature={signature}/>
       })
 
       await connection.confirmTransaction(signature, 1)
@@ -45,7 +45,7 @@ export const useSendTransaction = (): [SendTransaction, boolean] => {
       enqueueSnackbar("Transaction confirmed", {
         variant: "success",
         autoHideDuration: 15000,
-        action: <ViewTransactionOnExplorerButton signature={signature} />,
+        action: <ViewTransactionOnExplorerButton signature={signature}/>
       })
       if (onSuccess) {
         onSuccess(signature)
@@ -104,7 +104,7 @@ export function useCallAsync<T>() {
     const { progress, success, error, onSuccess, onError, onFinish } = opts
     const id = enqueueSnackbar(progress?.message || "Submitting...", {
       variant: progress?.variant ?? "info",
-      persist: true,
+      persist: true
     })
     try {
       let result = await promise

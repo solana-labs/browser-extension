@@ -26,8 +26,8 @@ export const DebugButtons: React.FC = () => {
       },
       success: {
         message:
-          "Success! Please wait up to 30 seconds for the SOL tokens to appear in your wallet.",
-      },
+          "Success! Please wait up to 30 seconds for the SOL tokens to appear in your wallet."
+      }
     })
   }
 

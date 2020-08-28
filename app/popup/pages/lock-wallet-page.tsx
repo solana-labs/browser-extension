@@ -18,7 +18,7 @@ const LockWalletPageBase: React.FC = () => {
   useEffect(() => {
     callAsync(request("popup_lockWallet", {}), {
       progress: { message: "locking wallet..." },
-      success: { message: "Wallet locked" },
+      success: { message: "Wallet locked" }
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

@@ -1,6 +1,7 @@
 import { Connection } from "@solana/web3.js"
 import { createLogger } from "./utils"
 import { Network } from "./types"
+
 const log = createLogger("sol:conn")
 
 export class Web3Connection {

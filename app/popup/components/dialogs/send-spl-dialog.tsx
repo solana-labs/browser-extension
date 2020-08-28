@@ -11,7 +11,7 @@ import { useCallAsync, useSendTransaction } from "../../utils/notifications"
 import { DialogProps } from "@material-ui/core"
 import { BalanceInfo } from "../../types"
 import { useBackground } from "../../context/background"
-import { PublicKey, Transaction, TransactionInstruction } from "@solana/web3.js"
+import { PublicKey } from "@solana/web3.js"
 
 export const TOKEN_PROGRAM_ID = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
 export type Props = Omit<DialogProps, "onClose"> & {
@@ -22,12 +22,12 @@ export type Props = Omit<DialogProps, "onClose"> & {
 }
 
 export const SendSplDialog: React.FC<Props> = ({
-  open,
-  onClose,
-  signer,
-  fromPublicKey,
-  balanceInfo,
-}) => {
+                                                 open,
+                                                 onClose,
+                                                 signer,
+                                                 fromPublicKey,
+                                                 balanceInfo
+                                               }) => {
   const { request } = useBackground()
   const callAsync = useCallAsync()
   const [destinationAddress, setDestinationAddress] = useState("")
@@ -48,15 +48,15 @@ export const SendSplDialog: React.FC<Props> = ({
           fromPubkey: fromPublicKey.toBase58(),
           toPubkey: destinationAddress,
           amount: amount,
-          signer: signer.toBase58(),
-        },
+          signer: signer.toBase58()
+        }
       }),
       {
         progress: { message: "Transferring..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        },
+        }
       }
     )
   }
@@ -95,8 +95,8 @@ export const SendSplDialog: React.FC<Props> = ({
               <InputAdornment position="end">{tokenSymbol}</InputAdornment>
             ) : null,
             inputProps: {
-              step: Math.pow(10, -decimals),
-            },
+              step: Math.pow(10, -decimals)
+            }
           }}
           value={transferAmountString}
           onChange={(e) => setTransferAmountString(e.target.value.trim())}

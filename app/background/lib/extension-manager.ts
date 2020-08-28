@@ -48,7 +48,7 @@ export class ExtensionManager {
       width: NOTIFICATION_WIDTH,
       height: NOTIFICATION_HEIGHT,
       left,
-      top,
+      top
     })
 
     // Firefox currently ignores left/top for create, but it works for update
@@ -67,14 +67,14 @@ export class ExtensionManager {
   _getPopupIn(windows: chrome.windows.Window[]) {
     return windows
       ? windows.find((win) => {
-          log(
-            "_getPopupIn: find: type: '%s' id: '%s' popupId: '%s'",
-            win.type,
-            win.id,
-            this._popupId
-          )
-          return win && win.type === "popup" && win.id === this._popupId
-        })
+        log(
+          "_getPopupIn: find: type: '%s' id: '%s' popupId: '%s'",
+          win.type,
+          win.id,
+          this._popupId
+        )
+        return win && win.type === "popup" && win.id === this._popupId
+      })
       : null
   }
 }

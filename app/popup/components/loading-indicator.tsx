@@ -10,8 +10,8 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     width: "100%",
     height: "100%",
-    padding: theme.spacing(2),
-  },
+    padding: theme.spacing(2)
+  }
 }))
 
 export interface Props {
@@ -20,10 +20,10 @@ export interface Props {
 }
 
 export const LoadingIndicator: React.FC<Props & React.ComponentProps<"div">> = ({
-  height = null,
-  delay = 500,
-  ...rest
-}) => {
+                                                                                  height = null,
+                                                                                  delay = 500,
+                                                                                  ...rest
+                                                                                }) => {
   const classes = useStyles()
   const [visible, setVisible] = useState(false)
 
@@ -35,12 +35,12 @@ export const LoadingIndicator: React.FC<Props & React.ComponentProps<"div">> = (
   }
 
   if (!visible) {
-    return height ? <div style={style} /> : null
+    return height ? <div style={style}/> : null
   }
 
   return (
     <div className={classes.root} style={style} {...rest}>
-      <CircularProgress />
+      <CircularProgress/>
     </div>
   )
 }

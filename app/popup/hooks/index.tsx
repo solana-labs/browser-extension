@@ -2,13 +2,13 @@ import { useEffect } from "react"
 import { AccountInfo, Connection, PublicKey } from "@solana/web3.js"
 import { refreshCache, setCache, useAsyncData } from "../utils/fetch-loop"
 import { useConnection } from "../context/connection"
-import { TOKEN_PROGRAM_ID } from "../utils/tokens/instructions"
-import { parseMintData, parseTokenAccountData } from "../utils/tokens/data"
 import { BalanceInfo, OwnedAccount } from "../types"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import { tuple } from "immutable-tuple"
 import { useBackground } from "../context/background"
 import { Buffer } from "buffer"
+import { parseMintData, parseTokenAccountData, TOKEN_PROGRAM_ID } from "../utils/account-data"
+
 const log = require("debug")("sol:hooks")
 
 export const useSolanaExplorerUrlSuffix = (): string => {
@@ -102,7 +102,7 @@ export const useAccountInfo = (
   publicKey: PublicKey | null
 ): [AccountInfo<Buffer> | null, boolean] => {
   const { connection } = useConnection()
-  const cacheKey = tuple(connection, publicKey?.toBase58())
+  const cacheKey = tuple(connection, "accountInfo", publicKey?.toBase58())
 
   const [accountInfo, loaded] = useAsyncData<AccountInfo<Buffer> | null>(async () => {
     if (!publicKey) {
@@ -133,34 +133,32 @@ export const useAccountInfo = (
 }
 
 export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buffer>[] => {
-  return []
-  // const { connection } = useConnection()
-  // const cacheKey = tuple(connection, publicKey.toBase58(), "tokenAccountsByOwner")
-  //
-  //
-  // const [fetchedAccounts, loaded] = useAsyncData<Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>>(() => {
-  //   log("getting get token account by owner %s", publicKey.toBase58())
-  //   return connection.getTokenAccountsByOwner(publicKey, {
-  //     programId: TOKEN_PROGRAM_ID
-  //   }).then(data => {
-  //     log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
-  //     return data.value
-  //   }).catch(err => {
-  //     log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
-  //     return []
-  //   })
-  // }, {key: cacheKey, description: `tokenAccountsByOwner:${publicKey.toBase58()}`})
-  //
-  // if (!loaded) {
-  //   log("could not load token by owner %s", publicKey.toBase58())
-  //   return []
-  // }
-  // return fetchedAccounts.map((a) => {
-  //   return {
-  //     publicKey: a.pubkey,
-  //     accountInfo: a.account
-  //   } as OwnedAccount<Buffer>
-  // })
+  const { connection } = useConnection()
+  const cacheKey = tuple(connection, "ownedAccount", publicKey.toBase58())
+
+
+  const [fetchedAccounts, loaded] = useAsyncData<Array<{ pubkey: PublicKey; account: AccountInfo<Buffer> }>>(() => {
+    log("getting get token account by owner %s", publicKey.toBase58())
+    return connection.getTokenAccountsByOwner(publicKey, {
+      programId: TOKEN_PROGRAM_ID
+    }).then(data => {
+      log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
+      return data.value
+    }).catch(err => {
+      log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
+      return []
+    })
+  }, { key: cacheKey, description: `ownedAccount:${publicKey.toBase58()}` })
+
+  if (!loaded) {
+    return []
+  }
+  return fetchedAccounts.map((a) => {
+    return {
+      publicKey: a.pubkey,
+      accountInfo: a.account
+    } as OwnedAccount<Buffer>
+  })
 }
 
 export const useTokenName = (

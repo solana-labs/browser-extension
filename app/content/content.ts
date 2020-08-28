@@ -1,11 +1,7 @@
 import pump from "pump"
 import { createLogger, createObjectMultiplex } from "../core/utils"
-import {
-  CHROME_CONN_CS,
-  CONTENT_MESSAGE_STREAM,
-  INPAGE_MESSAGE_STREAM,
-  MUX_PROVIDER_SUBSTREAM,
-} from "../core/types"
+import { CHROME_CONN_CS, CONTENT_MESSAGE_STREAM, INPAGE_MESSAGE_STREAM, MUX_PROVIDER_SUBSTREAM } from "../core/types"
+
 const log = createLogger("sol:cntPage")
 const LocalMessageDuplexStream = require("post-message-stream")
 const PortStream = require("extension-port-stream")
@@ -42,7 +38,7 @@ async function setupStreams() {
   // the transport-specific streams for communication between inpage and background
   const pageStream = new LocalMessageDuplexStream({
     name: CONTENT_MESSAGE_STREAM,
-    target: INPAGE_MESSAGE_STREAM,
+    target: INPAGE_MESSAGE_STREAM
   })
   const extensionPort = chrome.runtime.connect({ name: CHROME_CONN_CS })
   const extensionStream = new PortStream(extensionPort)

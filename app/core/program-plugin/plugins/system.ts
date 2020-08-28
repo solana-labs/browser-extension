@@ -3,7 +3,8 @@ import { createLogger } from "../../utils"
 import { DecodedInstruction, Markdown, Ricardian } from "../../types"
 import { DecoderError } from "../common"
 import { PluginContext, ProgramPlugin } from "../types"
-import { amountToSolDecimalString } from "../../../popup/components/token-balance"
+import { formatSolAmount } from "../../../popup/utils/format"
+
 const log = createLogger("sol:decoder:sol")
 
 export class SolanaPlugin implements ProgramPlugin {
@@ -20,8 +21,8 @@ export class SolanaPlugin implements ProgramPlugin {
           properties: {
             from: params.fromPubkey.toBase58(),
             to: params.toPubkey.toBase58(),
-            amount: params.lamports,
-          },
+            amount: params.lamports
+          }
         }
       case "Create":
         let crParam = SystemInstruction.decodeCreateAccount(instruction)
@@ -34,8 +35,8 @@ export class SolanaPlugin implements ProgramPlugin {
             newAccount: crParam.newAccountPubkey.toBase58(),
             lamports: crParam.lamports,
             space: crParam.space,
-            programId: crParam.programId.toBase58(),
-          },
+            programId: crParam.programId.toBase58()
+          }
         }
     }
 
@@ -54,7 +55,7 @@ export class SolanaPlugin implements ProgramPlugin {
     let content: string | undefined = undefined
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        const amount = amountToSolDecimalString(decodedInstruction.properties.amount)
+        const amount = formatSolAmount(decodedInstruction.properties.amount)
         content = `<p>Transfer: <b>${amount}</b> SOL <br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/>to <b><small>${decodedInstruction.properties.to}</small></b></p>`
         break
       case "Create":
@@ -65,7 +66,7 @@ export class SolanaPlugin implements ProgramPlugin {
     if (content) {
       return {
         type: "markdown",
-        content: content,
+        content: content
       }
     }
     throw new Error(
@@ -78,7 +79,7 @@ export class SolanaPlugin implements ProgramPlugin {
 
     switch (decodedInstruction.instructionType) {
       case "Transfer":
-        const amount = amountToSolDecimalString(decodedInstruction.properties.amount)
+        const amount = formatSolAmount(decodedInstruction.properties.amount)
         content = `Transfer of '${amount} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
       case "Create":
         content = `Create new account  ${decodedInstruction.properties.newAccount} (creator ${decodedInstruction.properties.from})</p>`
@@ -87,7 +88,7 @@ export class SolanaPlugin implements ProgramPlugin {
     if (content) {
       return {
         type: "ricardian",
-        content: content,
+        content: content
       }
     }
     throw new Error(

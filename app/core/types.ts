@@ -1,4 +1,4 @@
-import { clusterApiUrl, Cluster, TransactionInstruction } from "@solana/web3.js"
+import { Cluster, clusterApiUrl, TransactionInstruction } from "@solana/web3.js"
 
 export const ENVIRONMENT_TYPE_POPUP = "popup"
 export const ENVIRONMENT_TYPE_BACKGROUND = "background"
@@ -12,13 +12,13 @@ export const CHROME_CONN_CS = "sol.cs"
 export const DEFAULT_NETWORK: Network = {
   title: "Devnet",
   cluster: "devnet",
-  endpoint: clusterApiUrl("devnet"),
+  endpoint: clusterApiUrl("devnet")
 }
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", cluster: "mainnet-beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet") },
   // { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") },
-  { title: "Break", cluster: "testnet", endpoint: "https://break-api.testnet.solana.com" },
+  { title: "Break", cluster: "testnet", endpoint: "https://break-api.testnet.solana.com" }
 ]
 export type RequestAccountsResp = {
   accounts: string[]

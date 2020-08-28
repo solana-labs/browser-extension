@@ -7,20 +7,31 @@
     "48": "icons/solana-48.png",
     "128": "icons/solana-128.png"
   },
-  "permissions": ["storage", "activeTab"],
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
   "browser_action": {
     "default_popup": "index.html"
   },
   "background": {
-    "scripts": ["static/js/background.js"],
+    "scripts": [
+      "static/js/background.js"
+    ],
     "persistent": true
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["static/js/content.js"],
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "static/js/content.js"
+      ],
       "run_at": "document_start"
     }
   ],
-  "web_accessible_resources": ["/static/js/inpage.js"]
+  "web_accessible_resources": [
+    "/static/js/inpage.js"
+  ]
 }

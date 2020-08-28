@@ -126,12 +126,12 @@ class FetchLoops {
 
   addListener(listener: FetchLoopListener) {
     if (!this.loops.has(listener.cacheKey.key)) {
-      log("Adding new fetch loop with cachekey: %s", listener.cacheKey.description)
+      log("Adding new fetch loop with cache key: %s", listener.cacheKey.description)
       this.loops.set(listener.cacheKey.key, new FetchLoopInternal(listener.cacheKey.key, listener.fn))
     } else {
-      log("Fetch loop with cachekey: %s already present", listener.cacheKey.description)
+      log("Fetch loop with cache key: %s already present", listener.cacheKey.description)
     }
-    log("Adding listent to cachekey: %s", listener.cacheKey.description)
+    log("Adding listener to cache key: %s", listener.cacheKey.description)
     this.loops.get(listener.cacheKey.key)?.addListener(listener)
   }
 
@@ -175,12 +175,11 @@ export const useAsyncData = <T>(
   }, 0)
 
   useEffect(() => {
-    log("useAsyncData useEffect reloading... not sure why for %s", cacheKey.description)
     if (!cacheKey.key) {
-      return () => {}
+      return () => {
+      }
     }
     const listener = new FetchLoopListener(cacheKey, asyncFn, refreshInterval, rerender)
-    log("Attempting to add register listener: %s", cacheKey.description )
     globalLoops.addListener(listener)
     return () => {
       globalLoops.removeListener(listener)
