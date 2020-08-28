@@ -9,7 +9,7 @@ import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex, getSPLToken } from "../core/utils"
 import {
-  ENVIRONMENT_TYPE_POPUP,
+  ENVIRONMENT_TYPE_POPUP, EVENT_UPDATE_BADGE,
   MUX_CONTROLLER_SUBSTREAM,
   MUX_PROVIDER_SUBSTREAM,
   Network,
@@ -47,7 +47,7 @@ export default class SolanaController {
   private walletController: WalletController
   private popupController: PopupController
   private extensionManager: ExtensionManager
-  private actionManager: ActionManager
+  public actionManager: ActionManager
   private popupState: PopupStateResolver
   private persistData: (data: StoredData) => Promise<boolean>
   private connection: Web3Connection
@@ -62,6 +62,7 @@ export default class SolanaController {
     this.connection = connection
     this.extensionManager = new ExtensionManager()
     this.actionManager = new ActionManager()
+    this.actionManager.on(EVENT_UPDATE_BADGE, this.updateBadge)
     this.popupState = new PopupStateResolver(this.store, this.actionManager)
 
     const pluginManager = new ProgramPluginManager({
@@ -306,17 +307,17 @@ export default class SolanaController {
     } as StoredData)
   }
 
-  monitor() {
-    const that = this
-    setTimeout(function() {
-      log("bg: dumping connections")
-      Object.keys(that.connections).forEach((origin) => {
-        Object.keys(that.connections[origin]).forEach((connId) => {
-          log("connection: %s with id %s", origin, connId)
-        })
-      })
-    }, 5000)
+  updateBadge = () => {
+    let label = ''
+    const actionCount = this.actionManager.getCount()
+    log("Updating badge with new count: %d", actionCount)
+    if (actionCount) {
+      label = String(actionCount)
+    }
+    chrome.browserAction.setBadgeText({ text: label })
+    chrome.browserAction.setBadgeBackgroundColor({ color: '#037DD6' })
   }
+
 }
 
 

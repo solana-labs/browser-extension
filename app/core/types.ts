@@ -8,6 +8,7 @@ export const CONTENT_MESSAGE_STREAM = "sol.cs"
 export const MUX_PROVIDER_SUBSTREAM = "sol.provider"
 export const MUX_CONTROLLER_SUBSTREAM = "sol.controller"
 export const CHROME_CONN_CS = "sol.cs"
+export const EVENT_UPDATE_BADGE = "updateBadge"
 
 export const DEFAULT_NETWORK: Network = {
   title: "Devnet",
