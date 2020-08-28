@@ -14,6 +14,8 @@ import { ActionKey, ActionRequestAccounts, ActionSignTransaction, OrderedAction 
 import TextField from "@material-ui/core/TextField"
 import ReactMarkdown from "react-markdown"
 import { LoadingIndicator } from "../components/loading-indicator"
+import { Paths } from "../components/routes/paths"
+import { Redirect } from "react-router"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 
 const useStyles = makeStyles({
@@ -42,7 +44,7 @@ interface NotificationPageProps {
 }
 
 const NotificationPageBase: React.FC<NotificationPageProps> = (opts: NotificationPageProps) => {
-  const { popupState } = useBackground()
+  const { popupState, isNotification } = useBackground()
   const [currentNotificationIndex, setCurrentNotificationIndex] = useState(0)
 
   if (!popupState) {
@@ -51,12 +53,10 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
 
   const notifications = popupState.actions
 
-  if (notifications.length == 0) {
-    return (
-      <div>
-        No Notifications to display
-      </div>
-    )
+  if (notifications.length == 0 && isNotification) {
+    window.close();
+  } else if(notifications.length == 0 && !isNotification) {
+    return <Redirect to={{ pathname: Paths.accounts }}/>
   }
 
   const handleNotificationPage = (page: number) => {

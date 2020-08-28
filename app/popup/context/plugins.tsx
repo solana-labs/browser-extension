@@ -27,7 +27,6 @@ export function ProgramPluginsManagerProvider(props: React.PropsWithChildren<{}>
   }
 
   const programPluginManager = useMemo<ProgramPluginManager | undefined>(() => {
-    log("programPluginManager created")
     return new ProgramPluginManager({
       getConnection: () => {
         return connection

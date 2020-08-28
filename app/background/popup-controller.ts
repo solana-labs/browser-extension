@@ -43,7 +43,6 @@ export class PopupController {
   private popupState: PopupStateResolver
 
   constructor(opts: PopupControllerOpt) {
-    log("popup controller constructor")
     const { store, notifyAllDomains, connection, extensionManager, actionManager, popupState } = opts
     this.store = store
     this.actionManager = actionManager
@@ -55,7 +54,6 @@ export class PopupController {
 
   createMiddleware() {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
-      log("createAsyncMiddleware with req: %O", req)
       const method = req.method as PopupActions
       switch (method) {
         case "popup_getState":
@@ -74,7 +72,6 @@ export class PopupController {
           }
           break
         case "popup_unlockWallet":
-          log("Handling popup_unlockWallet with origin:")
           try {
             await this.store.unlockSecretBox(req.params.password)
 
@@ -88,7 +85,6 @@ export class PopupController {
           }
           break
         case "popup_lockWallet":
-          log("Handling popup_lockWallet")
           try {
             await this.store.lockSecretBox()
             this._notifyAll({
@@ -103,7 +99,6 @@ export class PopupController {
         case "popup_authoriseRequestAccounts":
           try {
             await this.approveRequestAccounts(req)
-            await this.extensionManager.closePopup()
           } catch (err) {
             log("Failed popup_approvePermissionsRequest with error: %s", err)
             res.error = err
@@ -120,7 +115,6 @@ export class PopupController {
         case "popup_declineRequestAccounts":
           try {
             await this.declineRequestAccounts(req)
-            await this.extensionManager.closePopup()
           } catch (err) {
             log("Failed popup_declineRequestAccounts with error: %s", err)
             res.error = err
@@ -129,7 +123,6 @@ export class PopupController {
         case "popup_authoriseTransaction":
           try {
             await this.signTransaction(req)
-            await this.extensionManager.closePopup()
           } catch (err) {
             log("popup_approvePermissionsRequest failed with error: %s", err)
             res.error = err
@@ -138,7 +131,6 @@ export class PopupController {
         case "popup_declineTransaction":
           try {
             await this.declineTransaction(req)
-            await this.extensionManager.closePopup()
           } catch (err) {
             log("popup_declineTransaction failed with error: %s", err)
             res.error = err
@@ -229,17 +221,13 @@ export class PopupController {
 
   async deleteAuthorizedWebsite(req: any) {
     log("deleting authorized website: %O", req)
-
     const { origin } = req.params
-
     this.store.removeAuthorizedOrigin(origin)
   }
 
   async approveRequestAccounts(req: any) {
     log("Approving request request account: %O", req)
-
     const { actionKey } = req.params
-
     const actions = this.actionManager.getActionsWithOriginAndType<ActionRequestAccounts>(actionKey.origin, "request_accounts")
     if (actions.size === 0) {
       log(

@@ -1,4 +1,4 @@
-import { Action, ActionKey, EVENT_UPDATE_BADGE, OrderedAction } from "../../core/types"
+import { Action, ActionKey, EVENT_UPDATE_ACTIONS, EVENT_UPDATE_BADGE, OrderedAction } from "../../core/types"
 import { createLogger } from "../../core/utils"
 import { v4 as uuidv4 } from "uuid"
 import * as events from "events"
@@ -14,15 +14,15 @@ export class ActionManager extends events.EventEmitter {
   }
 
   addAction = (origin: string, tabId: string, action: Action) => {
-    log("Adding action for origin [%s] and tab [%s] of type %s", origin, tabId, action.type)
     const key = {
       tabId: tabId,
       origin: origin,
       uuid: uuidv4()
     }
-    log("Created action key: %O - %s", key, action.type)
+    log("Adding action '%s' with key %o", action.type, origin, tabId, action.type, key)
     this.actions.set(JSON.stringify(key), action)
     this.emit(EVENT_UPDATE_BADGE)
+    this.emit(EVENT_UPDATE_ACTIONS)
   }
 
   getAction = <T extends (Action)>(key: ActionKey): T | undefined => {
@@ -46,6 +46,7 @@ export class ActionManager extends events.EventEmitter {
     log("Deleting action for key %O", key)
     this.actions.delete(JSON.stringify(key))
     this.emit(EVENT_UPDATE_BADGE)
+    this.emit(EVENT_UPDATE_ACTIONS)
   }
 
   getActionsWithOriginAndType = <T extends (Action)>(origin: string, type: string): Map<ActionKey, T> => {

@@ -1,6 +1,8 @@
 import React from "react"
 import { NavigationFrame } from "../navigation-frame"
 import { makeStyles } from "@material-ui/core/styles"
+import { useBackground } from "../../context/background"
+import {Helmet} from "react-helmet";
 
 const useStyles = makeStyles((theme) => ({
   content: {
@@ -13,9 +15,14 @@ const useStyles = makeStyles((theme) => ({
 
 
 export const Layout: React.FC = ({ children }) => {
+  const { isNotification } = useBackground()
+
   const classes = useStyles()
   return (
     <>
+      <Helmet>
+        <title>{isNotification ? "Solana Notification" : "Solana Wallet"}</title>
+      </Helmet>
       <NavigationFrame/>
       <main className={classes.content}>{children}</main>
     </>

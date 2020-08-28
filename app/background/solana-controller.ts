@@ -9,7 +9,8 @@ import { nanoid } from "nanoid"
 import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex, getSPLToken } from "../core/utils"
 import {
-  ENVIRONMENT_TYPE_POPUP, EVENT_UPDATE_BADGE,
+  ENVIRONMENT_TYPE_NOTIFICATION,
+  ENVIRONMENT_TYPE_POPUP, EVENT_UPDATE_ACTIONS, EVENT_UPDATE_BADGE,
   MUX_CONTROLLER_SUBSTREAM,
   MUX_PROVIDER_SUBSTREAM,
   Network,
@@ -53,7 +54,6 @@ export default class SolanaController {
   private connection: Web3Connection
 
   constructor(opts: SolanaControllerOpts) {
-    log("Setting up Solana Controller")
     const { storedData, persistData } = opts
     const store = new Store(storedData)
     const connection = new Web3Connection(store.selectedNetwork)
@@ -63,6 +63,7 @@ export default class SolanaController {
     this.extensionManager = new ExtensionManager()
     this.actionManager = new ActionManager()
     this.actionManager.on(EVENT_UPDATE_BADGE, this.updateBadge)
+    this.actionManager.on(EVENT_UPDATE_ACTIONS, this.notifyNotificationStateChange.bind(this))
     this.popupState = new PopupStateResolver(this.store, this.actionManager)
 
     const pluginManager = new ProgramPluginManager({
@@ -135,9 +136,9 @@ export default class SolanaController {
 
     pump(outStream, providerStream, outStream, (err) => {
       if (err) {
-        log("Controller %s disconnected with error: %O", origin, err)
+        log("Controller '%s' disconnected with error: %O", origin, err)
       } else {
-        log("Controller  %s disconnected", origin)
+        log("Controller '%s' disconnected", origin)
       }
       connectionId && this.removeConnection(origin, connectionId)
       // engine._middleware.forEach((mid : any) => {
@@ -231,6 +232,17 @@ export default class SolanaController {
     }
   }
 
+  notifyNotificationStateChange() {
+    this.notifyConnections(ENVIRONMENT_TYPE_NOTIFICATION, {
+      type: "popupStateChanged",
+      data: this.popupState.get()
+    })
+  }
+
+  notifyPopupWindow(notification: Notification) {
+    this.notifyConnections(ENVIRONMENT_TYPE_POPUP, notification)
+  }
+
   notifyConnections(origin: string, notification: Notification) {
     const connections = this.connections[origin]
     if (!this.store.isUnlocked() || !connections) {
@@ -277,13 +289,9 @@ export default class SolanaController {
 
   async triggerUi() {
     const notify = () => {
-      log("notifying popup")
-      this.notifyConnections(ENVIRONMENT_TYPE_POPUP, {
-        type: "popupStateChanged",
-        data: this.popupState.get()
-      })
+      this.notifyNotificationStateChange()
     }
-    await this.extensionManager.showPopup(notify)
+    await this.extensionManager.showNotification(notify)
     // const tabs = await platform.getActiveTabs()
     // const currentlyActiveMetamaskTab = Boolean(tabs.find((tab) => openSolanaTabsIDs[tab.id]))
     // if (!popupIsOpen && !currentlyActiveMetamaskTab) {
@@ -310,7 +318,6 @@ export default class SolanaController {
   updateBadge = () => {
     let label = ''
     const actionCount = this.actionManager.getCount()
-    log("Updating badge with new count: %d", actionCount)
     if (actionCount) {
       label = String(actionCount)
     }

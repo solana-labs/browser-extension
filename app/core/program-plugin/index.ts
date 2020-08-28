@@ -130,7 +130,6 @@ export class ProgramPluginManager {
   }
 
   _setupPlugins = (): void => {
-    log("registering plugins")
     this._registerProgramPlugin(
       new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o"),
       new SplPlugin()
