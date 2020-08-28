@@ -34,7 +34,7 @@ export class ProgramPluginManager {
       const data = base58.encode(instruction.data)
       return {
         type: "markdown",
-        content: `<p>Failed to decode instruction<br/>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`,
+        content: `<p>Failed to decode instruction<br/>Program id: <b><small>${instruction.programId}</small></b><br/>data: <b>${data}</b></p>`,
       }
     }
 

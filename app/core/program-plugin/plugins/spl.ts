@@ -107,7 +107,7 @@ export class SplPlugin implements ProgramPlugin {
         const amount = amountToDecimalString(decodedInstruction.properties.amount, mintDecimals)
         return {
           type: "markdown",
-          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small</b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`,
+          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`,
         }
     }
     throw new Error(
