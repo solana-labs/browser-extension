@@ -7,24 +7,23 @@ import { LoadingIndicator } from "../components/loading-indicator"
 import { usePopupState } from "../context/background"
 import { withLayout } from "../components/layout"
 
-
 export const WalletPageBase: React.FC = () => {
   const popupState = usePopupState()
-  const isProdNetwork = (popupState.selectedNetwork.cluster === "mainnet-beta")
+  const isProdNetwork = popupState.selectedNetwork.cluster === "mainnet-beta"
 
   if (!popupState?.selectedAccount) {
-    return <LoadingIndicator/>
+    return <LoadingIndicator />
   }
 
   return (
     <Container fixed maxWidth="md">
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <AccountList account={popupState?.selectedAccount}/>
+          <AccountList account={popupState?.selectedAccount} />
         </Grid>
         {isProdNetwork ? null : (
           <Grid item xs={12}>
-            <DebugButtons/>
+            <DebugButtons />
           </Grid>
         )}
       </Grid>

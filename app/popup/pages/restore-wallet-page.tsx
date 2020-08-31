@@ -12,7 +12,6 @@ import { useCallAsync } from "../utils/notifications"
 import { useBackground } from "../context/background"
 import { withLayout } from "../components/layout"
 
-
 const RestoreWalletPageBase: React.FC = () => {
   const history = useHistory()
 
@@ -21,7 +20,7 @@ const RestoreWalletPageBase: React.FC = () => {
   }
   return (
     <Container maxWidth="sm">
-      <RestoreWalletForm goBack={handBackButton}/>
+      <RestoreWalletForm goBack={handBackButton} />
     </Container>
   )
 }

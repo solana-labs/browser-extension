@@ -31,7 +31,7 @@ export function ProgramPluginsManagerProvider(props: React.PropsWithChildren<{}>
       getConnection: () => {
         return connection
       },
-      getSPLToken: resolveSPLToken
+      getSPLToken: resolveSPLToken,
     })
   }, [getToken])
 

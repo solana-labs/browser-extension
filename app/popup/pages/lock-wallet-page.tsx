@@ -10,7 +10,6 @@ import { Typography } from "@material-ui/core"
 import CardActions from "@material-ui/core/CardActions"
 import Button from "@material-ui/core/Button"
 
-
 const LockWalletPageBase: React.FC = () => {
   const callAsync = useCallAsync()
   const { request } = useBackground()
@@ -18,7 +17,7 @@ const LockWalletPageBase: React.FC = () => {
   useEffect(() => {
     callAsync(request("popup_lockWallet", {}), {
       progress: { message: "locking wallet..." },
-      success: { message: "Wallet locked" }
+      success: { message: "Wallet locked" },
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

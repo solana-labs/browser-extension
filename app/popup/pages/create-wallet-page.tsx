@@ -27,8 +27,8 @@ const CreateWalletPageBase: React.FC = () => {
   return (
     <Container maxWidth="sm">
       <>
-        <CreateWalletForm/>
-        <br/>
+        <CreateWalletForm />
+        <br />
         <Link style={{ cursor: "pointer" }} onClick={handleRestoreClick}>
           Restore existing wallet
         </Link>
@@ -57,7 +57,7 @@ const CreateWalletForm: React.FC = () => {
     const { mnemonic, seed } = mnemonicAndSeed
     callAsync(request("popup_createWallet", { mnemonic, seed, password }), {
       progress: { message: "Creating wallet..." },
-      success: { message: "Wallet created" }
+      success: { message: "Wallet created" },
     })
   }
 
@@ -66,10 +66,10 @@ const CreateWalletForm: React.FC = () => {
       return null
     }
 
-    return <SeedWordsForm mnemonicAndSeed={mnemonicAndSeed} goForward={() => setSavedWords(true)}/>
+    return <SeedWordsForm mnemonicAndSeed={mnemonicAndSeed} goForward={() => setSavedWords(true)} />
   }
 
-  return <ChoosePasswordForm goBack={() => setSavedWords(false)} onSubmit={submit}/>
+  return <ChoosePasswordForm goBack={() => setSavedWords(false)} onSubmit={submit} />
 }
 
 interface SeedWordsFormProps {
@@ -101,7 +101,7 @@ const SeedWordsForm: React.FC<SeedWordsFormProps> = ({ mnemonicAndSeed, goForwar
             onFocus={(e) => e.currentTarget.select()}
           />
         ) : (
-          <LoadingIndicator/>
+          <LoadingIndicator />
         )}
         <Typography paragraph>
           Your private keys are only stored on your current computer or device. You will need these

@@ -4,7 +4,7 @@ import useMediaQuery from "@material-ui/core/useMediaQuery"
 import {
   makeStyles,
   ThemeProvider,
-  unstable_createMuiStrictModeTheme as createMuiTheme
+  unstable_createMuiStrictModeTheme as createMuiTheme,
 } from "@material-ui/core/styles"
 import { ConnectionProvider } from "../context/connection"
 import { LoadingIndicator } from "../components/loading-indicator"
@@ -19,7 +19,7 @@ const useStyles = makeStyles({
   success: { backgroundColor: "#25c2a0" },
   error: { backgroundColor: "#B45BDC" },
   warning: { backgroundColor: "#fa62fc" },
-  info: { backgroundColor: "#43b5c5" }
+  info: { backgroundColor: "#43b5c5" },
 })
 
 export const App: React.FC = () => {
@@ -31,29 +31,29 @@ export const App: React.FC = () => {
           type: prefersDarkMode ? "dark" : "light",
           primary: {
             main: "#25c2a0",
-            contrastText: "#fff"
+            contrastText: "#fff",
           },
           secondary: {
             main: "#86b8b6",
-            contrastText: "#fff"
+            contrastText: "#fff",
           },
           success: {
             main: "#25c2a0",
-            contrastText: "#fff"
+            contrastText: "#fff",
           },
           info: {
             main: "#43b5c5",
-            contrastText: "#fff"
+            contrastText: "#fff",
           },
           error: {
             main: "#fa62fc",
-            contrastText: "#fff"
-          }
+            contrastText: "#fff",
+          },
         },
         typography: {
-          fontSize: 13
+          fontSize: 13,
         },
-        spacing: 6
+        spacing: 6,
       }),
     [prefersDarkMode]
   )
@@ -65,9 +65,9 @@ export const App: React.FC = () => {
   }
 
   return (
-    <Suspense fallback={<LoadingIndicator/>}>
+    <Suspense fallback={<LoadingIndicator />}>
       <ThemeProvider theme={theme}>
-        <CssBaseline/>
+        <CssBaseline />
         <BackgroundProvider>
           <ConnectionProvider>
             <ProgramPluginsManagerProvider>
@@ -78,11 +78,11 @@ export const App: React.FC = () => {
                   variantSuccess: classes.success,
                   variantError: classes.error,
                   variantWarning: classes.warning,
-                  variantInfo: classes.info
+                  variantInfo: classes.info,
                 }}
               >
                 <Router history={history}>
-                  <Routes/>
+                  <Routes />
                 </Router>
               </SnackbarProvider>
             </ProgramPluginsManagerProvider>

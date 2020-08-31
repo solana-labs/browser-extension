@@ -9,10 +9,9 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(3),
     paddingBottom: theme.spacing(3),
     paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1)
-  }
+    paddingRight: theme.spacing(1),
+  },
 }))
-
 
 export const Layout: React.FC = ({ children }) => {
   const { isNotification } = useBackground()
@@ -23,7 +22,7 @@ export const Layout: React.FC = ({ children }) => {
       <Helmet>
         <title>{isNotification ? "Solana Notification" : "Solana Wallet"}</title>
       </Helmet>
-      <NavigationFrame/>
+      <NavigationFrame />
       <main className={classes.content}>{children}</main>
     </>
   )

@@ -11,16 +11,23 @@ import {
   Network,
   Notification,
   PopupActions,
-  SignatureResult
+  SignatureResult,
 } from "../core/types"
-import { Account, Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js"
+import {
+  Account,
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js"
 import { Web3Connection } from "../core/connection"
 import { ExtensionManager } from "./lib/extension-manager"
-import { TOKEN_PROGRAM_ID } from "../popup/components/dialogs/send-spl-dialog"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
 import { ActionManager } from "./lib/action-manager"
 import { PopupStateResolver } from "./lib/popup-state-resolver"
+import { TOKEN_PROGRAM_ID } from "../core/program-plugin/plugins/spl"
 
 const log = createLogger("sol:popup")
 const createAsyncMiddleware = require("json-rpc-engine/src/createAsyncMiddleware")
@@ -43,7 +50,14 @@ export class PopupController {
   private popupState: PopupStateResolver
 
   constructor(opts: PopupControllerOpt) {
-    const { store, notifyAllDomains, connection, extensionManager, actionManager, popupState } = opts
+    const {
+      store,
+      notifyAllDomains,
+      connection,
+      extensionManager,
+      actionManager,
+      popupState,
+    } = opts
     this.store = store
     this.actionManager = actionManager
     this.popupState = popupState
@@ -64,7 +78,7 @@ export class PopupController {
             await this.store.createSecretBox(mnemonic, seed, password)
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" }
+              data: { state: "unlocked" },
             })
           } catch (err) {
             log("error: popup_createWallet failed  with error: %s", err)
@@ -77,7 +91,7 @@ export class PopupController {
 
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "unlocked" }
+              data: { state: "unlocked" },
             })
           } catch (err) {
             log("error: popup_unlockWallet failed  with error: %s", err)
@@ -89,7 +103,7 @@ export class PopupController {
             await this.store.lockSecretBox()
             this._notifyAll({
               type: "stateChanged",
-              data: { state: "locked" }
+              data: { state: "locked" },
             })
           } catch (err) {
             log("error: popup_lockWallet failed  with error: %s", err)
@@ -212,7 +226,7 @@ export class PopupController {
         mintAddress: token.mintAddress,
         name: token.name,
         symbol: token.symbol,
-        decimals: mintData.decimals
+        decimals: mintData.decimals,
       })
     } catch (e) {
       throw new Error(`Could not add token: ${e}`)
@@ -228,18 +242,18 @@ export class PopupController {
   async approveRequestAccounts(req: any) {
     log("Approving request request account: %O", req)
     const { actionKey } = req.params
-    const actions = this.actionManager.getActionsWithOriginAndType<ActionRequestAccounts>(actionKey.origin, "request_accounts")
+    const actions = this.actionManager.getActionsWithOriginAndType<ActionRequestAccounts>(
+      actionKey.origin,
+      "request_accounts"
+    )
     if (actions.size === 0) {
-      log(
-        "Unable to find request accounts actions for origin %s:",
-        origin
-      )
+      log("Unable to find request accounts actions for origin %s:", origin)
       return
     }
 
     actions.forEach((action, key) => {
       action.resolve({
-        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : []
+        accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],
       })
       this.actionManager.deleteAction(key)
     })
@@ -314,7 +328,7 @@ export class PopupController {
       this.connection.changeNetwork(network)
       this._notifyAll({
         type: "clusterChanged",
-        data: network
+        data: network,
       })
     }
     // TODO: Endpoint will be used here to add a customer cluster
@@ -333,7 +347,7 @@ export class PopupController {
     this.store.selectedNetwork = {
       title: "Custom",
       cluster: cluster,
-      endpoint: endpoint
+      endpoint: endpoint,
     }
     onExit(this.store.selectedNetwork)
   }
@@ -366,7 +380,7 @@ export class PopupController {
       this.store.selectedAccount = newAccount.publicKey.toBase58()
       this._notifyAll({
         type: "accountsChanged",
-        data: this.store.wallet?.getPublicKeysAsBs58() || []
+        data: this.store.wallet?.getPublicKeysAsBs58() || [],
       })
     }
   }
@@ -408,7 +422,7 @@ export class PopupController {
     const transaction = SystemProgram.transfer({
       fromPubkey: new PublicKey(transfer.fromPubkey),
       toPubkey: new PublicKey(transfer.toPubkey),
-      lamports: lamports
+      lamports: lamports,
     })
 
     log("creating connection with address: ", this.store.selectedNetwork.endpoint)
@@ -454,7 +468,7 @@ export class PopupController {
     let b = Buffer.alloc(instructionMaxSpan)
     let span = bufferLayout.encode(
       {
-        transfer: { amount: amount }
+        transfer: { amount: amount },
       },
       b
     )
@@ -466,10 +480,10 @@ export class PopupController {
         keys: [
           { pubkey: new PublicKey(transfer.fromPubkey), isSigner: false, isWritable: true },
           { pubkey: new PublicKey(transfer.toPubkey), isSigner: false, isWritable: true },
-          { pubkey: signingAccount.publicKey, isSigner: false, isWritable: false }
+          { pubkey: signingAccount.publicKey, isSigner: false, isWritable: false },
         ],
         data: encodedData,
-        programId: TOKEN_PROGRAM_ID
+        programId: TOKEN_PROGRAM_ID,
       })
     )
 

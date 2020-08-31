@@ -6,7 +6,6 @@ const log = createLogger("sol:fl")
 const pageLoadTime: Date = new Date()
 const globalCache = new Map()
 
-
 type FetchLoopCacheKey = {
   key: any
   description: string
@@ -18,7 +17,12 @@ class FetchLoopListener {
   public refreshInterval: number
   public callback: () => void
 
-  constructor(cacheKey: FetchLoopCacheKey, fn: () => void, refreshInterval: number, callback: () => void) {
+  constructor(
+    cacheKey: FetchLoopCacheKey,
+    fn: () => void,
+    refreshInterval: number,
+    callback: () => void
+  ) {
     this.cacheKey = cacheKey
     this.fn = fn
     this.refreshInterval = refreshInterval
@@ -127,7 +131,10 @@ class FetchLoops {
   addListener(listener: FetchLoopListener) {
     if (!this.loops.has(listener.cacheKey.key)) {
       log("Adding new fetch loop with cache key: %s", listener.cacheKey.description)
-      this.loops.set(listener.cacheKey.key, new FetchLoopInternal(listener.cacheKey.key, listener.fn))
+      this.loops.set(
+        listener.cacheKey.key,
+        new FetchLoopInternal(listener.cacheKey.key, listener.fn)
+      )
     } else {
       log("Fetch loop with cache key: %s already present", listener.cacheKey.description)
     }
@@ -169,15 +176,13 @@ export const useAsyncData = <T>(
   cacheKey: FetchLoopCacheKey,
   { refreshInterval = 60000 } = {}
 ): [T, boolean] => {
-
   const [, rerender] = useReducer((i: number) => {
     return i + 1
   }, 0)
 
   useEffect(() => {
     if (!cacheKey.key) {
-      return () => {
-      }
+      return () => {}
     }
     const listener = new FetchLoopListener(cacheKey, asyncFn, refreshInterval, rerender)
     globalLoops.addListener(listener)

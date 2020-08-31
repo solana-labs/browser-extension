@@ -33,8 +33,8 @@ const LoginPageBase: React.FC = () => {
   return (
     <Container maxWidth="sm">
       <>
-        <LoginForm onSuccess={handleSuccess}/>
-        <br/>
+        <LoginForm onSuccess={handleSuccess} />
+        <br />
         <Link style={{ cursor: "pointer" }} onClick={goToRestore}>
           Restore existing wallet
         </Link>
@@ -53,7 +53,7 @@ const LoginForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
     callAsync(request("popup_unlockWallet", { password }), {
       progress: { message: "Unlocking wallet..." },
       success: { message: "Wallet unlocked" },
-      onSuccess: onSuccess
+      onSuccess: onSuccess,
     })
   }
 
@@ -78,12 +78,12 @@ const LoginForm: React.FC<{ onSuccess: () => void }> = ({ onSuccess }) => {
               if (event.key === "Enter") {
                 submit()
               }
-            }
+            },
           }}
         />
         <FormControlLabel
           control={
-            <Checkbox checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)}/>
+            <Checkbox checked={stayLoggedIn} onChange={(e) => setStayLoggedIn(e.target.checked)} />
           }
           label="Keep wallet unlocked"
         />

@@ -13,7 +13,6 @@ import { useBackground } from "../../context/background"
 import { PublicKey } from "@solana/web3.js"
 import { formatAddress } from "../../utils/format"
 
-export const TOKEN_PROGRAM_ID = new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o")
 export type Props = Omit<DialogProps, "onClose"> & {
   onClose: () => void
   signer: PublicKey
@@ -22,19 +21,19 @@ export type Props = Omit<DialogProps, "onClose"> & {
 }
 
 export const SendSplDialog: React.FC<Props> = ({
-                                                 open,
-                                                 onClose,
-                                                 signer,
-                                                 fromPublicKey,
-                                                 balanceInfo
-                                               }) => {
+  open,
+  onClose,
+  signer,
+  fromPublicKey,
+  balanceInfo,
+}) => {
   const { request } = useBackground()
   const callAsync = useCallAsync()
   const [destinationAddress, setDestinationAddress] = useState("")
   const [transferAmountString, setTransferAmountString] = useState("")
   const [, sending] = useSendTransaction()
 
-  let { amount: balanceAmount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
+  let { amount, token } = balanceInfo
 
   function onSubmit() {
     // let amount = Math.round(parseFloat(transferAmountString) * Math.pow(10, decimals))
@@ -48,32 +47,32 @@ export const SendSplDialog: React.FC<Props> = ({
           fromPubkey: fromPublicKey.toBase58(),
           toPubkey: destinationAddress,
           amount: amount,
-          signer: signer.toBase58()
-        }
+          signer: signer.toBase58(),
+        },
       }),
       {
         progress: { message: "Transferring..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }
 
   // FIXME: Was using `balanceFormat` before, need to convert it so its support BigInt!
   let formattedTokenName = "Unkown"
-  if (tokenName) {
-    formattedTokenName = tokenName
-  } else if (mint != null) {
-    formattedTokenName = formatAddress(mint)
+  if (token.name) {
+    formattedTokenName = token.name
+  } else if (token.mintAddress != "") {
+    formattedTokenName = formatAddress(token.mintAddress)
   }
 
   return (
     <DialogForm open={open} onClose={onClose} onSubmit={onSubmit}>
       <DialogTitle>
         Send {formattedTokenName}
-        {tokenSymbol ? ` (${tokenSymbol})` : null}
+        {token.symbol ? ` (${token.symbol})` : null}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -91,16 +90,16 @@ export const SendSplDialog: React.FC<Props> = ({
           margin="normal"
           type="number"
           InputProps={{
-            endAdornment: tokenSymbol ? (
-              <InputAdornment position="end">{tokenSymbol}</InputAdornment>
+            endAdornment: token.symbol ? (
+              <InputAdornment position="end">{token.symbol}</InputAdornment>
             ) : null,
             inputProps: {
-              step: Math.pow(10, -decimals)
-            }
+              step: Math.pow(10, -token.decimals),
+            },
           }}
           value={transferAmountString}
           onChange={(e) => setTransferAmountString(e.target.value.trim())}
-          helperText={`Max: ${balanceAmount / BigInt(Math.pow(10, decimals))}`}
+          helperText={`Max: ${amount / BigInt(Math.pow(10, token.decimals))}`}
         />
       </DialogContent>
       <DialogActions>

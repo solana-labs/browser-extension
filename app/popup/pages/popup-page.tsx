@@ -30,14 +30,14 @@ const useStyles = makeStyles((theme) => ({
   connection: {
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
-    textAlign: "center"
+    textAlign: "center",
   },
   transaction: {
-    wordBreak: "break-all"
+    wordBreak: "break-all",
   },
   actions: {
-    justifyContent: "space-between"
-  }
+    justifyContent: "space-between",
+  },
 }))
 
 interface ApproveConnectionFormProps {
@@ -60,7 +60,7 @@ const ApproveConnectionForm: React.FC<ApproveConnectionFormProps> = ({ origin, o
         </Typography>
         <div className={classes.connection}>
           <Typography>{origin}</Typography>
-          <ImportExportIcon fontSize="large"/>
+          <ImportExportIcon fontSize="large" />
           <Typography>{account}</Typography>
         </div>
         <Typography>Only connect with sites you trust.</Typography>
@@ -83,11 +83,11 @@ interface ApproveSignatureFormProp {
 }
 
 const ApproveSignatureForm: React.FC<ApproveSignatureFormProp> = ({
-                                                                    origin,
-                                                                    message,
-                                                                    onApprove,
-                                                                    onReject
-                                                                  }) => {
+  origin,
+  message,
+  onApprove,
+  onReject,
+}) => {
   const classes = useStyles()
 
   // TODO: decode message

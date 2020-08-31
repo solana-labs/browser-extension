@@ -21,8 +21,8 @@ export class SolanaPlugin implements ProgramPlugin {
           properties: {
             from: params.fromPubkey.toBase58(),
             to: params.toPubkey.toBase58(),
-            amount: params.lamports
-          }
+            amount: params.lamports,
+          },
         }
       case "Create":
         let crParam = SystemInstruction.decodeCreateAccount(instruction)
@@ -35,8 +35,8 @@ export class SolanaPlugin implements ProgramPlugin {
             newAccount: crParam.newAccountPubkey.toBase58(),
             lamports: crParam.lamports,
             space: crParam.space,
-            programId: crParam.programId.toBase58()
-          }
+            programId: crParam.programId.toBase58(),
+          },
         }
     }
 
@@ -66,7 +66,7 @@ export class SolanaPlugin implements ProgramPlugin {
     if (content) {
       return {
         type: "markdown",
-        content: content
+        content: content,
       }
     }
     throw new Error(
@@ -90,7 +90,7 @@ export class SolanaPlugin implements ProgramPlugin {
     if (content) {
       return {
         type: "ricardian",
-        content: content
+        content: content,
       }
     }
     throw new Error(

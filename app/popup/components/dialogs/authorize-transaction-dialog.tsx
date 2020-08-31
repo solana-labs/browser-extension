@@ -17,8 +17,8 @@ const log = createLogger("sol:authDialog")
 const useStyles = makeStyles({
   content: {
     // Required for big addresses to break otherwise it overflows, works great for addresses but might not be the case for other words...
-    wordBreak: "break-all"
-  }
+    wordBreak: "break-all",
+  },
 })
 
 export type Props = Omit<DialogProps, "onClose"> & {
@@ -37,7 +37,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
       success: { message: "Success!" },
       onFinish: () => {
         onClose()
-      }
+      },
     })
   }
 
@@ -47,7 +47,7 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
       success: { message: "Declined", variant: "error" },
       onFinish: () => {
         onClose()
-      }
+      },
     })
   }
 
@@ -85,10 +85,10 @@ export const AuthorizeTransactionDialog: React.FC<Props> = ({ open, onClose, tra
 function renderTransactionDetails(transaction: PendingSignTransaction) {
   if (!transaction.details?.length) {
     log("Authorization dialog has no transaction details")
-    return <ReactMarkdown key={0} source={undecodedTransactionMessage()}/>
+    return <ReactMarkdown key={0} source={undecodedTransactionMessage()} />
   }
   return transaction.details.map((detail, idx) => {
-    return <ReactMarkdown key={idx} source={detail.content}/>
+    return <ReactMarkdown key={idx} source={detail.content} />
   })
 }
 

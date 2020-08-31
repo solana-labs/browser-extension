@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { useAccountInfo, useBalanceInfo, useSolanaExplorerUrlSuffix } from "../hooks"
+import React, { useEffect, useState } from "react"
+import { useAccountInfo, useSolanaExplorerUrlSuffix } from "../hooks"
 import Paper from "@material-ui/core/Paper"
 import { PublicKey } from "@solana/web3.js"
 import { Button, Typography } from "@material-ui/core"
@@ -23,39 +23,89 @@ import { TransactionList } from "../components/transaction-list"
 import Container from "@material-ui/core/Container"
 import Grid from "@material-ui/core/Grid"
 import { LoadingIndicator } from "../components/loading-indicator"
+import { Buffer } from "buffer"
+import { getBalanceInfo } from "../utils/account-data"
+import { useConnection } from "../context/connection"
+import { useBackground } from "../context/background"
+import { BalanceInfo, OwnedAccount } from "../types"
 
 const useStyles = makeStyles((theme) => ({
   itemDetails: {
     marginLeft: theme.spacing(3),
     marginRight: theme.spacing(3),
-    marginBottom: theme.spacing(3)
+    marginBottom: theme.spacing(3),
   },
   accountAddress: {
     marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3)
+    marginBottom: theme.spacing(3),
   },
 
   buttonContainer: {
     display: "flex",
     justifyContent: "space-evenly",
     marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1)
-  }
+    marginBottom: theme.spacing(1),
+  },
 }))
 
-const AccountDetailBase: React.FC = () => {
-  const classes = useStyles()
-  let { accountAddress, signerAddress } = useParams()
-  const [sendDialogOpen, setSendDialogOpen] = useState(false)
-
+const AccountDetailBaseWrapper: React.FC = () => {
+  const { accountAddress, signerAddress } = useParams()
   const publicKey = new PublicKey(accountAddress)
   const signerKey = new PublicKey(signerAddress)
 
+  const { connection } = useConnection()
+  const { getToken } = useBackground()
   const [accountInfo, accountInfoLoaded] = useAccountInfo(publicKey)
+  const [balanceInfo, setBalanceInfo] = useState<BalanceInfo>()
+
+  useEffect(() => {
+    const ownedAccount = { publicKey: publicKey, accountInfo: accountInfo } as OwnedAccount<Buffer>
+    getBalanceInfo(connection, getToken, ownedAccount)
+      .then((balanceInfo) => {
+        setBalanceInfo(balanceInfo)
+      })
+      .catch((e) => {
+        console.log("error getting a balance information")
+      })
+  }, [accountInfo])
+
+  if (!accountInfoLoaded || !accountInfo || !balanceInfo) {
+    return (
+      <Container fixed maxWidth="md">
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <LoadingIndicator />
+          </Grid>
+        </Grid>
+      </Container>
+    )
+  }
+
+  return (
+    <AccountDetailBase
+      signerKey={signerKey}
+      balanceInfo={balanceInfo}
+      ownedAccount={{ publicKey: publicKey, accountInfo: accountInfo } as OwnedAccount<Buffer>}
+    />
+  )
+}
+
+interface AccountDetailBaseProp {
+  signerKey: PublicKey
+  ownedAccount: OwnedAccount<Buffer>
+  balanceInfo: BalanceInfo
+}
+
+const AccountDetailBase: React.FC<AccountDetailBaseProp> = ({
+  signerKey,
+  ownedAccount,
+  balanceInfo,
+}) => {
+  const classes = useStyles()
+  const [sendDialogOpen, setSendDialogOpen] = useState(false)
+
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const history = useHistory()
-
-  const balanceInfo = useBalanceInfo(publicKey, accountInfo)
 
   const goBack = () => {
     history.push(Paths.accounts)
@@ -68,18 +118,6 @@ const AccountDetailBase: React.FC = () => {
     // )
   }
 
-  if (!accountInfoLoaded || !accountInfo) {
-    return (
-      <Container fixed maxWidth="md">
-        <Grid container spacing={3}>
-          <Grid item xs={12}>
-            <LoadingIndicator/>
-          </Grid>
-        </Grid>
-      </Container>
-    )
-  }
-
   return (
     <Container fixed maxWidth="md">
       <Grid container spacing={3}>
@@ -88,7 +126,7 @@ const AccountDetailBase: React.FC = () => {
             <AppBar position="static" color="default" elevation={1}>
               <Toolbar>
                 <IconButton onClick={goBack}>
-                  <ArrowBackIos/>
+                  <ArrowBackIos />
                 </IconButton>
 
                 <Typography variant="h6" component="h2" style={{ flexGrow: 1 }}>
@@ -96,35 +134,38 @@ const AccountDetailBase: React.FC = () => {
                 </Typography>
                 <Tooltip title="Refresh" arrow>
                   <IconButton onClick={refresh}>
-                    <RefreshIcon/>
+                    <RefreshIcon />
                   </IconButton>
                 </Tooltip>
               </Toolbar>
             </AppBar>
             <div className={classes.itemDetails}>
               <Typography align="center" className={classes.accountAddress} noWrap={true}>
-                {accountAddress}
+                {ownedAccount.publicKey.toBase58()}
               </Typography>
 
-              {accountInfo && (
+              {ownedAccount.accountInfo && (
                 <Typography variant="h4" align="center" className={classes.accountAddress}>
-                  <TokenBalance publicKey={publicKey} balanceInfo={balanceInfo}/>
+                  <TokenBalance publicKey={ownedAccount.publicKey} balanceInfo={balanceInfo} />
                 </Typography>
               )}
               <div className={classes.buttonContainer}>
                 <div>
-                  <CopyToClipboard text={accountAddress}>
-                    <Button variant="outlined" color="primary" startIcon={<Attachment/>}>
+                  <CopyToClipboard text={ownedAccount.publicKey.toBase58()}>
+                    <Button variant="outlined" color="primary" startIcon={<Attachment />}>
                       Copy Addr
                     </Button>
                   </CopyToClipboard>
                   <Button
                     variant="outlined"
                     color="primary"
-                    href={`https://explorer.solana.com/account/${publicKey.toBase58()}` + urlSuffix}
+                    href={
+                      `https://explorer.solana.com/account/${ownedAccount.publicKey.toBase58()}` +
+                      urlSuffix
+                    }
                     target="_blank"
                     rel="noopener"
-                    startIcon={<SolanaIcon/>}
+                    startIcon={<SolanaIcon />}
                   >
                     Explorer
                   </Button>
@@ -132,7 +173,7 @@ const AccountDetailBase: React.FC = () => {
                 <Button
                   variant="outlined"
                   color="primary"
-                  startIcon={<Send/>}
+                  startIcon={<Send />}
                   onClick={() => setSendDialogOpen(true)}
                 >
                   Send
@@ -143,22 +184,22 @@ const AccountDetailBase: React.FC = () => {
             <Typography variant="h6" align="center">
               Transaction list
             </Typography>
-            <TransactionList accountKey={publicKey} signerKey={signerKey}/>
+            <TransactionList accountKey={ownedAccount.publicKey} signerKey={signerKey} />
 
-            {balanceInfo && signerKey === publicKey && (
+            {balanceInfo && signerKey === ownedAccount.publicKey && (
               <SendSolDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}
                 balanceInfo={balanceInfo}
-                fromPublicKey={publicKey}
+                fromPublicKey={ownedAccount.publicKey}
               />
             )}
-            {balanceInfo && signerKey !== publicKey && (
+            {balanceInfo && signerKey !== ownedAccount.publicKey && (
               <SendSplDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}
                 balanceInfo={balanceInfo}
-                fromPublicKey={publicKey}
+                fromPublicKey={ownedAccount.publicKey}
                 signer={signerKey}
               />
             )}
@@ -169,4 +210,4 @@ const AccountDetailBase: React.FC = () => {
   )
 }
 
-export const AccountDetail = withLayout(AccountDetailBase)
+export const AccountDetail = withLayout(AccountDetailBaseWrapper)

@@ -1,6 +1,11 @@
 import SolanaController from "./solana-controller"
 import { createLogger, isInternalProcess } from "../core/utils"
-import { ENVIRONMENT_TYPE_NOTIFICATION, ENVIRONMENT_TYPE_POPUP, StoredData, VersionedData } from "../core/types"
+import {
+  ENVIRONMENT_TYPE_NOTIFICATION,
+  ENVIRONMENT_TYPE_POPUP,
+  StoredData,
+  VersionedData,
+} from "../core/types"
 import LocalStore from "./lib/local-store"
 import initialState from "./first-time-state"
 
@@ -89,7 +94,7 @@ function setupController(versionedData: VersionedData) {
 
   const solanaController = new SolanaController({
     storedData: versionedData.data,
-    persistData: persistData
+    persistData: persistData,
   })
 
   function connectRemote(remotePort: chrome.runtime.Port) {
@@ -100,14 +105,12 @@ function setupController(versionedData: VersionedData) {
 
     if (isInternalProcess(processName)) {
       const portStream = new PortStream(remotePort)
-      log(
-        `connect internal process: %o`, {
-          processName: processName,
-          tabId: tabId,
-          url: url,
-          origin: origin
-        }
-      )
+      log(`connect internal process: %o`, {
+        processName: processName,
+        tabId: tabId,
+        url: url,
+        origin: origin,
+      })
       solanaController.setupTrustedCommunication(processName, portStream, remotePort.sender)
       if (processName === ENVIRONMENT_TYPE_POPUP) {
         solanaController.setPopupOpen()
@@ -126,14 +129,12 @@ function setupController(versionedData: VersionedData) {
       const tabId = remotePort.sender.tab.id
       const url = new URL(remotePort.sender.url)
       const { origin } = url
-      log(
-        `connect remote process: %o`, {
-          processName: remotePort.name,
-          tabId: tabId,
-          url: url,
-          origin: origin
-        }
-      )
+      log(`connect remote process: %o`, {
+        processName: remotePort.name,
+        tabId: tabId,
+        url: url,
+        origin: origin,
+      })
       remotePort.onMessage.addListener((msg) => {
         log("received message from remote port [%s]: %O}", remotePort.name, msg)
       })

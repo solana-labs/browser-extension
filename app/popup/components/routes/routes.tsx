@@ -23,9 +23,8 @@ const routes: {
   [Paths.accounts]: WalletPage,
   [Paths.notifications]: NotificationPage,
   [Paths.accountDetail]: AccountDetail,
-  [Paths.transactionDetail]: TransactionDetail
+  [Paths.transactionDetail]: TransactionDetail,
 }
-
 
 const secureRoute = (key: string, props: RouteProps, popupState: PopupState) => {
   const Component = props.component as React.ComponentType<any>
@@ -44,7 +43,7 @@ const secureRoute = (key: string, props: RouteProps, popupState: PopupState) => 
             <Redirect
               to={{
                 pathname: redirectTo,
-                state: { from: props.location }
+                state: { from: props.location },
               }}
             />
           )
@@ -71,7 +70,7 @@ const unsecureRoute = (key: string, props: RouteProps, popupState: PopupState) =
             <Redirect
               to={{
                 pathname: Paths.accounts,
-                state: { from: props.location }
+                state: { from: props.location },
               }}
             />
           )
@@ -82,7 +81,12 @@ const unsecureRoute = (key: string, props: RouteProps, popupState: PopupState) =
   )
 }
 
-const defaultRoute = (key: string, props: RouteProps, popupState: PopupState, isNotification: boolean) => {
+const defaultRoute = (
+  key: string,
+  props: RouteProps,
+  popupState: PopupState,
+  isNotification: boolean
+) => {
   const rest = Object.assign({}, props)
   delete rest.component
 
@@ -93,14 +97,14 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState, is
       render={(props: RouteComponentProps) => {
         switch (popupState.walletState) {
           case "locked":
-            return <Redirect to={{ pathname: Paths.login }}/>
+            return <Redirect to={{ pathname: Paths.login }} />
           case "uninitialized":
-            return <Redirect to={{ pathname: Paths.welcome }}/>
+            return <Redirect to={{ pathname: Paths.welcome }} />
           case "unlocked":
             if (popupState.actions.length > 0) {
-              return <Redirect to={{ pathname: Paths.notifications }}/>
+              return <Redirect to={{ pathname: Paths.notifications }} />
             } else {
-              return <Redirect to={{ pathname: Paths.accounts }}/>
+              return <Redirect to={{ pathname: Paths.accounts }} />
             }
         }
       }}
@@ -112,36 +116,52 @@ const RoutesBase: React.FC = () => {
   const { popupState, isNotification } = useBackground()
 
   if (!popupState) {
-    return <SplashScreenPage/>
+    return <SplashScreenPage />
   }
 
   return (
     <>
       <Switch>
         {Object.keys(routes).map((path) => {
-          return secureRoute(`authenticated-route${path.replace("/", "-")}`, {
-            exact: true,
-            path: path,
-            component: routes[path]
-          }, popupState)
+          return secureRoute(
+            `authenticated-route${path.replace("/", "-")}`,
+            {
+              exact: true,
+              path: path,
+              component: routes[path],
+            },
+            popupState
+          )
         })}
 
         {/* unsecure-only routes */}
-        {unsecureRoute(`restore-route`, {
-          exact: true,
-          path: Paths.restore,
-          component: RestoreWalletPage
-        }, popupState)}
-        {unsecureRoute(`welcome-route`, {
-          exact: true,
-          path: Paths.welcome,
-          component: CreateWalletPage
-        }, popupState)}
-        {unsecureRoute(`login-route`, {
-          exact: true,
-          path: Paths.login,
-          component: LoginPage
-        }, popupState)}
+        {unsecureRoute(
+          `restore-route`,
+          {
+            exact: true,
+            path: Paths.restore,
+            component: RestoreWalletPage,
+          },
+          popupState
+        )}
+        {unsecureRoute(
+          `welcome-route`,
+          {
+            exact: true,
+            path: Paths.welcome,
+            component: CreateWalletPage,
+          },
+          popupState
+        )}
+        {unsecureRoute(
+          `login-route`,
+          {
+            exact: true,
+            path: Paths.login,
+            component: LoginPage,
+          },
+          popupState
+        )}
         {defaultRoute(`default-route`, {}, popupState, isNotification)}
       </Switch>
     </>

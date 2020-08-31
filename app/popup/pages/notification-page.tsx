@@ -10,7 +10,12 @@ import { useBackground } from "../context/background"
 import { useCallAsync } from "../utils/notifications"
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos"
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos"
-import { ActionKey, ActionRequestAccounts, ActionSignTransaction, OrderedAction } from "../../core/types"
+import {
+  ActionKey,
+  ActionRequestAccounts,
+  ActionSignTransaction,
+  OrderedAction,
+} from "../../core/types"
 import TextField from "@material-ui/core/TextField"
 import ReactMarkdown from "react-markdown"
 import { LoadingIndicator } from "../components/loading-indicator"
@@ -21,23 +26,22 @@ import { Redirect } from "react-router"
 const useStyles = makeStyles({
   notification: {
     height: "100%",
-    textAlign: "center"
+    textAlign: "center",
   },
   actions: {
-    textAlign: "center"
+    textAlign: "center",
   },
   pagination: {
-    textAlign: "center"
+    textAlign: "center",
   },
   paginationTitle: {
-    paddingTop: "15px"
+    paddingTop: "15px",
   },
   content: {
     // Required for big addresses to break otherwise it overflows, works great for addresses but might not be the case for other words...
-    wordBreak: "break-all"
-  }
+    wordBreak: "break-all",
+  },
 })
-
 
 interface NotificationPageProps {
   opener: any
@@ -48,7 +52,7 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
   const [currentNotificationIndex, setCurrentNotificationIndex] = useState(0)
 
   if (!popupState) {
-    return <LoadingIndicator/>
+    return <LoadingIndicator />
   }
 
   const notifications = popupState.actions
@@ -56,7 +60,7 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
   if (notifications.length === 0 && isNotification) {
     window.close()
   } else if (notifications.length === 0 && !isNotification) {
-    return <Redirect to={{ pathname: Paths.accounts }}/>
+    return <Redirect to={{ pathname: Paths.accounts }} />
   }
 
   const handleNotificationPage = (page: number) => {
@@ -70,13 +74,25 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
   const renderNotification = (idx: number, action: OrderedAction) => {
     switch (action.action.type) {
       case "request_accounts":
-        return <AuthorizeRequestAccounts actionKey={action.key} action={action.action} onClose={() => {
-          onCloseNotification(idx)
-        }}/>
+        return (
+          <AuthorizeRequestAccounts
+            actionKey={action.key}
+            action={action.action}
+            onClose={() => {
+              onCloseNotification(idx)
+            }}
+          />
+        )
       case "sign_transaction":
-        return <AuthorizeTransaction actionKey={action.key} action={action.action} onClose={() => {
-          onCloseNotification(idx)
-        }}/>
+        return (
+          <AuthorizeTransaction
+            actionKey={action.key}
+            action={action.action}
+            onClose={() => {
+              onCloseNotification(idx)
+            }}
+          />
+        )
     }
   }
 
@@ -84,8 +100,11 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
     <Container fixed maxWidth="md">
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <NotificationPagination currentIndex={currentNotificationIndex} total={notifications.length}
-                                  onPageChange={handleNotificationPage}/>
+          <NotificationPagination
+            currentIndex={currentNotificationIndex}
+            total={notifications.length}
+            onPageChange={handleNotificationPage}
+          />
         </Grid>
         <Grid item xs={12}>
           <div>
@@ -98,33 +117,37 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
 }
 
 interface NotificationPaginationProps {
-  currentIndex: number,
-  total: number,
+  currentIndex: number
+  total: number
   onPageChange: (index: number) => void
 }
 
-const NotificationPagination: React.FC<NotificationPaginationProps> = ({ currentIndex, total, onPageChange }) => {
+const NotificationPagination: React.FC<NotificationPaginationProps> = ({
+  currentIndex,
+  total,
+  onPageChange,
+}) => {
   const classes = useStyles()
-  const hasPrevious = (currentIndex > 0) && (total > 1)
-  const hasNext = (currentIndex < (total - 1)) && (total > 1)
+  const hasPrevious = currentIndex > 0 && total > 1
+  const hasNext = currentIndex < total - 1 && total > 1
   return (
     <Grid container spacing={3} className={classes.pagination}>
       <Grid item xs={4}>
-        {hasPrevious &&
-        <Button onClick={() => onPageChange(currentIndex - 1)}>
-          <ArrowBackIosIcon/>
-        </Button>
-        }
+        {hasPrevious && (
+          <Button onClick={() => onPageChange(currentIndex - 1)}>
+            <ArrowBackIosIcon />
+          </Button>
+        )}
       </Grid>
       <Grid item xs={4} className={classes.paginationTitle}>
         {currentIndex + 1} of {total}
       </Grid>
       <Grid item xs={4}>
-        {hasNext &&
-        <Button onClick={() => onPageChange(currentIndex + 1)}>
-          <ArrowForwardIosIcon/>
-        </Button>
-        }
+        {hasNext && (
+          <Button onClick={() => onPageChange(currentIndex + 1)}>
+            <ArrowForwardIosIcon />
+          </Button>
+        )}
       </Grid>
     </Grid>
   )
@@ -134,7 +157,7 @@ export const NotificationPage = withLayout(NotificationPageBase)
 
 export const AuthorizeRequestAccounts: React.FC<{
   actionKey: ActionKey
-  action: ActionRequestAccounts,
+  action: ActionRequestAccounts
   onClose: () => void
 }> = ({ actionKey, action, onClose }) => {
   const classes = useStyles()
@@ -144,14 +167,14 @@ export const AuthorizeRequestAccounts: React.FC<{
   const handleAuthorize = () => {
     callAsync(
       request("popup_authoriseRequestAccounts", {
-        actionKey: actionKey
+        actionKey: actionKey,
       }),
       {
         progress: { message: "Authorizing Request Account..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }
@@ -159,14 +182,14 @@ export const AuthorizeRequestAccounts: React.FC<{
   const handleDecline = () => {
     callAsync(
       request("popup_declineRequestAccounts", {
-        actionKey: actionKey
+        actionKey: actionKey,
       }),
       {
         progress: { message: "Declining Request Account..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }
@@ -177,12 +200,8 @@ export const AuthorizeRequestAccounts: React.FC<{
         <Typography component="h1" gutterBottom>
           Account Access
         </Typography>
-        <Typography component="p">
-          The website:
-        </Typography>
-        <Typography component="h2">
-          {action.origin}
-        </Typography>
+        <Typography component="p">The website:</Typography>
+        <Typography component="h2">{action.origin}</Typography>
         <Typography component="p">
           Wants to{" "}
           <b>
@@ -191,7 +210,9 @@ export const AuthorizeRequestAccounts: React.FC<{
         </Typography>
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button onClick={handleDecline} variant="outlined">Cancel</Button>
+        <Button onClick={handleDecline} variant="outlined">
+          Cancel
+        </Button>
         <Button color="primary" variant="outlined" onClick={handleAuthorize}>
           Approve
         </Button>
@@ -200,10 +221,9 @@ export const AuthorizeRequestAccounts: React.FC<{
   )
 }
 
-
 export const AuthorizeTransaction: React.FC<{
   actionKey: ActionKey
-  action: ActionSignTransaction,
+  action: ActionSignTransaction
   onClose: () => void
 }> = ({ actionKey, action, onClose }) => {
   const classes = useStyles()
@@ -211,27 +231,33 @@ export const AuthorizeTransaction: React.FC<{
   const callAsync = useCallAsync()
 
   const handleAuthorize = () => {
-    callAsync(request("popup_authoriseTransaction", {
-      actionKey: actionKey
-    }), {
-      progress: { message: "Authorizing Transaction..." },
-      success: { message: "Success!" },
-      onFinish: () => {
-        onClose()
+    callAsync(
+      request("popup_authoriseTransaction", {
+        actionKey: actionKey,
+      }),
+      {
+        progress: { message: "Authorizing Transaction..." },
+        success: { message: "Success!" },
+        onFinish: () => {
+          onClose()
+        },
       }
-    })
+    )
   }
 
   const handleDecline = () => {
-    callAsync(request("popup_declineTransaction", {
-      actionKey: actionKey
-    }), {
-      progress: { message: "Declining Transaction..." },
-      success: { message: "Declined", variant: "error" },
-      onFinish: () => {
-        onClose()
+    callAsync(
+      request("popup_declineTransaction", {
+        actionKey: actionKey,
+      }),
+      {
+        progress: { message: "Declining Transaction..." },
+        success: { message: "Declined", variant: "error" },
+        onFinish: () => {
+          onClose()
+        },
       }
-    })
+    )
   }
 
   return (
@@ -258,7 +284,9 @@ export const AuthorizeTransaction: React.FC<{
         />
       </CardContent>
       <CardActions className={classes.actions}>
-        <Button onClick={handleDecline} variant="outlined">Cancel</Button>
+        <Button onClick={handleDecline} variant="outlined">
+          Cancel
+        </Button>
         <Button color="primary" variant="outlined" onClick={handleAuthorize}>
           Approve
         </Button>
@@ -269,10 +297,10 @@ export const AuthorizeTransaction: React.FC<{
 
 function renderTransactionDetails(transaction: ActionSignTransaction) {
   if (!transaction.details?.length) {
-    return <ReactMarkdown key={0} source={undecodedTransactionMessage()}/>
+    return <ReactMarkdown key={0} source={undecodedTransactionMessage()} />
   }
   return transaction.details.map((detail, idx) => {
-    return <ReactMarkdown key={idx} source={detail.content}/>
+    return <ReactMarkdown key={idx} source={detail.content} />
   })
 }
 

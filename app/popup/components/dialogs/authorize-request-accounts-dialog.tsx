@@ -15,10 +15,10 @@ export type Props = Omit<DialogProps, "onClose"> & {
 }
 
 export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
-                                                                  open,
-                                                                  onClose,
-                                                                  pendingRequestAccounts
-                                                                }) => {
+  open,
+  onClose,
+  pendingRequestAccounts,
+}) => {
   const { request } = useBackground()
   const callAsync = useCallAsync()
 
@@ -26,14 +26,14 @@ export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
     callAsync(
       request("popup_authoriseRequestAccounts", {
         tabId: pendingRequestAccounts.tabId,
-        origin: pendingRequestAccounts.origin
+        origin: pendingRequestAccounts.origin,
       }),
       {
         progress: { message: "Authorizing Request Account..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }
@@ -41,14 +41,14 @@ export const AuthorizeRequestAccountsDialog: React.FC<Props> = ({
     callAsync(
       request("popup_declineRequestAccounts", {
         tabId: pendingRequestAccounts.tabId,
-        origin: pendingRequestAccounts.origin
+        origin: pendingRequestAccounts.origin,
       }),
       {
         progress: { message: "Declining Request Account..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }

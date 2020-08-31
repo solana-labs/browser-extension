@@ -1,10 +1,7 @@
 import React from "react"
 import { Layout } from "./layout"
 
-
-export function withLayout<T>(
-  Component: React.ComponentType<T>
-): React.ComponentType<T> {
+export function withLayout<T>(Component: React.ComponentType<T>): React.ComponentType<T> {
   return (props: T) => {
     return (
       <Layout>

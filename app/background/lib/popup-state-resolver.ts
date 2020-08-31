@@ -20,7 +20,7 @@ export class PopupStateResolver {
       selectedAccount: this.store.selectedAccount,
       authorizedOrigins: [],
       actions: this.actionManager.getOrderedActions(),
-      tokens: this.store.getTokens(this.store.selectedNetwork)
+      tokens: this.store.getTokens(this.store.selectedNetwork),
     }
 
     if (this.store.hasSecretBox()) {
@@ -34,5 +34,4 @@ export class PopupStateResolver {
 
     return state
   }
-
 }

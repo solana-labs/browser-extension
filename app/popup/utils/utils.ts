@@ -56,4 +56,3 @@ export function useListener(emitter: EventEmitter, eventName: string) {
     }
   }, [emitter, eventName])
 }
-

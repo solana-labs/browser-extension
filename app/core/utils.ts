@@ -4,6 +4,7 @@ import * as shortvec from "./shortvec-encoding"
 import bs58 from "bs58"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
+import { Buffer } from "buffer"
 
 const debug = require("debug")
 const ObjectMultiplex = require("obj-multiplex")
@@ -74,24 +75,26 @@ export const decodeSerializedMessage = (buffer: Buffer): Message => {
     header: {
       numRequiredSignatures,
       numReadonlySignedAccounts,
-      numReadonlyUnsignedAccounts
+      numReadonlyUnsignedAccounts,
     },
     recentBlockhash: bs58.encode(Buffer.from(recentBlockhash)),
     accountKeys,
-    instructions
+    instructions,
   }
   return new Message(messageArgs)
 }
-
 
 // TODO not sure where to put this
 const MINT_LAYOUT = BufferLayout.struct([
   BufferLayout.blob(36),
   BufferLayout.u8("decimals"),
-  BufferLayout.blob(3)
+  BufferLayout.blob(3),
 ])
 
-export const getMintData = async (connection: Connection, publicKey: PublicKey): Promise<{ decimals: number, mintAddress: string }> => {
+export const getMintData = async (
+  connection: Connection,
+  publicKey: PublicKey
+): Promise<{ decimals: number; mintAddress: string }> => {
   const mintAccount = await connection.getAccountInfo(publicKey)
   if (!mintAccount) {
     throw new Error(`could not get mint account info`)
@@ -99,7 +102,7 @@ export const getMintData = async (connection: Connection, publicKey: PublicKey):
   const { decimals } = MINT_LAYOUT.decode(mintAccount.data)
   return {
     mintAddress: publicKey.toBase58(),
-    decimals: decimals
+    decimals: decimals,
   }
 }
 
@@ -121,7 +124,7 @@ export const getSPLToken = async (
       mintAddress: mintData.mintAddress,
       name: "",
       symbol: "",
-      decimals: mintData.decimals
+      decimals: mintData.decimals,
     }
   } catch (e) {
     log("Could not retrieve 'mint' account %s information: %s", publicKey.toBase58(), e)

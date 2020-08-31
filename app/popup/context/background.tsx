@@ -9,7 +9,7 @@ import {
   Notification,
   PopupActions,
   PopupState,
-  Token
+  Token,
 } from "../../core/types"
 import RpcEngine from "json-rpc-engine"
 
@@ -47,7 +47,6 @@ const getEnvironmentType = () => {
     return ENVIRONMENT_TYPE_POPUP
   }
 }
-
 
 export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   let [engine, setEngine] = useState<any>()
@@ -115,13 +114,13 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   }, [])
 
   const request: BackgroundContextType["request"] = (method: PopupActions, params: any) => {
-    return new Promise<RPCResp<PopupState>>(function(resolve, reject) {
+    return new Promise<RPCResp<PopupState>>(function (resolve, reject) {
       let request = { id: 1, jsonrpc: "2.0", method: method }
       if (params) {
         request = Object.assign(request, { params: params })
       }
       log("performing rpc request: %O", request)
-      engine.handle(request, function(err: any, response: any) {
+      engine.handle(request, function (err: any, response: any) {
         if (err) {
           reject(err)
         } else {
@@ -169,7 +168,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
         getToken: getToken,
         popupState: state,
         changeNetwork,
-        changeAccount
+        changeAccount,
       }}
     >
       {props.children}

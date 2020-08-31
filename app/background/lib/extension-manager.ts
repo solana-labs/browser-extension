@@ -53,7 +53,7 @@ export class ExtensionManager {
         width: NOTIFICATION_WIDTH,
         height: NOTIFICATION_HEIGHT,
         left,
-        top
+        top,
       })
 
       log("Shown notification, storing notification window  id %s", notificationWindow.id)
@@ -72,8 +72,8 @@ export class ExtensionManager {
     }
     return windows
       ? windows.find((win) => {
-        return win && win.type === "popup" && win.id === this._notificationId
-      })
+          return win && win.type === "popup" && win.id === this._notificationId
+        })
       : null
   }
 }

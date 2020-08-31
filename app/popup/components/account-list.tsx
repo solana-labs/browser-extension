@@ -1,10 +1,10 @@
-import React from "react"
+import React, { useEffect, useState } from "react"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import { useAllAccountsForPublicKey, useBalanceInfo, useTokenAccountsByOwner } from "../hooks"
-import { Typography } from "@material-ui/core"
+import { useAllAccountsForPublicKey, useTokenAccountsByOwner } from "../hooks"
+import { Chip, Typography } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
 import Toolbar from "@material-ui/core/Toolbar"
@@ -18,27 +18,30 @@ import { Links } from "./routes/paths"
 import { useHistory } from "react-router-dom"
 import { TokenBalance } from "./token-balance"
 import { LoadingIndicator } from "./loading-indicator"
+import { BalanceInfo, OwnedAccount } from "../types"
+import { getBalanceInfo } from "../utils/account-data"
+import { useConnection } from "../context/connection"
 
 const useStyles = makeStyles((theme) => ({
   address: {
     textOverflow: "ellipsis",
-    overflowX: "hidden"
+    overflowX: "hidden",
   },
   publicKey: {
     // marginLeft: theme.spacing(1),
   },
   network: {
-    marginLeft: theme.spacing(2)
+    marginLeft: theme.spacing(2),
   },
   externalAccount: {
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
   },
   derivedAccount: {
-    backgroundColor: theme.palette.background.default
+    backgroundColor: theme.palette.background.default,
   },
   detailButton: {
-    margin: theme.spacing(1)
-  }
+    margin: theme.spacing(1),
+  },
 }))
 
 interface AccountListProp {
@@ -53,9 +56,34 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
 
   const publicKey = new PublicKey(account)
 
-  const externallyOwnedAccounts = useAllAccountsForPublicKey(publicKey)
-  const otherAccounts = useTokenAccountsByOwner(publicKey)
+  const [externallyOwnedAccount, initialized] = useAllAccountsForPublicKey(publicKey)
+  const [otherAccounts, otherAccountLoaded] = useTokenAccountsByOwner(publicKey)
 
+  const renderExternOwnedAccount = (eoa: OwnedAccount<Buffer>, initialized: boolean) => {
+    return (
+      <List disablePadding>
+        {
+          <AccountListItem
+            initializeAccount={initialized}
+            key={eoa.publicKey.toBase58()}
+            ownedAccount={eoa}
+            signer={eoa.publicKey}
+          />
+        }
+      </List>
+    )
+  }
+
+  const renderSPLAccounts = (eoa: OwnedAccount<Buffer>, otherAccounts: OwnedAccount<Buffer>[]) => {
+    return otherAccounts.map((account) => (
+      <AccountListItem
+        initializeAccount={true}
+        key={account.publicKey.toBase58()}
+        ownedAccount={account}
+        signer={eoa.publicKey}
+      />
+    ))
+  }
   return (
     <Paper>
       <AppBar position="static" color="default" elevation={1}>
@@ -73,52 +101,47 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
               }}
               style={{ marginRight: -12 }}
             >
-              <RefreshIcon/>
+              <RefreshIcon />
             </IconButton>
           </Tooltip>
         </Toolbar>
       </AppBar>
-
-      {externallyOwnedAccounts.length === 0 && <LoadingIndicator/>}
-      {externallyOwnedAccounts.length > 0 && (
-        <List disablePadding>
-          {externallyOwnedAccounts.map((account) => (
-            <AccountListItem
-              key={account.publicKey.toBase58()}
-              publicKey={account.publicKey}
-              signer={account.publicKey}
-              accountInfo={account.accountInfo}
-            />
-          ))}
-        </List>
-      )}
-      {otherAccounts.length === 0 && <LoadingIndicator/>}
-      {otherAccounts.length > 0 && (
-        <List disablePadding>
-          {otherAccounts.map((account) => (
-            <AccountListItem
-              key={account.publicKey.toBase58()}
-              publicKey={account.publicKey}
-              signer={externallyOwnedAccounts[0].publicKey}
-              accountInfo={account.accountInfo}
-            />
-          ))}
-        </List>
+      {!externallyOwnedAccount && <LoadingIndicator />}
+      {externallyOwnedAccount && renderExternOwnedAccount(externallyOwnedAccount, initialized)}
+      {!otherAccountLoaded && otherAccounts.length === 0 && <LoadingIndicator />}
+      {externallyOwnedAccount && otherAccounts.length > 0 && (
+        <List disablePadding>{renderSPLAccounts(externallyOwnedAccount, otherAccounts)}</List>
       )}
     </Paper>
   )
 }
 
-interface BalanceListItemProps {
-  signer: PublicKey
-  publicKey: PublicKey
-  accountInfo: AccountInfo<Buffer>
+interface AccountListItemProps {
+  initializeAccount: boolean
+  signer: PublicKey // this should be the external owned account for SPL accounts
+  ownedAccount: OwnedAccount<Buffer>
 }
 
-const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, accountInfo }) => {
+const AccountListItem: React.FC<AccountListItemProps> = ({
+  initializeAccount,
+  signer,
+  ownedAccount,
+}) => {
   const history = useHistory()
   const classes = useStyles()
-  const balanceInfo = useBalanceInfo(publicKey, accountInfo)
+  const { connection } = useConnection()
+  const { getToken } = useBackground()
+  const [balanceInfo, setBalanceInfo] = useState<BalanceInfo>()
+
+  useEffect(() => {
+    getBalanceInfo(connection, getToken, ownedAccount)
+      .then((balanceInfo) => {
+        setBalanceInfo(balanceInfo)
+      })
+      .catch((e) => {
+        console.log("Error getting balance information: ", e)
+      })
+  }, [ownedAccount])
 
   const accountDetail = (account: PublicKey, signer: PublicKey) => {
     history.push(
@@ -126,14 +149,20 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
     )
   }
 
+  if (!balanceInfo) {
+    return <LoadingIndicator />
+  }
+
   return (
     <>
       <ListItem
-        className={signer === publicKey ? classes.externalAccount : classes.derivedAccount}
-        divider={signer === publicKey}
+        className={
+          signer === ownedAccount.publicKey ? classes.externalAccount : classes.derivedAccount
+        }
+        divider={signer === ownedAccount.publicKey}
       >
         <ListItemText
-          primary={<TokenBalance publicKey={publicKey} balanceInfo={balanceInfo}/>}
+          primary={<TokenBalance publicKey={ownedAccount.publicKey} balanceInfo={balanceInfo} />}
           secondary={
             <React.Fragment>
               <Typography
@@ -142,20 +171,25 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
                 variant="body2"
                 color="textPrimary"
               >
-                {publicKey.toBase58()}
+                {ownedAccount.publicKey.toBase58()}
               </Typography>
             </React.Fragment>
           }
           secondaryTypographyProps={{ className: classes.address }}
         />
-        <IconButton
-          color="primary"
-          size="small"
-          className={classes.detailButton}
-          onClick={() => accountDetail(publicKey, signer)}
-        >
-          <MoreVert/>
-        </IconButton>
+        {!initializeAccount && (
+          <Chip variant="outlined" size="small" label="Uninitialized account" color="secondary" />
+        )}
+        {initializeAccount && (
+          <IconButton
+            color="primary"
+            size="small"
+            className={classes.detailButton}
+            onClick={() => accountDetail(ownedAccount.publicKey, signer)}
+          >
+            <MoreVert />
+          </IconButton>
+        )}
       </ListItem>
     </>
   )

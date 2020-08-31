@@ -103,7 +103,7 @@ export class WalletController {
         resolve: resolve,
         reject: reject,
         tabId: tabId,
-        origin: origin
+        origin: origin,
       })
     })
   }
@@ -111,7 +111,7 @@ export class WalletController {
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
     let {
       tabId,
-      params: { message, signer }
+      params: { message, signer },
     } = req
     let markdowns: Markdown[] = []
 
@@ -145,13 +145,12 @@ export class WalletController {
         tabId: tabId,
         message: message,
         signers: signer,
-        details: markdowns
+        details: markdowns,
       })
     })
   }
 
   async _showPopup() {
-    return this.openPopup().then(() => {
-    })
+    return this.openPopup().then(() => {})
   }
 }

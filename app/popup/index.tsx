@@ -6,7 +6,7 @@ import { unregisterServiceWorker } from "./core/service-worker"
 
 ReactDOM.render(
   <React.StrictMode>
-    <App/>
+    <App />
   </React.StrictMode>,
   document.getElementById("root")
 )

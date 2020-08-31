@@ -6,18 +6,15 @@ import { formatAddress, formatAmount } from "../utils/format"
 
 interface TokenBalanceProp {
   publicKey: PublicKey
-  balanceInfo: BalanceInfo | null
+  balanceInfo: BalanceInfo
 }
 
 export const TokenBalance: React.FC<TokenBalanceProp> = ({ publicKey, balanceInfo }) => {
-  if (!balanceInfo) {
-    return <LoadingIndicator delay={0}/>
-  }
-  let { amount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
-
+  let { amount, token } = balanceInfo
   return (
     <div>
-      {formatAmount(amount, decimals)} {tokenSymbol ?? (mint && formatAddress(mint))}
+      {formatAmount(amount, token.decimals)}{" "}
+      {token.symbol !== "" ? token.symbol : token.mintAddress && formatAddress(token.mintAddress)}
     </div>
   )
 }

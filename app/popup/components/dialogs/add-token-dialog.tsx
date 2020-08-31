@@ -23,9 +23,7 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
   let [sending, setSending] = useState(false)
 
   const canSend = (): boolean => {
-    return (mintAddress !== "" &&
-      tokenName !== "" &&
-      tokenSymbol !== "")
+    return mintAddress !== "" && tokenName !== "" && tokenSymbol !== ""
   }
 
   const onSubmit = () => {
@@ -35,8 +33,8 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
         token: {
           mintAddress: mintAddress,
           name: tokenName,
-          symbol: tokenSymbol
-        }
+          symbol: tokenSymbol,
+        },
       }),
       {
         progress: { message: "Adding token..." },
@@ -44,7 +42,7 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
         onFinish: () => {
           setSending(false)
           onClose()
-        }
+        },
       }
     )
   }

@@ -26,10 +26,10 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
   const [transferAmountString, setTransferAmountString] = useState("")
   const [, sending] = useSendTransaction()
 
-  let { amount: balanceAmount, decimals, mint, tokenName, tokenSymbol } = balanceInfo
+  let { amount, token } = balanceInfo
 
   function onSubmit() {
-    let lamports = Math.round(parseFloat(transferAmountString) * Math.pow(10, decimals))
+    let lamports = Math.round(parseFloat(transferAmountString) * Math.pow(10, token.decimals))
     if (!lamports || lamports <= 0) {
       throw new Error("Invalid amount")
     }
@@ -39,32 +39,32 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
         transfer: {
           fromPubkey: fromPublicKey.toBase58(),
           toPubkey: destinationAddress,
-          lamports: lamports
-        }
+          lamports: lamports,
+        },
       }),
       {
         progress: { message: "Transferring..." },
         success: { message: "Success!" },
         onFinish: () => {
           onClose()
-        }
+        },
       }
     )
   }
 
   // FIXME: Was using `balanceFormat` before, need to convert it so its support BigInt!
   let formattedTokenName = "Unkown"
-  if (tokenName) {
-    formattedTokenName = tokenName
-  } else if (mint != null) {
-    formattedTokenName = formatAddress(mint)
+  if (token.name) {
+    formattedTokenName = token.name
+  } else if (token.mintAddress != "") {
+    formattedTokenName = formatAddress(token.mintAddress)
   }
 
   return (
     <DialogForm open={open} onClose={onClose} onSubmit={onSubmit}>
       <DialogTitle>
         Send {formattedTokenName}
-        {tokenSymbol ? ` (${tokenSymbol})` : null}
+        {token.symbol ? ` (${token.symbol})` : null}
       </DialogTitle>
       <DialogContent>
         <TextField
@@ -82,16 +82,16 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
           margin="normal"
           type="number"
           InputProps={{
-            endAdornment: tokenSymbol ? (
-              <InputAdornment position="end">{tokenSymbol}</InputAdornment>
+            endAdornment: token.symbol ? (
+              <InputAdornment position="end">{token.symbol}</InputAdornment>
             ) : null,
             inputProps: {
-              step: Math.pow(10, -decimals)
-            }
+              step: Math.pow(10, -token.decimals),
+            },
           }}
           value={transferAmountString}
           onChange={(e) => setTransferAmountString(e.target.value.trim())}
-          helperText={`Max: ${balanceAmount / BigInt(Math.pow(10, decimals))}`}
+          helperText={`Max: ${amount / BigInt(Math.pow(10, token.decimals))}`}
         />
       </DialogContent>
       <DialogActions>

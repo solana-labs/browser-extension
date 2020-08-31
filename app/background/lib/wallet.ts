@@ -34,18 +34,16 @@ export class Wallet {
     //
     // m / purpose' / coin_type' / account'    / change / address_index
     // m / 44'      / 501'       / [VARIABLE]' / 0'      / [ABSENT]
-    const derivedSeed = bip32
-      .fromSeed(this.seed)
-      .derivePath(`m/44'/501'/${accountIndex}'/0'`)
+    const derivedSeed = bip32.fromSeed(this.seed).derivePath(`m/44'/501'/${accountIndex}'/0'`)
       .privateKey
     const newAccount = new Account(nacl.sign.keyPair.fromSeed(derivedSeed).secretKey)
     this.accounts = [...this.accounts, newAccount]
     return newAccount
   }
 
-  findAccount(pubKey: string): (Account | undefined) {
+  findAccount(pubKey: string): Account | undefined {
     let account = undefined
-    this.accounts.forEach(acc => {
+    this.accounts.forEach((acc) => {
       if (acc.publicKey.toBase58() === pubKey) {
         account = acc
       }

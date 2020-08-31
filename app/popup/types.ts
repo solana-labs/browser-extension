@@ -1,14 +1,11 @@
 import { AccountInfo, PublicKey } from "@solana/web3.js"
+import { Token } from "../core/types"
 
 export type BalanceInfo = {
   amount: bigint
-  decimals: number
-  mint?: PublicKey
-  owner: PublicKey
-  tokenName?: string
-  tokenSymbol?: string
-  initialized: boolean
   lamports: bigint
+  owner: PublicKey
+  token: Token
 }
 
 export type OwnedAccount<T> = {

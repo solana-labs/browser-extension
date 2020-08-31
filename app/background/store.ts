@@ -11,7 +11,7 @@ import {
   SecretBox,
   StoredData,
   Token,
-  WalletState
+  WalletState,
 } from "../core/types"
 
 const log = createLogger("sol:bg:store")
@@ -36,7 +36,7 @@ export class Store {
       selectedNetwork,
       selectedAccount,
       authorizedOrigins,
-      tokens
+      tokens,
     } = initialStore
     this.popIsOpen = false
 
@@ -111,7 +111,7 @@ export class Store {
       nonce: encodedNonce,
       salt: encodedSalt,
       iterations,
-      digest
+      digest,
     } = this.secretBox
 
     const encrypted = bs58.decode(encodedEncrypted)
@@ -153,7 +153,7 @@ export class Store {
           kdf,
           salt: bs58.encode(salt),
           iterations,
-          digest
+          digest,
         } as SecretBox
         this.wallet = Wallet.NewWallet(seed, 1)
         this.selectedAccount = this.wallet.accounts[0].publicKey.toBase58()
@@ -170,7 +170,7 @@ export class Store {
   }
 
   removeAuthorizedOrigin(originToRemove: string) {
-    this.authorizedOrigins = this.authorizedOrigins.filter(function(origin) {
+    this.authorizedOrigins = this.authorizedOrigins.filter(function (origin) {
       return origin !== originToRemove
     })
   }

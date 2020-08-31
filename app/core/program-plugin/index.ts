@@ -1,7 +1,13 @@
-import { Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction } from "@solana/web3.js"
+import {
+  Connection,
+  PublicKey,
+  SystemProgram,
+  Transaction,
+  TransactionInstruction,
+} from "@solana/web3.js"
 import { ProgramPlugin } from "./types"
 import { createLogger } from "../utils"
-import { SplPlugin } from "./plugins/spl"
+import { SplPlugin, TOKEN_PROGRAM_ID } from "./plugins/spl"
 import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
 import { SolanaPlugin } from "./plugins/system"
 import base58 from "bs58"
@@ -28,7 +34,7 @@ export class ProgramPluginManager {
       const data = base58.encode(instruction.data)
       return {
         type: "markdown",
-        content: `<p>Failed to decode instruction<br/>Program id: <b><small>${instruction.programId}</small></b><br/>data: <b>${data}</b></p>`
+        content: `<p>Failed to decode instruction<br/>Program id: <b><small>${instruction.programId}</small></b><br/>data: <b>${data}</b></p>`,
       }
     }
 
@@ -36,7 +42,7 @@ export class ProgramPluginManager {
       const data = base58.encode(instruction.data)
       return {
         type: "markdown",
-        content: `<p>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`
+        content: `<p>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`,
       }
     }
 
@@ -52,14 +58,14 @@ export class ProgramPluginManager {
       const data = base58.encode(instruction.data)
       return {
         type: "ricardian",
-        content: `Failed to decode: Program id: ${instruction.programId} data: ${data}`
+        content: `Failed to decode: Program id: ${instruction.programId} data: ${data}`,
       }
     }
     const rd = (idx: number, instruction: TransactionInstruction): Ricardian => {
       const data = base58.encode(instruction.data)
       return {
         type: "ricardian",
-        content: `Program id: ${instruction.programId} data: ${data}`
+        content: `Program id: ${instruction.programId} data: ${data}`,
       }
     }
 
@@ -106,7 +112,7 @@ export class ProgramPluginManager {
       try {
         decodedInstruction = await plugin.decorate(decodedInstruction, {
           getConnection: this.opts.getConnection,
-          getSPLToken: this.opts.getSPLToken
+          getSPLToken: this.opts.getSPLToken,
         })
       } catch (error) {
         log("An error occurred when decorating instruction for program [%s] %o", programId, error)
@@ -130,10 +136,7 @@ export class ProgramPluginManager {
   }
 
   _setupPlugins = (): void => {
-    this._registerProgramPlugin(
-      new PublicKey("TokenSVp5gheXUvJ6jGWGeCsgPKgnE3YgdGKRVCMY9o"),
-      new SplPlugin()
-    )
+    this._registerProgramPlugin(TOKEN_PROGRAM_ID, new SplPlugin())
     this._registerProgramPlugin(SystemProgram.programId, new SolanaPlugin())
     // this._registerProgramPlugin(DEX_PROGRAM_ID, new SerumDecoder())
   }

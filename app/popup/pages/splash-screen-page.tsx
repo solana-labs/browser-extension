@@ -9,11 +9,11 @@ import Typography from "@material-ui/core/Typography"
 const useStyles = makeStyles((theme) => ({
   bar: {
     backgroundColor: "black",
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
   title: {
-    flexGrow: 1
-  }
+    flexGrow: 1,
+  },
 }))
 
 const SplashScreenPageBase: React.FC = ({ children }) => {
@@ -29,11 +29,10 @@ const SplashScreenPageBase: React.FC = ({ children }) => {
         </Toolbar>
       </AppBar>
       <Container maxWidth="sm" style={{ textAlign: "center" }}>
-        <SolanaIcon size={"50px"}/>
+        <SolanaIcon size={"50px"} />
       </Container>
     </>
   )
 }
-
 
 export const SplashScreenPage = SplashScreenPageBase

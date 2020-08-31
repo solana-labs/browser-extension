@@ -18,7 +18,7 @@ import {
   Network,
   Notification,
   StoredData,
-  Token
+  Token,
 } from "../core/types"
 import { ExtensionManager } from "./lib/extension-manager"
 import { ProgramPluginManager } from "../core/program-plugin"
@@ -26,7 +26,6 @@ import { Web3Connection } from "../core/connection"
 import { Connection, PublicKey } from "@solana/web3.js"
 import { ActionManager } from "./lib/action-manager"
 import { PopupStateResolver } from "./lib/popup-state-resolver"
-
 
 const createEngineStream = require("json-rpc-middleware-stream/engineStream")
 const PortStream = require("extension-port-stream")
@@ -70,14 +69,14 @@ export default class SolanaController {
 
     const pluginManager = new ProgramPluginManager({
       getConnection: this.getWeb3Connection.bind(this),
-      getSPLToken: this.resolveSPLToken.bind(this)
+      getSPLToken: this.resolveSPLToken.bind(this),
     })
 
     this.walletController = new WalletController({
       store,
       pluginManager,
       actionManager: this.actionManager,
-      openPopup: this.triggerUi.bind(this)
+      openPopup: this.triggerUi.bind(this),
     })
     this.popupController = new PopupController({
       store,
@@ -85,7 +84,7 @@ export default class SolanaController {
       popupState: this.popupState,
       actionManager: this.actionManager,
       notifyAllDomains: this.notifyAllConnections.bind(this),
-      extensionManager: this.extensionManager
+      extensionManager: this.extensionManager,
     })
     this.connections = {}
     this.persistData = persistData
@@ -203,7 +202,7 @@ export default class SolanaController {
     const id = nanoid()
     this.connections[origin][id] = {
       engine,
-      tabId
+      tabId,
     }
     log("Added connection with id %s for origin: %s and tabId: %s", id, origin, tabId)
     return id
@@ -237,7 +236,7 @@ export default class SolanaController {
   notifyNotificationStateChange() {
     this.notifyConnections(ENVIRONMENT_TYPE_NOTIFICATION, {
       type: "popupStateChanged",
-      data: this.popupState.get()
+      data: this.popupState.get(),
     })
   }
 
@@ -313,7 +312,7 @@ export default class SolanaController {
       selectedNetwork: this.store.selectedNetwork,
       selectedAccount: this.store.selectedAccount,
       authorizedOrigins: this.store.authorizedOrigins,
-      tokens: this.store.tokens
+      tokens: this.store.tokens,
     } as StoredData)
   }
 
@@ -326,9 +325,7 @@ export default class SolanaController {
     chrome.browserAction.setBadgeText({ text: label })
     chrome.browserAction.setBadgeBackgroundColor({ color: "#037DD6" })
   }
-
 }
-
 
 /**
  * Sets up stream multiplexing for the given stream
