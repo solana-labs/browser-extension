@@ -145,10 +145,11 @@ export const useTokenAccountsByOwner = (publicKey: PublicKey): OwnedAccount<Buff
           log("received tokens by owner %s %O", publicKey.toBase58(), data.value)
           return data.value
         })
-        .catch((err) => {
-          log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
-          return []
-        })
+      // .catch((err) => {
+      //   log("error retrieving accounts by owner for main key %s: %s", publicKey.toBase58(), err)
+      //
+      //   return []
+      // })
     },
     { key: cacheKey, description: `ownedAccount:${publicKey.toBase58()}` }
   )
