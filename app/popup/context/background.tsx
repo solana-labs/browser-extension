@@ -1,7 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react"
 import pump from "pump"
-import { createObjectMultiplex, getEnvironmentType } from "../../core/utils"
-import { MUX_CONTROLLER_SUBSTREAM, Network, Notification, PopupActions, PopupState, Token } from "../../core/types"
+import { createObjectMultiplex } from "../../core/utils"
+import {
+  ENVIRONMENT_TYPE_NOTIFICATION,
+  ENVIRONMENT_TYPE_POPUP,
+  MUX_CONTROLLER_SUBSTREAM,
+  Network,
+  Notification,
+  PopupActions,
+  PopupState,
+  Token
+} from "../../core/types"
 import RpcEngine from "json-rpc-engine"
 
 const PortStream = require("extension-port-stream")
@@ -31,6 +40,15 @@ interface BackgroundContextType {
 
 export const BackgroundContext = createContext<BackgroundContextType | null>(null)
 
+const getEnvironmentType = () => {
+  if (isNotification) {
+    return ENVIRONMENT_TYPE_NOTIFICATION
+  } else {
+    return ENVIRONMENT_TYPE_POPUP
+  }
+}
+
+
 export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   let [engine, setEngine] = useState<any>()
   const [state, setState] = useState<PopupState>()
@@ -38,7 +56,7 @@ export function BackgroundProvider(props: React.PropsWithChildren<{}>) {
   const setupStreams = () => {
     const windowType = getEnvironmentType()
     log("Window type detected: %s", windowType)
-    const bgPort = chrome.runtime.connect({ name: "popup" })
+    const bgPort = chrome.runtime.connect({ name: windowType })
     const bgStream = new PortStream(bgPort)
     const popupMux = createObjectMultiplex("popup-ext-mux")
     // not sure why we do this

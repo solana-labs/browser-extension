@@ -50,7 +50,6 @@ export class Store {
       this.secretBox = secretBox
     }
     this.authorizedOrigins = authorizedOrigins || []
-    console.log("setting up tokens: ", tokens)
     this.tokens = tokens || {}
   }
 
@@ -180,11 +179,11 @@ export class Store {
     const found = this.authorizedOrigins.includes(origin)
 
     if (found) {
-      log("origin was already authorize:", origin)
+      log("origin is already authorized:", origin)
       return true
     }
 
-    log("origin need to be authorize", origin)
+    log("origin not authorized", origin)
     return false
   }
 

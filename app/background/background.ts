@@ -8,7 +8,6 @@ const PortStream = require("extension-port-stream")
 const endOfStream = require("end-of-stream")
 const log = createLogger("sol:bg")
 
-log("Background script started")
 const localStore = new LocalStore()
 let versionedData: VersionedData
 
@@ -19,7 +18,6 @@ initialize().catch((err) => {
 async function initialize() {
   const versionedData = await loadStateFromPersistence()
   await setupController(versionedData)
-  log("Solana background initialization complete.")
 }
 
 async function loadStateFromPersistence(): Promise<VersionedData> {
@@ -95,25 +93,33 @@ function setupController(versionedData: VersionedData) {
   })
 
   function connectRemote(remotePort: chrome.runtime.Port) {
-    log("connecting remote process: %s", remotePort.name)
     const processName = remotePort.name
+    const tabId = remotePort.sender?.tab?.id
+    const url = new URL(remotePort.sender?.url || "")
+    const { origin } = url
+
     if (isInternalProcess(processName)) {
       const portStream = new PortStream(remotePort)
-      log("%s has connected", processName)
-
+      log(
+        `connect internal process: %o`, {
+          processName: processName,
+          tabId: tabId,
+          url: url,
+          origin: origin
+        }
+      )
       solanaController.setupTrustedCommunication(processName, portStream, remotePort.sender)
-
       if (processName === ENVIRONMENT_TYPE_POPUP) {
         solanaController.setPopupOpen()
         endOfStream(portStream, () => {
           solanaController.setPopupClose()
-          log("popup remote stream has ended")
+          log("Popup remote stream has ended")
         })
       }
 
       if (processName === ENVIRONMENT_TYPE_NOTIFICATION) {
         endOfStream(portStream, () => {
-          log("notification remote stream has ended")
+          log("Notification remote stream has ended")
         })
       }
     } else if (remotePort.sender && remotePort.sender.tab && remotePort.sender.url) {
@@ -121,12 +127,12 @@ function setupController(versionedData: VersionedData) {
       const url = new URL(remotePort.sender.url)
       const { origin } = url
       log(
-        `connect remote process: ${JSON.stringify({
+        `connect remote process: %o`, {
           processName: remotePort.name,
           tabId: tabId,
           url: url,
           origin: origin
-        })}`
+        }
       )
       remotePort.onMessage.addListener((msg) => {
         log("received message from remote port [%s]: %O}", remotePort.name, msg)

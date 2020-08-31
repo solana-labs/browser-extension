@@ -29,7 +29,6 @@ export class WalletController {
   private pluginManager: ProgramPluginManager
 
   constructor(opts: WalletControllerOpt) {
-    log("wallet controller constructor")
     const { store, openPopup, pluginManager, actionManager } = opts
     this.store = store
     this.actionManager = actionManager
@@ -60,7 +59,6 @@ export class WalletController {
           log("wallet controller middleware match: 'wallet_signTransaction'")
           try {
             let resp = await this._handleSignTransaction(req)
-            log("wallet_signTransaction resolved %O", resp)
             res.result = resp
           } catch (err) {
             log("error: wallet_signTransaction failed  with error: %s", err)
@@ -78,7 +76,6 @@ export class WalletController {
           if (this.store.isUnlocked()) {
             resp.state = "unlocked"
           }
-          log("wallet_getState returned:", resp)
           res.result = resp
           break
         default:
@@ -91,8 +88,8 @@ export class WalletController {
   }
 
   _handleRequestAccounts = async (req: any): Promise<RequestAccountsResp> => {
-    const { tabId, origin, metadata } = req
-    log("Handling request accounts tabId: %s origin: %s, metadata: %O)", tabId, origin, metadata)
+    const { tabId, origin } = req
+    log("Handling request accounts tabId: %s origin: %s)", tabId, origin)
 
     //todo: popup only if user never agree to request account for this origin
     if (this.store.isOriginAuthorized(origin) && this.store.getWalletState() === "unlocked") {
@@ -156,7 +153,6 @@ export class WalletController {
 
   async _showPopup() {
     return this.openPopup().then(() => {
-      log("popup opened!")
     })
   }
 }

@@ -19,22 +19,8 @@ export const createObjectMultiplex = (name: string): any => {
 }
 
 export const isInternalProcess = (processName: string): boolean => {
-  return processName === ENVIRONMENT_TYPE_POPUP || processName === ENVIRONMENT_TYPE_POPUP
+  return processName === ENVIRONMENT_TYPE_POPUP || processName === ENVIRONMENT_TYPE_NOTIFICATION
 }
-// `popup` refers to the extension opened through the browser app icon (in top right corner in chrome)
-// `notification` refers to the popup that appears in its own window when taking action outside of solana
-export const getEnvironmentType = (url = window.location.href) => getEnvironmentTypeMemo(url)
-
-const getEnvironmentTypeMemo = memoize((url) => {
-  const parsedUrl = new URL(url)
-  if (parsedUrl.pathname === "/popup.html") {
-    return ENVIRONMENT_TYPE_POPUP
-  } else if (parsedUrl.pathname === "/notification.html") {
-    return ENVIRONMENT_TYPE_NOTIFICATION
-  } else {
-    return ENVIRONMENT_TYPE_BACKGROUND
-  }
-})
 
 export const checkForError = () => {
   const lastError = chrome.runtime.lastError

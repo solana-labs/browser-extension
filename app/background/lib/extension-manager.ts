@@ -8,72 +8,71 @@ const NOTIFICATION_WIDTH = 470
 
 export class ExtensionManager {
   private platform: any
-  private _popupId: any
+  private _notificationId: any
 
   constructor() {
     this.platform = new ExtensionPlatform()
   }
 
-  async closePopup() {
-    const popup = await this._getPopup()
-    log("closing popup: %O", popup)
+  // async closePopup() {
+  //   const popup = await this._()
+  //   log("closing popup: %O", popup)
+  //
+  //   if (popup) {
+  //     await this.platform.closeWindow(popup.id)
+  //     log("popup closed")
+  //   }
+  // }
 
-    if (popup) {
-      await this.platform.closeWindow(popup.id)
-      log("popup closed")
+  async showNotification(notifyWindow: () => void) {
+    const notification = await this._getNotification()
+    if (notification) {
+      // bring focus to existing chrome notification window
+      await this.platform.focusWindow(notification.id)
+      notifyWindow()
+    } else {
+      let left = 0
+      let top = 0
+      try {
+        const lastFocused = await this.platform.getLastFocusedWindow()
+        // Position window in top right corner of lastFocused window.
+        top = lastFocused.top
+        left = lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH)
+      } catch (_) {
+        // The following properties are more than likely 0, due to being
+        // opened from the background chrome process for the extension that
+        // has no physical dimensions
+        const { screenX, screenY, outerWidth } = window
+        top = Math.max(screenY, 0)
+        left = Math.max(screenX + (outerWidth - NOTIFICATION_WIDTH), 0)
+      }
+      // create new notification window
+      const notificationWindow = await this.platform.openWindow({
+        url: "index.html#notification",
+        type: "popup",
+        width: NOTIFICATION_WIDTH,
+        height: NOTIFICATION_HEIGHT,
+        left,
+        top
+      })
+
+      log("Shown notification, storing notification window  id %s", notificationWindow.id)
+      this._notificationId = notificationWindow.id
     }
   }
 
-  async showPopup(notifyPopup: () => void) {
-    await this.closePopup()
-    let left = 0
-    let top = 0
-    try {
-      const lastFocused = await this.platform.getLastFocusedWindow()
-      // Position window in top right corner of lastFocused window.
-      top = lastFocused.top
-      left = lastFocused.left + (lastFocused.width - NOTIFICATION_WIDTH)
-    } catch (_) {
-      // The following properties are more than likely 0, due to being
-      // opened from the background chrome process for the extension that
-      // has no physical dimensions
-      const { screenX, screenY, outerWidth } = window
-      top = Math.max(screenY, 0)
-      left = Math.max(screenX + (outerWidth - NOTIFICATION_WIDTH), 0)
-    }
-    // create new notification popup
-    const popupWindow = await this.platform.openWindow({
-      url: "index.html#notification",
-      type: "popup",
-      width: NOTIFICATION_WIDTH,
-      height: NOTIFICATION_HEIGHT,
-      left,
-      top
-    })
-
-    // Firefox currently ignores left/top for create, but it works for update
-    if (popupWindow.left !== left && popupWindow.state !== "fullscreen") {
-      // await this.platform.updateWindowPosition(popupWindow.id, left, top)
-    }
-    log("Shown popup, storing popup id %s", popupWindow.id)
-    this._popupId = popupWindow.id
-  }
-
-  async _getPopup() {
+  async _getNotification() {
     const windows = await this.platform.getAllWindows()
-    return this._getPopupIn(windows)
+    return this._getNotificationIn(windows)
   }
 
-  _getPopupIn(windows: chrome.windows.Window[]) {
+  _getNotificationIn(windows: chrome.windows.Window[]) {
+    if (!this._notificationId) {
+      return null
+    }
     return windows
       ? windows.find((win) => {
-        log(
-          "_getPopupIn: find: type: '%s' id: '%s' popupId: '%s'",
-          win.type,
-          win.id,
-          this._popupId
-        )
-        return win && win.type === "popup" && win.id === this._popupId
+         return win && win.type === "popup" && win.id === this._notificationId
       })
       : null
   }
