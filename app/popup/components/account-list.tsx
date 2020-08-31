@@ -1,9 +1,14 @@
-import React from "react"
+import React, { useEffect } from "react"
 import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import { useAllAccountsForPublicKey, useBalanceInfo, useTokenAccountsByOwner } from "../hooks"
+import {
+  refreshAccountInfo,
+  useAllAccountsForPublicKey,
+  useBalanceInfo,
+  useTokenAccountsByOwner,
+} from "../hooks"
 import { Typography } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
@@ -51,8 +56,11 @@ interface AccountListProp {
 export const AccountList: React.FC<AccountListProp> = ({ account }) => {
   const classes = useStyles()
   const { popupState } = useBackground()
+  const [, updateState] = React.useState()
+  const forceUpdate = React.useCallback(() => updateState({}), [])
 
   const publicKey = new PublicKey(account)
+
   const externallyOwnedAccounts = useAllAccountsForPublicKey(publicKey)
   const otherAccounts = useTokenAccountsByOwner(publicKey)
 
@@ -69,10 +77,7 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
           <Tooltip title="Refresh" arrow>
             <IconButton
               onClick={() => {
-                // refreshWalletPublicKeys(wallet)
-                // publicKeys.map((publicKey) =>
-                //   refreshAccountInfo(wallet.connection, publicKey, true)
-                // )
+                forceUpdate()
               }}
               style={{ marginRight: -12 }}
             >
@@ -95,15 +100,15 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
           ))}
         </List>
       )}
-      {externallyOwnedAccounts.length == 0 && <LoadingIndicator />}
-      {externallyOwnedAccounts.length > 0 && (
+      {otherAccounts.length == 0 && <LoadingIndicator />}
+      {otherAccounts.length > 0 && (
         <List disablePadding>
-          {externallyOwnedAccounts.map((ownedAccount) => (
+          {otherAccounts.map((account) => (
             <AccountListItem
-              key={ownedAccount.publicKey.toBase58()}
-              publicKey={ownedAccount.publicKey}
+              key={account.publicKey.toBase58()}
+              publicKey={account.publicKey}
               signer={externallyOwnedAccounts[0].publicKey}
-              accountInfo={ownedAccount.accountInfo}
+              accountInfo={account.accountInfo}
             />
           ))}
         </List>
