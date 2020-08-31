@@ -96,7 +96,6 @@ export class WalletController {
       return { accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] }
     }
 
-    //origin need authorization
     this._showPopup()
     return new Promise<RequestAccountsResp>((resolve, reject) => {
       this.actionManager.addAction(origin, tabId, {

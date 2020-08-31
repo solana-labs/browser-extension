@@ -3,7 +3,7 @@ import List from "@material-ui/core/List"
 import ListItem from "@material-ui/core/ListItem"
 import ListItemText from "@material-ui/core/ListItemText"
 import Paper from "@material-ui/core/Paper"
-import { useAllAccountsForPublicKey, useBalanceInfo, useTokenAccountsByOwner } from "../hooks"
+import { useAllAccountsForPublicKey, useBalanceInfo } from "../hooks"
 import { Typography } from "@material-ui/core"
 import { makeStyles } from "@material-ui/core/styles"
 import AppBar from "@material-ui/core/AppBar"
@@ -13,35 +13,32 @@ import IconButton from "@material-ui/core/IconButton"
 import Tooltip from "@material-ui/core/Tooltip"
 import { AccountInfo, PublicKey } from "@solana/web3.js"
 import { useBackground } from "../context/background"
-import { createLogger } from "../../core/utils"
 import { MoreVert } from "@material-ui/icons"
 import { Links } from "./routes/paths"
 import { useHistory } from "react-router-dom"
 import { TokenBalance } from "./token-balance"
 import { LoadingIndicator } from "./loading-indicator"
 
-const log = createLogger("sol:balancelist")
-
 const useStyles = makeStyles((theme) => ({
   address: {
     textOverflow: "ellipsis",
-    overflowX: "hidden",
+    overflowX: "hidden"
   },
   publicKey: {
     // marginLeft: theme.spacing(1),
   },
   network: {
-    marginLeft: theme.spacing(2),
+    marginLeft: theme.spacing(2)
   },
   externalAccount: {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: theme.palette.background.paper
   },
   derivedAccount: {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.background.default
   },
   detailButton: {
-    margin: theme.spacing(1),
-  },
+    margin: theme.spacing(1)
+  }
 }))
 
 interface AccountListProp {
@@ -54,7 +51,6 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
 
   const publicKey = new PublicKey(account)
   const externallyOwnedAccounts = useAllAccountsForPublicKey(publicKey)
-  const otherAccounts = useTokenAccountsByOwner(publicKey)
 
   return (
     <Paper>
@@ -76,13 +72,13 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
               }}
               style={{ marginRight: -12 }}
             >
-              <RefreshIcon />
+              <RefreshIcon/>
             </IconButton>
           </Tooltip>
         </Toolbar>
       </AppBar>
 
-      {externallyOwnedAccounts.length == 0 && <LoadingIndicator />}
+      {externallyOwnedAccounts.length === 0 && <LoadingIndicator/>}
       {externallyOwnedAccounts.length > 0 && (
         <List disablePadding>
           {externallyOwnedAccounts.map((account) => (
@@ -95,7 +91,7 @@ export const AccountList: React.FC<AccountListProp> = ({ account }) => {
           ))}
         </List>
       )}
-      {externallyOwnedAccounts.length == 0 && <LoadingIndicator />}
+      {externallyOwnedAccounts.length === 0 && <LoadingIndicator/>}
       {externallyOwnedAccounts.length > 0 && (
         <List disablePadding>
           {externallyOwnedAccounts.map((ownedAccount) => (
@@ -132,11 +128,11 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
   return (
     <>
       <ListItem
-        className={signer == publicKey ? classes.externalAccount : classes.derivedAccount}
-        divider={signer == publicKey}
+        className={signer === publicKey ? classes.externalAccount : classes.derivedAccount}
+        divider={signer === publicKey}
       >
         <ListItemText
-          primary={<TokenBalance publicKey={publicKey} balanceInfo={balanceInfo} />}
+          primary={<TokenBalance publicKey={publicKey} balanceInfo={balanceInfo}/>}
           secondary={
             <React.Fragment>
               <Typography
@@ -157,7 +153,7 @@ const AccountListItem: React.FC<BalanceListItemProps> = ({ signer, publicKey, ac
           className={classes.detailButton}
           onClick={() => accountDetail(publicKey, signer)}
         >
-          <MoreVert />
+          <MoreVert/>
         </IconButton>
       </ListItem>
     </>

@@ -1,9 +1,6 @@
 import { AVAILABLE_NETWORKS, PopupState } from "../../core/types"
-import { createLogger } from "../../core/utils"
 import { ActionManager } from "./action-manager"
 import { Store } from "../store"
-
-const log = createLogger("sol:bg:actMng")
 
 export class PopupStateResolver {
   private store: Store

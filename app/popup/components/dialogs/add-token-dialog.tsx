@@ -9,11 +9,6 @@ import { useCallAsync } from "../../utils/notifications"
 import { DialogProps } from "@material-ui/core"
 import { useBackground } from "../../context/background"
 
-const feeFormat = new Intl.NumberFormat(undefined, {
-  minimumFractionDigits: 6,
-  maximumFractionDigits: 6
-})
-
 export type Props = Omit<DialogProps, "onClose"> & {
   onClose: () => void
 }
@@ -34,6 +29,7 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
   }
 
   const onSubmit = () => {
+    setSending(true)
     callAsync(
       request("popup_addToken", {
         token: {
@@ -46,6 +42,7 @@ export const AddTokenDialog: React.FC<Props> = ({ open, onClose, children, ...re
         progress: { message: "Adding token..." },
         success: { message: "Success!" },
         onFinish: () => {
+          setSending(false)
           onClose()
         }
       }

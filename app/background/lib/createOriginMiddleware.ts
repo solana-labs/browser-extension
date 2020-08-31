@@ -1,4 +1,3 @@
-import { createLogger } from "../../core/utils"
 import { Store } from "../store"
 
 export default function createOriginMiddleware(opts: { origin: string; store: Store }) {

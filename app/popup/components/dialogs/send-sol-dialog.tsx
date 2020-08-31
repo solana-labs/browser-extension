@@ -5,13 +5,13 @@ import DialogTitle from "@material-ui/core/DialogTitle"
 import DialogContent from "@material-ui/core/DialogContent"
 import TextField from "@material-ui/core/TextField"
 import { DialogForm } from "./dialog-form"
-import { abbreviateAddress } from "../../utils/utils"
 import InputAdornment from "@material-ui/core/InputAdornment"
 import { useCallAsync, useSendTransaction } from "../../utils/notifications"
 import { DialogProps } from "@material-ui/core"
 import { BalanceInfo } from "../../types"
 import { useBackground } from "../../context/background"
 import { PublicKey } from "@solana/web3.js"
+import { formatAddress } from "../../utils/format"
 
 export type Props = Omit<DialogProps, "onClose"> & {
   onClose: () => void
@@ -57,7 +57,7 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
   if (tokenName) {
     formattedTokenName = tokenName
   } else if (mint != null) {
-    formattedTokenName = abbreviateAddress(mint)
+    formattedTokenName = formatAddress(mint)
   }
 
   return (

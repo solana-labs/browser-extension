@@ -53,7 +53,7 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
                 </Toolbar>
               </AppBar>
               <List disablePadding>
-                {Object.keys(origins).length == 0 && (
+                {Object.keys(origins).length === 0 && (
                   <ListItem>
                     <ListItemText
                       primary={

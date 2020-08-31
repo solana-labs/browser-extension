@@ -10,7 +10,9 @@ import { JsonRpcEngine } from "json-rpc-engine"
 import { createLogger, createObjectMultiplex, getSPLToken } from "../core/utils"
 import {
   ENVIRONMENT_TYPE_NOTIFICATION,
-  ENVIRONMENT_TYPE_POPUP, EVENT_UPDATE_ACTIONS, EVENT_UPDATE_BADGE,
+  ENVIRONMENT_TYPE_POPUP,
+  EVENT_UPDATE_ACTIONS,
+  EVENT_UPDATE_BADGE,
   MUX_CONTROLLER_SUBSTREAM,
   MUX_PROVIDER_SUBSTREAM,
   Network,
@@ -316,13 +318,13 @@ export default class SolanaController {
   }
 
   updateBadge = () => {
-    let label = ''
+    let label = ""
     const actionCount = this.actionManager.getCount()
     if (actionCount) {
       label = String(actionCount)
     }
     chrome.browserAction.setBadgeText({ text: label })
-    chrome.browserAction.setBadgeBackgroundColor({ color: '#037DD6' })
+    chrome.browserAction.setBadgeBackgroundColor({ color: "#037DD6" })
   }
 
 }

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react"
-import { useSolanaExplorerUrlSuffix } from "../hooks"
 import Paper from "@material-ui/core/Paper"
 import { ConfirmedTransaction } from "@solana/web3.js"
 import { Typography } from "@material-ui/core"
@@ -53,7 +52,6 @@ const TransactionDetailBase: React.FC = () => {
   const [trx, setConfirmedTransaction] = useState<ConfirmedTransaction>()
   const [instructionMarkdowns, setInstructionMardowns] = useState<Markdown[]>([])
 
-  const urlSuffix = useSolanaExplorerUrlSuffix()
   const history = useHistory()
 
   useEffect(() => {
@@ -64,7 +62,7 @@ const TransactionDetailBase: React.FC = () => {
         setConfirmedTransaction(ct)
       }
     })
-  }, [])
+  }, [transactionID, connection])
 
   useEffect(() => {
     if (!trx || !programPluginManager) {

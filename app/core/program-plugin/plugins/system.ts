@@ -81,8 +81,10 @@ export class SolanaPlugin implements ProgramPlugin {
       case "Transfer":
         const amount = formatSolAmount(decodedInstruction.properties.amount)
         content = `Transfer of '${amount} SOL' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
+        break
       case "Create":
         content = `Create new account  ${decodedInstruction.properties.newAccount} (creator ${decodedInstruction.properties.from})</p>`
+        break
     }
 
     if (content) {

@@ -1,3 +1,5 @@
+import { PublicKey } from "@solana/web3.js"
+
 const balanceFormat = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 4,
   maximumFractionDigits: 10,
@@ -16,4 +18,9 @@ export const formatAmount = (amount: number | bigint, decimals: number) => {
     stringAmount = "" + amount / BigInt(Math.pow(10, decimals))
   }
   return balanceFormat.format(parseFloat(stringAmount))
+}
+
+export function formatAddress(address: PublicKey) {
+  let base58 = address.toBase58()
+  return base58.slice(0, 4) + "…" + base58.slice(base58.length - 4)
 }

@@ -33,8 +33,6 @@ SPL_LAYOUT.addVariant(7, BufferLayout.struct([BufferLayout.nu64("amount")]), "mi
 SPL_LAYOUT.addVariant(8, BufferLayout.struct([BufferLayout.nu64("amount")]), "burn")
 
 export class SplPlugin implements ProgramPlugin {
-  constructor() {
-  }
 
   decode(instruction: TransactionInstruction): DecodedInstruction {
     log("Decoding spl instrustion: %O", instruction)

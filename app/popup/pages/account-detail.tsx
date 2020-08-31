@@ -22,6 +22,7 @@ import { SolanaIcon } from "../components/solana-icon"
 import { TransactionList } from "../components/transaction-list"
 import Container from "@material-ui/core/Container"
 import Grid from "@material-ui/core/Grid"
+import { LoadingIndicator } from "../components/loading-indicator"
 
 const useStyles = makeStyles((theme) => ({
   itemDetails: {
@@ -50,7 +51,7 @@ const AccountDetailBase: React.FC = () => {
   const publicKey = new PublicKey(accountAddress)
   const signerKey = new PublicKey(signerAddress)
 
-  const [accountInfo, externalAccountInfoLoaded] = useAccountInfo(publicKey)
+  const [accountInfo, accountInfoLoaded] = useAccountInfo(publicKey)
   const urlSuffix = useSolanaExplorerUrlSuffix()
   const history = useHistory()
 
@@ -65,6 +66,18 @@ const AccountDetailBase: React.FC = () => {
     // publicKeys.map((publicKey) =>
     //   refreshAccountInfo(wallet.connection, publicKey, true)
     // )
+  }
+
+  if (!accountInfoLoaded || !accountInfo) {
+    return  (
+      <Container fixed maxWidth="md">
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <LoadingIndicator/>
+          </Grid>
+        </Grid>
+      </Container>
+    )
   }
 
   return (
@@ -132,7 +145,7 @@ const AccountDetailBase: React.FC = () => {
             </Typography>
             <TransactionList accountKey={publicKey} signerKey={signerKey}/>
 
-            {balanceInfo && signerKey == publicKey && (
+            {balanceInfo && signerKey === publicKey && (
               <SendSolDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}
@@ -140,7 +153,7 @@ const AccountDetailBase: React.FC = () => {
                 fromPublicKey={publicKey}
               />
             )}
-            {balanceInfo && signerKey != publicKey && (
+            {balanceInfo && signerKey !== publicKey && (
               <SendSplDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}

@@ -10,11 +10,6 @@ import { DialogProps } from "@material-ui/core"
 import { useBackground } from "../../context/background"
 import { Token } from "../../../core/types"
 
-const feeFormat = new Intl.NumberFormat(undefined, {
-  minimumFractionDigits: 6,
-  maximumFractionDigits: 6
-})
-
 export type Props = Omit<DialogProps, "onClose"> & {
   token: Token
   onClose: () => void
@@ -36,6 +31,7 @@ export const UpdateTokenDialog: React.FC<Props> = ({ token, open, onClose, child
   }
 
   const onSubmit = () => {
+    setSending(true)
     callAsync(
       request("popup_updateToken", {
         mintAddress: oldMint,
@@ -49,6 +45,7 @@ export const UpdateTokenDialog: React.FC<Props> = ({ token, open, onClose, child
         progress: { message: "Updating token..." },
         success: { message: "Success!" },
         onFinish: () => {
+          setSending(false)
           onClose()
         }
       }
