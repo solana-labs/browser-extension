@@ -13,6 +13,11 @@ export class ActionManager extends events.EventEmitter {
     this.actions = new Map<string, Action>()
   }
 
+  getAction = <T extends (Action)>(key: ActionKey): T | undefined => {
+    log("Getting action for key %O", key)
+    return this.actions.get(JSON.stringify(key)) as T
+  }
+
   addAction = (origin: string, tabId: string, action: Action) => {
     const key = {
       tabId: tabId,
@@ -25,14 +30,9 @@ export class ActionManager extends events.EventEmitter {
     this.emit(EVENT_UPDATE_ACTIONS)
   }
 
-  getAction = <T extends (Action)>(key: ActionKey): T | undefined => {
-    log("Getting action for key %O", key)
-    return this.actions.get(JSON.stringify(key)) as T
-  }
-
-  getCount = (): number  => {
+  getCount = (): number => {
     return this.actions.size
-}
+  }
 
   getOrderedActions = (): OrderedAction[] => {
     const out: OrderedAction[] = []
@@ -43,8 +43,9 @@ export class ActionManager extends events.EventEmitter {
   }
 
   deleteAction = (key: ActionKey) => {
-    log("Deleting action for key %O", key)
+    log("Deleting action for key %O, current count: %s", key, this.actions.size)
     this.actions.delete(JSON.stringify(key))
+    log("New size: %s", this.actions.size)
     this.emit(EVENT_UPDATE_BADGE)
     this.emit(EVENT_UPDATE_ACTIONS)
   }
@@ -65,7 +66,7 @@ export class ActionManager extends events.EventEmitter {
     log("Deleting actions with origin %s and tabId %s", origin, tabId)
     Array.from(this.actions.keys()).forEach(keyStr => {
       const key = JSON.parse(keyStr) as ActionKey
-      if ((key.origin == origin) && (key.tabId == tabId)) {
+      if ((key.origin === origin) && (key.tabId === tabId)) {
         this.actions.delete(keyStr)
       }
     })

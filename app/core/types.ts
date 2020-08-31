@@ -14,12 +14,12 @@ export const EVENT_UPDATE_ACTIONS = "updateActions"
 export const DEFAULT_NETWORK: Network = {
   title: "Devnet",
   cluster: "devnet",
-  endpoint: clusterApiUrl("devnet"),
+  endpoint: clusterApiUrl("devnet")
 }
 export const AVAILABLE_NETWORKS: Network[] = [
   { title: "Mainnet Beta", cluster: "mainnet-beta", endpoint: clusterApiUrl("mainnet-beta") },
   { title: "Devnet", cluster: "devnet", endpoint: clusterApiUrl("devnet") },
-  { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") },
+  { title: "Testnet", cluster: "testnet", endpoint: clusterApiUrl("testnet") }
   // { title: "Break", cluster: "testnet", endpoint: "https://break-api.testnet.solana.com" },
 ]
 export type RequestAccountsResp = {

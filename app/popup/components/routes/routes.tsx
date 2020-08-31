@@ -1,5 +1,5 @@
 import { Route, Switch } from "react-router-dom"
-import { Redirect, RouteComponentProps, RouteProps, useLocation } from "react-router"
+import { Redirect, RouteComponentProps, RouteProps } from "react-router"
 import React from "react"
 import { Paths } from "./paths"
 import { AuthorizedWebsitesPage } from "../../pages/authorized-websites"
@@ -109,8 +109,6 @@ const defaultRoute = (key: string, props: RouteProps, popupState: PopupState, is
 }
 
 const RoutesBase: React.FC = () => {
-
-  const location = useLocation()
   const { popupState, isNotification } = useBackground()
 
   if (!popupState) {
@@ -119,10 +117,6 @@ const RoutesBase: React.FC = () => {
 
   return (
     <>
-      <div style={{ border: "thin red solid" }}>
-        Location:
-        {JSON.stringify(location)}
-      </div>
       <Switch>
         {Object.keys(routes).map((path) => {
           return secureRoute(`authenticated-route${path.replace("/", "-")}`, {

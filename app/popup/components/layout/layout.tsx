@@ -2,7 +2,7 @@ import React from "react"
 import { NavigationFrame } from "../navigation-frame"
 import { makeStyles } from "@material-ui/core/styles"
 import { useBackground } from "../../context/background"
-import {Helmet} from "react-helmet";
+import { Helmet } from "react-helmet"
 
 const useStyles = makeStyles((theme) => ({
   content: {

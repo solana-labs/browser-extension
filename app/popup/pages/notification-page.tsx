@@ -53,9 +53,9 @@ const NotificationPageBase: React.FC<NotificationPageProps> = (opts: Notificatio
 
   const notifications = popupState.actions
 
-  if (notifications.length == 0 && isNotification) {
-    window.close();
-  } else if(notifications.length == 0 && !isNotification) {
+  if (notifications.length === 0 && isNotification) {
+    window.close()
+  } else if (notifications.length === 0 && !isNotification) {
     return <Redirect to={{ pathname: Paths.accounts }}/>
   }
 

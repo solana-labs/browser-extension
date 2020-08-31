@@ -68,7 +68,7 @@ const KnownTokensPageBase: React.FC = () => {
                 </Toolbar>
               </AppBar>
               <List disablePadding>
-                {Object.keys(tokens).length == 0 && (
+                {Object.keys(tokens).length === 0 && (
                   <ListItem>
                     <ListItemText
                       primary={

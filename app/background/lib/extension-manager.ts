@@ -72,7 +72,7 @@ export class ExtensionManager {
     }
     return windows
       ? windows.find((win) => {
-         return win && win.type === "popup" && win.id === this._notificationId
+        return win && win.type === "popup" && win.id === this._notificationId
       })
       : null
   }

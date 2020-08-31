@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react"
-import { PublicKey } from "@solana/web3.js"
 
 type EventEmitter = NodeJS.EventEmitter
 
@@ -58,7 +57,3 @@ export function useListener(emitter: EventEmitter, eventName: string) {
   }, [emitter, eventName])
 }
 
-export function abbreviateAddress(address: PublicKey) {
-  let base58 = address.toBase58()
-  return base58.slice(0, 4) + "…" + base58.slice(base58.length - 4)
-}

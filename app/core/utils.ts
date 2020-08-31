@@ -1,5 +1,4 @@
-import { ENVIRONMENT_TYPE_BACKGROUND, ENVIRONMENT_TYPE_NOTIFICATION, ENVIRONMENT_TYPE_POPUP, Token } from "./types"
-import { memoize } from "lodash"
+import { ENVIRONMENT_TYPE_NOTIFICATION, ENVIRONMENT_TYPE_POPUP, Token } from "./types"
 import { CompiledInstruction, Connection, Message, PublicKey } from "@solana/web3.js"
 import * as shortvec from "./shortvec-encoding"
 import bs58 from "bs58"
