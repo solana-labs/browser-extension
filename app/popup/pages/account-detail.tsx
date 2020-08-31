@@ -69,7 +69,7 @@ const AccountDetailBase: React.FC = () => {
   }
 
   if (!accountInfoLoaded || !accountInfo) {
-    return  (
+    return (
       <Container fixed maxWidth="md">
         <Grid container spacing={3}>
           <Grid item xs={12}>
