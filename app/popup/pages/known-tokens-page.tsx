@@ -67,7 +67,7 @@ const KnownTokensPageBase: React.FC = () => {
               </AppBar>
               <List disablePadding>
                 {Object.keys(tokens).length === 0 && (
-                  <ListItem>
+                  <ListItem key={`no-token`}>
                     <ListItemText
                       primary={
                         <Empty
@@ -79,7 +79,7 @@ const KnownTokensPageBase: React.FC = () => {
                   </ListItem>
                 )}
                 {Object.values(tokens).map((token) => (
-                  <ListItem>
+                  <ListItem key={`token-${token.mintAddress}`}>
                     <ListItemText
                       primary={`${token.symbol} - ${token.name}`}
                       secondary={token.mintAddress}

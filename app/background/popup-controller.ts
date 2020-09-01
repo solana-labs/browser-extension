@@ -1,5 +1,5 @@
 import { Store } from "./store"
-import { createLogger, getMintData } from "../core/utils"
+import { createLogger, getMintInfo } from "../core/utils"
 import { Buffer } from "buffer"
 import bs58 from "bs58"
 import nacl from "tweetnacl"
@@ -221,12 +221,12 @@ export class PopupController {
 
     try {
       log("Retrieving mint data: %s", token.mintAddress)
-      const mintData = await getMintData(this.connection.conn, new PublicKey(token.mintAddress))
+      const mintInfo = await getMintInfo(this.connection.conn, new PublicKey(token.mintAddress))
       this.store.addToken({
         mintAddress: token.mintAddress,
         name: token.name,
         symbol: token.symbol,
-        decimals: mintData.decimals,
+        decimals: mintInfo.decimals,
       })
     } catch (e) {
       throw new Error(`Could not add token: ${e}`)
@@ -240,7 +240,7 @@ export class PopupController {
   }
 
   async approveRequestAccounts(req: any) {
-    log("Approving request request account: %O", req)
+    log("Approving request account: %O", req)
     const { actionKey } = req.params
     const actions = this.actionManager.getActionsWithOriginAndType<ActionRequestAccounts>(
       actionKey.origin,
@@ -251,6 +251,7 @@ export class PopupController {
       return
     }
 
+    this.store.addAuthorizedOrigin(actionKey.origin)
     actions.forEach((action, key) => {
       action.resolve({
         accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [],

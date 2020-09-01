@@ -1,6 +1,0 @@
-===========================================================================
-pubkey: ErAmAMZX7xzQpe9Ns4PcGR5w6UgE1nvUt3vPA9jETZtH
-===========================================================================
-Save this seed phrase to recover your new keypair:
-ancient cabbage cry feel capital curtain grid guitar twist blade sign start
-===========================================================================

@@ -46,14 +46,18 @@ export class WalletController {
     return createAsyncMiddleware(async (req: any, res: any, next: any) => {
       const method = req.method as WallActions
       switch (method) {
-        case "wallet_requestAccounts":
-          try {
-            let resp = await this._handleRequestAccounts(req)
-            res.result = resp
-          } catch (err) {
-            log("wallet_requestAccounts failed  with error: %O", err)
-            res.error = err
+        case "wallet_getState":
+          let resp = { state: "uninitialized" }
+          if (this.store.isLocked()) {
+            resp.state = "locked"
           }
+          if (this.store.isUnlocked()) {
+            resp.state = "unlocked"
+          }
+          res.result = resp
+          break
+        case "wallet_getCluster":
+          res.result = this.store.selectedNetwork
           break
         case "wallet_signTransaction":
           log("wallet controller middleware match: 'wallet_signTransaction'")
@@ -65,18 +69,14 @@ export class WalletController {
             res.error = err
           }
           break
-        case "wallet_getCluster":
-          res.result = this.store.selectedNetwork
-          break
-        case "wallet_getState":
-          let resp = { state: "uninitialized" }
-          if (this.store.isLocked()) {
-            resp.state = "locked"
+        case "wallet_requestAccounts":
+          try {
+            let resp = await this._handleRequestAccounts(req)
+            res.result = resp
+          } catch (err) {
+            log("wallet_requestAccounts failed  with error: %O", err)
+            res.error = err
           }
-          if (this.store.isUnlocked()) {
-            resp.state = "unlocked"
-          }
-          res.result = resp
           break
         default:
           log("wallet controller unknown method name [%s] with params: %o", req.method, req.params)
@@ -89,11 +89,21 @@ export class WalletController {
 
   _handleRequestAccounts = async (req: any): Promise<RequestAccountsResp> => {
     const { tabId, origin } = req
-    log("Handling request accounts tabId: %s origin: %s)", tabId, origin)
+    const { promptAuthorization } = req.params
+    log(
+      "Handling request accounts tabId: %s origin: %s, prompt user: %s)",
+      tabId,
+      origin,
+      promptAuthorization
+    )
 
     //todo: popup only if user never agree to request account for this origin
     if (this.store.isOriginAuthorized(origin) && this.store.getWalletState() === "unlocked") {
       return { accounts: this.store.wallet ? this.store.wallet.getPublicKeysAsBs58() : [] }
+    }
+
+    if (!promptAuthorization) {
+      throw new Error("Unauthorized, you must request permissions first to access accounts.")
     }
 
     this._showPopup()
@@ -127,7 +137,7 @@ export class WalletController {
       const trx = Transaction.populate(trxMessage, [])
       log("transaction %O", trx)
 
-      markdowns = await this.pluginManager.renderTransactionItemMarkdown(trx)
+      markdowns = await this.pluginManager.renderRicardian(trx)
       if (!markdowns) {
         log("Error! Decoding instructions should never fail")
       }

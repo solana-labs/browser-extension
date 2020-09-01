@@ -1,14 +1,11 @@
 import { PublicKey, TransactionInstruction } from "@solana/web3.js"
-import { createLogger } from "../../utils"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
 import { Buffer } from "buffer"
-import { DecodedInstruction, Markdown, Ricardian } from "../../types"
+import { DecodedInstruction, Markdown } from "../../types"
 import { PluginContext, ProgramPlugin } from "../types"
 import { DecoderError } from "../common"
 import { formatAmount } from "../../../popup/utils/format"
-
-const log = createLogger("sol:decoder:sol")
 
 export const TOKEN_PROGRAM_ID = new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
 
@@ -36,9 +33,7 @@ SPL_LAYOUT.addVariant(8, BufferLayout.struct([BufferLayout.nu64("amount")]), "bu
 
 export class SplPlugin implements ProgramPlugin {
   decode(instruction: TransactionInstruction): DecodedInstruction {
-    log("Decoding spl instrustion: %O", instruction)
     const decodedData = SPL_LAYOUT.decode(instruction.data)
-    log("Decoded SPL Transaction: %O", decodedData)
     const instructionType = Object.keys(decodedData)[0]
     switch (instructionType) {
       case "transfer":
@@ -75,10 +70,6 @@ export class SplPlugin implements ProgramPlugin {
         const fromPubKey = instruction.keys[0].pubkey
         const fromAccount = await conn.getAccountInfo(fromPubKey)
         if (!fromAccount) {
-          log(
-            "Could not retrieve 'from' account %s information for spl transfer",
-            fromPubKey.toBase58()
-          )
           return decodedInstruction
         }
 
@@ -93,7 +84,6 @@ export class SplPlugin implements ProgramPlugin {
         return decodedInstruction
     }
 
-    log(`SPL instruction of type %s is not decorated`, decodedInstruction.instructionType)
     return decodedInstruction
   }
 
@@ -102,26 +92,20 @@ export class SplPlugin implements ProgramPlugin {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint.decimals
         const amount = formatAmount(decodedInstruction.properties.amount, mintDecimals)
-        return {
-          type: "markdown",
-          content: `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`,
-        }
+        return `<p>Transfer: <b>${amount} ${decodedInstruction.properties.mint.symbol}<b><br/>from: <b><small>${decodedInstruction.properties.from}</small></b><br/> to: <b><small>${decodedInstruction.properties.to}</small></b></p>`
     }
     throw new Error(
       `Markdown render does not support instruction of type ${decodedInstruction.instructionType}`
     )
   }
 
-  getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
+  getRicardian(decodedInstruction: DecodedInstruction): Markdown {
+    console.log("getRicardian: ", decodedInstruction)
     switch (decodedInstruction.instructionType) {
       case "transfer":
         const mintDecimals = decodedInstruction.properties.mint.decimals
         const amount = formatAmount(decodedInstruction.properties.amount, mintDecimals)
-
-        return {
-          type: "ricardian",
-          content: `Transfer of '${amount} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`,
-        }
+        return `Transfer of '${amount} ${decodedInstruction.properties.mint.symbol}' from ${decodedInstruction.properties.from} to ${decodedInstruction.properties.to}`
     }
 
     throw new Error(

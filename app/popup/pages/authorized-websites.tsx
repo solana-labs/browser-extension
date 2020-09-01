@@ -54,14 +54,14 @@ const AuthorizedWebsitesPageBase: React.FC = () => {
               </AppBar>
               <List disablePadding>
                 {Object.keys(origins).length === 0 && (
-                  <ListItem>
+                  <ListItem key={"no-website-found"}>
                     <ListItemText
                       primary={<Empty title={"No Authorized Website"} description={""} />}
                     />
                   </ListItem>
                 )}
                 {origins.map((origin: string) => (
-                  <ListItem>
+                  <ListItem key={`authorize-website-${origin}`}>
                     <ListItemText primary={origin} />
                     <IconButton onClick={() => deleteWebsite(origin)}>
                       <DeleteIcon />

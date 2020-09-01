@@ -51,7 +51,6 @@ export class ActionManager extends events.EventEmitter {
   deleteAction = (key: ActionKey) => {
     log("Deleting action for key %O, current count: %s", key, this.actions.size)
     this.actions.delete(JSON.stringify(key))
-    log("New size: %s", this.actions.size)
     this.emit(EVENT_UPDATE_BADGE)
     this.emit(EVENT_UPDATE_ACTIONS)
   }

@@ -1,6 +1,6 @@
 import { SystemInstruction, TransactionInstruction } from "@solana/web3.js"
 import { createLogger } from "../../utils"
-import { DecodedInstruction, Markdown, Ricardian } from "../../types"
+import { DecodedInstruction, Markdown } from "../../types"
 import { DecoderError } from "../common"
 import { PluginContext, ProgramPlugin } from "../types"
 import { formatSolAmount } from "../../../popup/utils/format"
@@ -64,17 +64,14 @@ export class SolanaPlugin implements ProgramPlugin {
     }
 
     if (content) {
-      return {
-        type: "markdown",
-        content: content,
-      }
+      return content
     }
     throw new Error(
       `Markdown render does not support instruction of type ${decodedInstruction.instructionType}`
     )
   }
 
-  getRicardian(decodedInstruction: DecodedInstruction): Ricardian {
+  getRicardian(decodedInstruction: DecodedInstruction): Markdown {
     let content: string | undefined = undefined
 
     switch (decodedInstruction.instructionType) {
@@ -88,10 +85,7 @@ export class SolanaPlugin implements ProgramPlugin {
     }
 
     if (content) {
-      return {
-        type: "ricardian",
-        content: content,
-      }
+      return content
     }
     throw new Error(
       `Ricardian render does not support instruction of type ${decodedInstruction.instructionType}`

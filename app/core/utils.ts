@@ -5,6 +5,8 @@ import bs58 from "bs58"
 // @ts-ignore FIXME We need to add a mock definition of this library to the overall project
 import BufferLayout from "buffer-layout"
 import { Buffer } from "buffer"
+import { MintInfo, Token as SPLToken } from "@solana/spl-token"
+import { TOKEN_PROGRAM_ID } from "./program-plugin/plugins/spl"
 
 const debug = require("debug")
 const ObjectMultiplex = require("obj-multiplex")
@@ -84,25 +86,20 @@ export const decodeSerializedMessage = (buffer: Buffer): Message => {
   return new Message(messageArgs)
 }
 
-// TODO not sure where to put this
-const MINT_LAYOUT = BufferLayout.struct([
-  BufferLayout.blob(36),
-  BufferLayout.u8("decimals"),
-  BufferLayout.blob(3),
-])
-
-export const getMintData = async (
+export const getMintInfo = async (
   connection: Connection,
   publicKey: PublicKey
-): Promise<{ decimals: number; mintAddress: string }> => {
-  const mintAccount = await connection.getAccountInfo(publicKey)
-  if (!mintAccount) {
-    throw new Error(`could not get mint account info`)
-  }
-  const { decimals } = MINT_LAYOUT.decode(mintAccount.data)
-  return {
-    mintAddress: publicKey.toBase58(),
-    decimals: decimals,
+): Promise<MintInfo> => {
+  const splToken = new SPLToken(connection, publicKey, TOKEN_PROGRAM_ID, {
+    displayName: "string",
+    id: "string",
+    rpDisplayName: "string",
+  })
+
+  try {
+    return await splToken.getMintInfo()
+  } catch (e) {
+    throw new Error(`could not get mint account info: ${e}`)
   }
 }
 
@@ -119,12 +116,12 @@ export const getSPLToken = async (
 
   log("SPL token at mint address %s not in cache... retrieving mint data", publicKey.toBase58())
   try {
-    const mintData = await getMintData(connection, publicKey)
+    const mintInfo = await getMintInfo(connection, publicKey)
     return {
-      mintAddress: mintData.mintAddress,
+      mintAddress: publicKey.toBase58(),
       name: "",
       symbol: "",
-      decimals: mintData.decimals,
+      decimals: mintInfo.decimals,
     }
   } catch (e) {
     log("Could not retrieve 'mint' account %s information: %s", publicKey.toBase58(), e)

@@ -1,6 +1,0 @@
-==========================================================================
-pubkey: 2pQcuCnZ7go91jMRdoKJrpd2bhrY53EJPDFzDWsX2ErL
-==========================================================================
-Save this seed phrase to recover your new keypair:
-shine oil hazard drive utility current glove drift piece bitter slush junk
-==========================================================================

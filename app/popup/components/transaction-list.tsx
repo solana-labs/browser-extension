@@ -42,8 +42,24 @@ export const TransactionList: React.FC<TransactionListProp> = ({ accountKey, sig
   }, [accountKey, connection])
 
   return (
-    <Paper style={{ maxHeight: "100%", overflow: "auto" }}>
-      <List disablePadding style={{ maxHeight: "100%", overflow: "auto" }}>
+    <Paper>
+      <List disablePadding>
+        {confirmedSignatureInfos.map((info) => (
+          <TransactionListItem
+            key={info.signature + info.slot}
+            confirmedSignatureInfo={info}
+            accountKey={accountKey}
+            signerKey={signerKey}
+          />
+        ))}
+        {confirmedSignatureInfos.map((info) => (
+          <TransactionListItem
+            key={info.signature + info.slot}
+            confirmedSignatureInfo={info}
+            accountKey={accountKey}
+            signerKey={signerKey}
+          />
+        ))}
         {confirmedSignatureInfos.map((info) => (
           <TransactionListItem
             key={info.signature + info.slot}

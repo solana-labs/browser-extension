@@ -75,7 +75,7 @@ export const NavigationFrame: React.FC = () => {
 
   return (
     <>
-      <AppBar className={classes.bar} position="static">
+      <AppBar className={classes.bar} position="sticky">
         <Toolbar>
           <Typography variant="h5" className={classes.title} component="h1">
             Solana Wallet

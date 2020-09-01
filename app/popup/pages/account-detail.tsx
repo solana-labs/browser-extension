@@ -40,11 +40,8 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
   },
 
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "space-evenly",
-    marginTop: theme.spacing(1),
-    marginBottom: theme.spacing(1),
+  buttonItem: {
+    textAlign: "center",
   },
 }))
 
@@ -149,13 +146,22 @@ const AccountDetailBase: React.FC<AccountDetailBaseProp> = ({
                   <TokenBalance publicKey={ownedAccount.publicKey} balanceInfo={balanceInfo} />
                 </Typography>
               )}
-              <div className={classes.buttonContainer}>
-                <div>
+
+              <Grid
+                container
+                direction="row"
+                justify="space-evenly"
+                alignItems="center"
+                spacing={0}
+              >
+                <Grid key={`btn-copy`} item xs={4} className={classes.buttonItem}>
                   <CopyToClipboard text={ownedAccount.publicKey.toBase58()}>
                     <Button variant="outlined" color="primary" startIcon={<Attachment />}>
-                      Copy Addr
+                      Copy
                     </Button>
                   </CopyToClipboard>
+                </Grid>
+                <Grid key={`btn-explorer`} item xs={4} className={classes.buttonItem}>
                   <Button
                     variant="outlined"
                     color="primary"
@@ -169,18 +175,19 @@ const AccountDetailBase: React.FC<AccountDetailBaseProp> = ({
                   >
                     Explorer
                   </Button>
-                </div>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<Send />}
-                  onClick={() => setSendDialogOpen(true)}
-                >
-                  Send
-                </Button>
-              </div>
+                </Grid>
+                <Grid key={`btn-send`} item xs={4} className={classes.buttonItem}>
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    startIcon={<Send />}
+                    onClick={() => setSendDialogOpen(true)}
+                  >
+                    Send
+                  </Button>
+                </Grid>
+              </Grid>
             </div>
-
             <Typography variant="h6" align="center">
               Transaction list
             </Typography>

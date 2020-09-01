@@ -140,11 +140,18 @@ interface InstructionListItemProps {
   instructionMarkdown: Markdown
 }
 
+const renderInstruction = (content: string) => {
+  return (
+    <div style={{ overflow: "hidden", wordWrap: "break-word" }}>
+      <ReactMarkdown source={content} escapeHtml={false} />
+    </div>
+  )
+}
 const InstructionListItem: React.FC<InstructionListItemProps> = ({ instructionMarkdown }) => {
   return (
     <ListItem divider={true}>
       <ListItemText
-        primary={<ReactMarkdown source={instructionMarkdown.content} escapeHtml={false} />}
+        primary={renderInstruction(instructionMarkdown)}
         // secondary={
         //   <React.Fragment>
         //     <Typography

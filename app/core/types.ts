@@ -100,7 +100,6 @@ export type BaseAction<T> = {
   reject: any
 }
 export type WallActions =
-  | "wallet_requestPermissions"
   | "wallet_signTransaction"
   | "wallet_requestAccounts"
   | "wallet_getCluster"
@@ -132,16 +131,8 @@ export type PendingSignTransaction = {
   details?: Markdown[]
   tabId: string
 }
-// export interface
-export type Ricardian = {
-  type: "ricardian"
-  content: string
-}
 
-export type Markdown = {
-  type: "markdown"
-  content: string
-}
+export type Markdown = string
 
 export type DecodedInstruction = {
   instruction: TransactionInstruction

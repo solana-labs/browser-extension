@@ -8,7 +8,7 @@ import {
 import { ProgramPlugin } from "./types"
 import { createLogger } from "../utils"
 import { SplPlugin, TOKEN_PROGRAM_ID } from "./plugins/spl"
-import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
+import { DecodedInstruction, Markdown, Token } from "../types"
 import { SolanaPlugin } from "./plugins/system"
 import base58 from "bs58"
 
@@ -32,60 +32,48 @@ export class ProgramPluginManager {
   renderTransactionItemMarkdown = async (transaction: Transaction): Promise<Markdown[]> => {
     const re = (idx: number, instruction: TransactionInstruction): Markdown => {
       const data = base58.encode(instruction.data)
-      return {
-        type: "markdown",
-        content: `<p>Failed to decode instruction<br/>Program id: <b><small>${instruction.programId}</small></b><br/>data: <b>${data}</b></p>`,
-      }
+      return `<p>Failed to decode instruction<br/>Program id: <b><small>${instruction.programId}</small></b><br/>data: <b>${data}</b></p>`
     }
 
     const rd = (idx: number, instruction: TransactionInstruction): Markdown => {
       const data = base58.encode(instruction.data)
-      return {
-        type: "markdown",
-        content: `<p>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`,
-      }
+      return `<p>Program id: <b>${instruction.programId}</b><br/>data: <b>${data}</b></p>`
     }
 
     const ri = (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction): Markdown => {
       return plugin.getMarkdown(decodedInstruction)
     }
 
-    return this.render<Markdown>(transaction, rd, ri, re)
+    return this.render(transaction, rd, ri, re)
   }
 
-  renderRicardian = async (transaction: Transaction): Promise<Ricardian[]> => {
-    const re = (idx: number, instruction: TransactionInstruction): Ricardian => {
+  renderRicardian = async (transaction: Transaction): Promise<Markdown[]> => {
+    const re = (idx: number, instruction: TransactionInstruction): Markdown => {
       const data = base58.encode(instruction.data)
-      return {
-        type: "ricardian",
-        content: `Failed to decode: Program id: ${instruction.programId} data: ${data}`,
-      }
+      return `Failed to decode: Program id: ${instruction.programId} data: ${data}`
     }
-    const rd = (idx: number, instruction: TransactionInstruction): Ricardian => {
+    const rd = (idx: number, instruction: TransactionInstruction): Markdown => {
       const data = base58.encode(instruction.data)
-      return {
-        type: "ricardian",
-        content: `Program id: ${instruction.programId} data: ${data}`,
-      }
+      return `Program id: ${instruction.programId} data: ${data}`
     }
 
-    const ri = (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction): Ricardian => {
+    const ri = (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction): Markdown => {
       return plugin.getRicardian(decodedInstruction)
     }
 
-    return this.render<Ricardian>(transaction, rd, ri, re)
+    return this.render(transaction, rd, ri, re)
   }
 
-  render = async <T extends Markdown | Ricardian>(
+  render = async (
     transaction: Transaction,
-    renderUndecodedInsutrction: (idx: number, instruction: TransactionInstruction) => T,
-    renderInstruction: (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction) => T,
-    renderError: (idx: number, instruction: TransactionInstruction) => T
-  ): Promise<T[]> => {
+    renderUndecodedInsutrction: (idx: number, instruction: TransactionInstruction) => Markdown,
+    renderInstruction: (plugin: ProgramPlugin, decodedInstruction: DecodedInstruction) => Markdown,
+    renderError: (idx: number, instruction: TransactionInstruction) => Markdown
+  ): Promise<Markdown[]> => {
     const decodeInstructionFunc = async (
       idx: number,
       instruction: TransactionInstruction
-    ): Promise<T> => {
+    ): Promise<Markdown> => {
       const programId = instruction.programId
       log("Finding decoder for program [%s]", programId)
       const plugin = this._getPlugin(instruction.programId)

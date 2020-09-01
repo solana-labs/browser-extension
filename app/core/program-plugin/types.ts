@@ -1,5 +1,5 @@
 import { Connection, PublicKey, TransactionInstruction } from "@solana/web3.js"
-import { DecodedInstruction, Markdown, Ricardian, Token } from "../types"
+import { DecodedInstruction, Markdown, Token } from "../types"
 
 export interface PluginContext {
   getConnection: () => Connection
@@ -21,5 +21,5 @@ export interface ProgramPlugin {
 
   getMarkdown(decodedInstruction: DecodedInstruction): Markdown
 
-  getRicardian(decodedInstruction: DecodedInstruction): Ricardian
+  getRicardian(decodedInstruction: DecodedInstruction): Markdown
 }

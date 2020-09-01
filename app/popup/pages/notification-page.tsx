@@ -300,7 +300,7 @@ function renderTransactionDetails(transaction: ActionSignTransaction) {
     return <ReactMarkdown key={0} source={undecodedTransactionMessage()} />
   }
   return transaction.details.map((detail, idx) => {
-    return <ReactMarkdown key={idx} source={detail.content} />
+    return <ReactMarkdown key={idx} source={detail} />
   })
 }
 

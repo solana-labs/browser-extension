@@ -1,6 +1,9 @@
 body {
     margin: 0;
-    min-width: 439px;
-    max-width: 450px;
-    min-height: 800px;
+}
+
+#root {
+    width: 450px;
+    height: 600px;
+    overflow-y: auto;
 }

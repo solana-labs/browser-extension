@@ -64,7 +64,7 @@ export const SendSplDialog: React.FC<Props> = ({
   let formattedTokenName = "Unkown"
   if (token.name) {
     formattedTokenName = token.name
-  } else if (token.mintAddress != "") {
+  } else if (token.mintAddress !== "") {
     formattedTokenName = formatAddress(token.mintAddress)
   }
 

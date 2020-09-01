@@ -56,7 +56,7 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
   let formattedTokenName = "Unkown"
   if (token.name) {
     formattedTokenName = token.name
-  } else if (token.mintAddress != "") {
+  } else if (token.mintAddress !== "") {
     formattedTokenName = formatAddress(token.mintAddress)
   }
 

@@ -68,13 +68,14 @@ export class Store {
   }
 
   getWalletState = (): WalletState => {
+    let state: WalletState = "uninitialized"
     if (this.hasSecretBox()) {
-      return "locked"
-    } else if (this.hasWallet()) {
-      return "unlocked"
-    } else {
-      return "uninitialized"
+      state = "locked"
     }
+    if (this.hasWallet()) {
+      state = "unlocked"
+    }
+    return state
   }
 
   lockSecretBox() {
@@ -165,8 +166,8 @@ export class Store {
   }
 
   addAuthorizedOrigin(origin: string) {
-    this.authorizedOrigins = [...this.authorizedOrigins, origin]
     log("Authorized this origin %s", origin)
+    this.authorizedOrigins = [...this.authorizedOrigins, origin]
   }
 
   removeAuthorizedOrigin(originToRemove: string) {
@@ -297,7 +298,7 @@ export class Store {
 
   getToken(network: Network, accountAddress: string): Token | undefined {
     const networkTokens = this.tokens[network.endpoint]
-    log("token for network: %O, %O", network)
+    log("token for network: %O, %O", network, networkTokens)
     if (networkTokens) {
       return networkTokens[accountAddress]
     }

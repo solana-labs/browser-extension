@@ -1,6 +1,0 @@
-==============================================================================
-pubkey: DtBCszWGz9Q3e255hcSSP3G4QaF4HiebbiezpJaxnWA9
-==============================================================================
-Save this seed phrase to recover your new keypair:
-wheat fan olympic physical panda half profit ostrich first butter volume phone
-==============================================================================
