@@ -7,7 +7,7 @@ const balanceFormat = new Intl.NumberFormat(undefined, {
 })
 
 export const formatSolAmount = (amount: number | bigint) => {
-  return formatAmount(amount, 10)
+  return formatAmount(amount, 9)
 }
 
 export const formatAmount = (amount: number | bigint, decimals: number): string => {
@@ -15,7 +15,8 @@ export const formatAmount = (amount: number | bigint, decimals: number): string 
   if (typeof amount == "number") {
     stringAmount = "" + amount / Math.pow(10, decimals)
   } else {
-    stringAmount = "" + amount / BigInt(Math.pow(10, decimals))
+    stringAmount =
+      "" + amount / BigInt(Math.pow(10, decimals)) + "." + (amount % BigInt(Math.pow(10, decimals)))
   }
   return balanceFormat.format(parseFloat(stringAmount))
 }

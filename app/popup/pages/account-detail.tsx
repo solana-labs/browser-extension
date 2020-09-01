@@ -193,7 +193,7 @@ const AccountDetailBase: React.FC<AccountDetailBaseProp> = ({
             </Typography>
             <TransactionList accountKey={ownedAccount.publicKey} signerKey={signerKey} />
 
-            {balanceInfo && signerKey === ownedAccount.publicKey && (
+            {signerKey.toBase58() === ownedAccount.publicKey.toBase58() && (
               <SendSolDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}
@@ -201,7 +201,7 @@ const AccountDetailBase: React.FC<AccountDetailBaseProp> = ({
                 fromPublicKey={ownedAccount.publicKey}
               />
             )}
-            {balanceInfo && signerKey !== ownedAccount.publicKey && (
+            {signerKey.toBase58() !== ownedAccount.publicKey.toBase58() && (
               <SendSplDialog
                 open={sendDialogOpen}
                 onClose={() => setSendDialogOpen(false)}

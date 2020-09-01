@@ -52,20 +52,9 @@ export const SendSolDialog: React.FC<Props> = ({ open, onClose, fromPublicKey, b
     )
   }
 
-  // FIXME: Was using `balanceFormat` before, need to convert it so its support BigInt!
-  let formattedTokenName = "Unkown"
-  if (token.name) {
-    formattedTokenName = token.name
-  } else if (token.mintAddress !== "") {
-    formattedTokenName = formatAddress(token.mintAddress)
-  }
-
   return (
     <DialogForm open={open} onClose={onClose} onSubmit={onSubmit}>
-      <DialogTitle>
-        Send {formattedTokenName}
-        {token.symbol ? ` (${token.symbol})` : null}
-      </DialogTitle>
+      <DialogTitle>Send SOL</DialogTitle>
       <DialogContent>
         <TextField
           label="Recipient Address"
