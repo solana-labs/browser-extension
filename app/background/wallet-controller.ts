@@ -107,15 +107,20 @@ export class WalletController {
     }
 
     this._showPopup()
-    return new Promise<RequestAccountsResp>((resolve, reject) => {
-      this.actionManager.addAction(origin, tabId, {
-        type: "request_accounts",
-        resolve: resolve,
-        reject: reject,
-        tabId: tabId,
-        origin: origin,
+
+    if (!this.store.isOriginAuthorized(origin)) {
+      return new Promise<RequestAccountsResp>((resolve, reject) => {
+        this.actionManager.addAction(origin, tabId, {
+          type: "request_accounts",
+          resolve: resolve,
+          reject: reject,
+          tabId: tabId,
+          origin: origin,
+        })
       })
-    })
+    }
+
+    return { accounts: [] }
   }
 
   _handleSignTransaction = async (req: any): Promise<SignTransactionResp> => {
